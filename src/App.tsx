@@ -4,6 +4,7 @@ import { checkSupport, MIN_WIDTH_PX, readSupportEnv, type SupportResult } from '
 import { SceneCanvas } from './world/SceneCanvas'
 
 const LookTestPage = lazy(() => import('./world/lookdev/LookTestPage'))
+const AircraftView = lazy(() => import('./world/aircraft/AircraftView'))
 
 export const TRAINING_BANNER = 'Training simulation — not approved maintenance data'
 
@@ -53,12 +54,16 @@ export function App() {
       <header className="app__bar">
         <span className="app__title">A320 Maintenance &amp; Inspection Simulator</span>
         <span className="app__status">
-          {scene === 'lookdev' ? 'Look test · materials and lighting' : 'Milestone 0 · foundations'}
+          {scene === 'lookdev'
+            ? 'Look test · materials and lighting'
+            : scene === 'aircraft'
+              ? 'Milestone 1 in progress · airframe shape only'
+              : 'Milestone 0 · foundations'}
         </span>
       </header>
-      {scene === 'lookdev' ? (
+      {scene === 'lookdev' || scene === 'aircraft' ? (
         <Suspense fallback={<div className="scene" />}>
-          <LookTestPage />
+          {scene === 'lookdev' ? <LookTestPage /> : <AircraftView />}
         </Suspense>
       ) : (
         <SceneCanvas>

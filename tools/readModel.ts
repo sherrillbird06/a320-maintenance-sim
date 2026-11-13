@@ -1,4 +1,5 @@
 import { NodeIO } from '@gltf-transform/core'
+import { getBounds } from '@gltf-transform/functions'
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions'
 import { MeshoptDecoder } from 'meshoptimizer'
 
@@ -6,6 +7,15 @@ export interface ModelSummary {
   nodeNames: string[]
   inspectableNodes: string[]
   triangles: number
+  /** World-space bounding box of the whole model, in metres. */
+  bounds: Box
+  /** World-space bounding box of each named node. */
+  nodeBounds: Record<string, Box>
+}
+
+export interface Box {
+  min: [number, number, number]
+  max: [number, number, number]
 }
 
 /** Reads a .glb from disk and reports its node names, inspectable nodes and triangle count. */
@@ -39,5 +49,10 @@ export async function readModel(path: string): Promise<ModelSummary> {
     }
   }
 
-  return { nodeNames, inspectableNodes, triangles }
+  const nodeBounds: Record<string, Box> = {}
+  for (const node of root.listNodes()) nodeBounds[node.getName()] = getBounds(node)
+  const scene = root.getDefaultScene() ?? root.listScenes()[0]
+  const bounds: Box = scene ? getBounds(scene) : { min: [0, 0, 0], max: [0, 0, 0] }
+
+  return { nodeNames, inspectableNodes, triangles, bounds, nodeBounds }
 }

@@ -47,6 +47,7 @@ def material(name, base_color, metallic=0.0, roughness=0.5, coat=0.0, coat_rough
 
 def object_from_bmesh(name, bm, materials, sharp_angle_deg=35.0):
     """Turn a bmesh into a linked, smooth-shaded object with sharp creases kept."""
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     mesh = bpy.data.meshes.new(name)
     bm.to_mesh(mesh)
     bm.free()
@@ -60,12 +61,15 @@ def object_from_bmesh(name, bm, materials, sharp_angle_deg=35.0):
     return obj
 
 
-def revolve(bm, profile, segments, material_index=0, u_repeat=1.0):
+def revolve(bm, profile, segments, material_index=0, u_repeat=1.0, place=None):
     """Sweep a profile around the X axis and add the surface to bm.
 
     profile is a list of (x, radius) points, in order. UVs run u around the
     circumference (0..u_repeat) and v along the profile by arc length (0..1).
+    place, if given, maps each local (x, y, z) point to where it belongs in the model.
     """
+    place = place or (lambda x, y, z: (x, y, z))
+    start = len(bm.verts)
     uv_layer = bm.loops.layers.uv.verify()
 
     lengths = [0.0]
@@ -78,7 +82,7 @@ def revolve(bm, profile, segments, material_index=0, u_repeat=1.0):
     for s in range(segments):
         angle = 2.0 * math.pi * s / segments
         ca, sa = math.cos(angle), math.sin(angle)
-        rings.append([bm.verts.new((x, r * ca, r * sa)) for x, r in profile])
+        rings.append([bm.verts.new(place(x, r * ca, r * sa)) for x, r in profile])
 
     for s in range(segments):
         ring_a = rings[s]
@@ -108,7 +112,24 @@ def revolve(bm, profile, segments, material_index=0, u_repeat=1.0):
             for loop, uv in zip(face.loops, uvs):
                 loop[uv_layer].uv = uv
 
-    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-6)
+    bm.verts.ensure_lookup_table()
+    bmesh.ops.remove_doubles(bm, verts=bm.verts[start:], dist=1e-6)
+    return bm
+
+
+def loft(bm, rings, cap_start=True, cap_end=True, material_index=0):
+    """Skin a surface through closed rings of points (each ring the same length, same winding)."""
+    vert_rings = [[bm.verts.new(p) for p in ring] for ring in rings]
+    count = len(rings[0])
+    for ring_a, ring_b in zip(vert_rings, vert_rings[1:]):
+        for i in range(count):
+            j = (i + 1) % count
+            face = bm.faces.new((ring_a[i], ring_a[j], ring_b[j], ring_b[i]))
+            face.material_index = material_index
+    if cap_start:
+        bm.faces.new(list(reversed(vert_rings[0]))).material_index = material_index
+    if cap_end:
+        bm.faces.new(vert_rings[-1]).material_index = material_index
     return bm
 
 

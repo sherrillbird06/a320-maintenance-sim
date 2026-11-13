@@ -20,9 +20,9 @@ import { assetUrl, modelUrl } from '../loadModel'
 import { RENDER_CONFIG } from '../renderConfig'
 import { heightToNormal, paintSkinHeight, type SkinLayout } from '../textures/detailMaps'
 
-const ENV_URL = assetUrl('env/hangar_interior_1k.hdr')
+export const ENV_URL = assetUrl('env/hangar_interior_1k.hdr')
 const TIRE_URL = modelUrl('lookdev_tire')
-const FLOOR_URLS = {
+export const FLOOR_URLS = {
   map: assetUrl('textures/floor/hangar_concrete_floor_diff_2k.webp'),
   normalMap: assetUrl('textures/floor/hangar_concrete_floor_nor_gl_2k.webp'),
   arm: assetUrl('textures/floor/hangar_concrete_floor_arm_2k.webp'),
@@ -85,7 +85,7 @@ function tile(texture: Texture, repeat: number) {
   texture.anisotropy = 8
 }
 
-function Floor() {
+export function Floor() {
   const textures = useTexture(FLOOR_URLS)
   const repeat = FLOOR_SIZE_M / FLOOR_TILE_M
   textures.map.colorSpace = SRGBColorSpace
