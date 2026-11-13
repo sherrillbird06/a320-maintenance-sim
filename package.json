@@ -18,7 +18,9 @@
     "e2e": "playwright test",
     "format": "prettier --write .",
     "check": "npm run lint && npm run typecheck && npm run test",
-    "docs": "vitest run tests/unit/generatedDocs.test.ts -u"
+    "docs": "vitest run tests/unit/generatedDocs.test.ts -u",
+    "models": "node assets-src/build_models.mjs",
+    "check:models": "vitest run tests/unit/models.test.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -30,6 +32,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
     "@playwright/test": "^1.65.0",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
@@ -39,7 +44,9 @@
     "eslint": "^10.14.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
+    "meshoptimizer": "^1.3.0",
     "prettier": "^3.10.1",
+    "sharp": "^0.35.5",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.2",
     "vite": "^8.3.8",
