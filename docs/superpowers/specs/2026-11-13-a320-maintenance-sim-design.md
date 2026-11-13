@@ -106,7 +106,7 @@ docs/         this design, source list, screenshots
 
 **(call)** A320-214, CFM56-5B engines, wingtip fences. Built at real scale from published dimensions (length 37.57 m, span 34.10 m, fuselage width 3.95 m, tail height 12.08 m standing empty in maintenance configuration), as read from the Airbus document in Milestone 0 and recorded with figure references in `src/data/aircraft.ts`.
 
-One mesh per inspectable component, roughly 150–180 in total:
+One mesh per inspectable component — 254 in the registry built in Milestone 0 (the first estimate was 150–180; mirrored left/right parts account for most of the difference):
 
 - **A. Forward fuselage:** radome, nose skin panels, windshields and side windows, probes and static ports, forward doors, forward cargo door and compartment, external power door, antennas, lights.
 - **B. Wings and engines (each side):** inlet cowl, spinner and fan blades, fan cowls, reverser cowl, exhaust, pylon; wing skins, slats 1–5, flaps and track fairings, spoilers 1–5, aileron, wingtip fence, underwing tank access panels, fuel vent, refuel coupling, static wicks, lights.
