@@ -8,3 +8,4 @@ docs/superpowers
 package-lock.json
 test-results
 playwright-report
+SIMULATOR_MASTER_STANDARD.md
