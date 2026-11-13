@@ -70,6 +70,22 @@ export const SOURCES: Source[] = [
     licence: US_GOV,
     usedFor: 'ATA-based chapter numbers and titles.',
   },
+  {
+    id: 'polyhaven_hangar_interior',
+    title: 'Hangar Interior (HDRI), photography by Dimitrios Savva',
+    publisher: 'Poly Haven',
+    url: 'https://polyhaven.com/a/hangar_interior',
+    licence: 'CC0 1.0',
+    usedFor: 'Image-based lighting and reflections (public/env).',
+  },
+  {
+    id: 'polyhaven_hangar_concrete_floor',
+    title: 'Hangar Concrete Floor (texture set) by Dimitrios Savva',
+    publisher: 'Poly Haven',
+    url: 'https://polyhaven.com/a/hangar_concrete_floor',
+    licence: 'CC0 1.0',
+    usedFor: 'Hangar floor colour, normal and roughness maps (public/textures/floor).',
+  },
 ]
 
 export function sourceById(id: string): Source | undefined {

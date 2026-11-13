@@ -61,3 +61,19 @@ simulator contains no approved maintenance data.
 - **Link:** <https://sdrs.faa.gov/documents/JASC_Code.pdf>
 - **Licence:** U.S. Government work, public domain
 - **Used for:** ATA-based chapter numbers and titles.
+
+## Hangar Interior (HDRI), photography by Dimitrios Savva
+
+- **Id:** `polyhaven_hangar_interior`
+- **Publisher:** Poly Haven
+- **Link:** <https://polyhaven.com/a/hangar_interior>
+- **Licence:** CC0 1.0
+- **Used for:** Image-based lighting and reflections (public/env).
+
+## Hangar Concrete Floor (texture set) by Dimitrios Savva
+
+- **Id:** `polyhaven_hangar_concrete_floor`
+- **Publisher:** Poly Haven
+- **Link:** <https://polyhaven.com/a/hangar_concrete_floor>
+- **Licence:** CC0 1.0
+- **Used for:** Hangar floor colour, normal and roughness maps (public/textures/floor).

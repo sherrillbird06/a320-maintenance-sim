@@ -22,6 +22,8 @@ describe('SOURCES', () => {
     'faa_amt_powerplant',
     'faa_ac_43_13_1b',
     'faa_jasc',
+    'polyhaven_hangar_interior',
+    'polyhaven_hangar_concrete_floor',
   ])('includes the required source %s', (id) => {
     expect(SOURCES.some((s) => s.id === id)).toBe(true)
   })
