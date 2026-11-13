@@ -1,0 +1,10 @@
+dist
+node_modules
+public
+.superpowers
+docs/sources.md
+docs/asset-list.md
+docs/superpowers
+package-lock.json
+test-results
+playwright-report
