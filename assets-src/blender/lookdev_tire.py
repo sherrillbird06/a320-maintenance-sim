@@ -124,8 +124,8 @@ def wheel_profile():
 def build():
     common.reset_scene()
 
-    rubber = common.material("tire_rubber", (0.022, 0.022, 0.024), metallic=0.0, roughness=0.86)
-    wheel_paint = common.material("wheel_paint", (0.70, 0.71, 0.72), metallic=0.15, roughness=0.42)
+    rubber = common.material("tire_rubber", (0.012, 0.012, 0.013), metallic=0.0, roughness=0.95)
+    wheel_paint = common.material("wheel_paint", (0.42, 0.43, 0.44), metallic=0.35, roughness=0.5)
     bolt_steel = common.material("bolt_steel", (0.42, 0.42, 0.43), metallic=1.0, roughness=0.35)
 
     tire_bm = bmesh.new()

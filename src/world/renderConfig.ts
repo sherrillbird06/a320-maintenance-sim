@@ -1,4 +1,4 @@
-import { AgXToneMapping, type ToneMapping } from 'three'
+import { ACESFilmicToneMapping, type ToneMapping } from 'three'
 
 export interface RenderConfig {
   toneMapping: ToneMapping
@@ -12,8 +12,8 @@ export interface RenderConfig {
 
 /** One set of renderer settings shared by every scene, so assets judged in one look right in all. */
 export const RENDER_CONFIG: RenderConfig = {
-  toneMapping: AgXToneMapping,
-  exposure: 1,
+  toneMapping: ACESFilmicToneMapping,
+  exposure: 0.8,
   shadowMapSize: 2048,
-  envIntensity: 1,
+  envIntensity: 0.75,
 }

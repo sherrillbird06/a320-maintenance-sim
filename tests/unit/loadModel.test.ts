@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assetUrl, describeLoadError, modelUrl } from '../../src/world/loadModel'
+import { assetUrl, describeLoadError, failedAsset, modelUrl } from '../../src/world/loadModel'
 
 describe('modelUrl', () => {
   it('resolves under the GitHub Pages sub-path', () => {
@@ -37,5 +37,19 @@ describe('describeLoadError', () => {
     const result = describeLoadError('/textures/floor.webp', undefined)
     expect(result.body).toContain('floor.webp')
     expect(result.body).not.toContain('undefined')
+  })
+})
+
+describe('failedAsset', () => {
+  const urls = ['/app/models/lookdev_tire.glb', '/app/env/hangar_interior_1k.hdr']
+
+  it('finds which known asset a loader error is about', () => {
+    const error = new Error('Could not load /app/models/lookdev_tire.glb: Failed to fetch')
+    expect(failedAsset(error, urls)).toBe('/app/models/lookdev_tire.glb')
+  })
+
+  it('returns undefined when the error names none of them', () => {
+    expect(failedAsset(new Error('shader compile failed'), urls)).toBeUndefined()
+    expect(failedAsset(null, urls)).toBeUndefined()
   })
 })

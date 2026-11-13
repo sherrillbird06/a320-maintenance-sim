@@ -6,7 +6,7 @@
   "type": "module",
   "license": "MIT",
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "scripts": {
     "dev": "vite",
@@ -20,7 +20,8 @@
     "check": "npm run lint && npm run typecheck && npm run test",
     "docs": "vitest run tests/unit/generatedDocs.test.ts -u",
     "models": "node assets-src/build_models.mjs",
-    "check:models": "vitest run tests/unit/models.test.ts"
+    "check:models": "vitest run tests/unit/models.test.ts",
+    "check:budgets": "node scripts/check-budgets.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

@@ -1,0 +1,9 @@
+{
+  "firstLoadBytes": 41943040,
+  "triangles": {
+    "exterior": 400000,
+    "cockpit": 150000,
+    "hangar": 200000
+  },
+  "targetFps": 60
+}

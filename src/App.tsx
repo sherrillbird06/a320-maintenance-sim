@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { Notice } from './app/Notice'
 import { checkSupport, MIN_WIDTH_PX, readSupportEnv, type SupportResult } from './app/support'
 import { SceneCanvas } from './world/SceneCanvas'
+
+const LookTestPage = lazy(() => import('./world/lookdev/LookTestPage'))
 
 export const TRAINING_BANNER = 'Training simulation — not approved maintenance data'
 
@@ -43,17 +45,26 @@ function EmptyHangarScene() {
 
 export function App() {
   const support = useSupport()
+  const scene = new URLSearchParams(window.location.search).get('scene')
   if (!support.ok) return <Notice {...UNSUPPORTED[support.reason]} />
 
   return (
     <div className="app">
       <header className="app__bar">
         <span className="app__title">A320 Maintenance &amp; Inspection Simulator</span>
-        <span className="app__status">Milestone 0 · foundations</span>
+        <span className="app__status">
+          {scene === 'lookdev' ? 'Look test · materials and lighting' : 'Milestone 0 · foundations'}
+        </span>
       </header>
-      <SceneCanvas>
-        <EmptyHangarScene />
-      </SceneCanvas>
+      {scene === 'lookdev' ? (
+        <Suspense fallback={<div className="scene" />}>
+          <LookTestPage />
+        </Suspense>
+      ) : (
+        <SceneCanvas>
+          <EmptyHangarScene />
+        </SceneCanvas>
+      )}
       <footer className="app__banner">{TRAINING_BANNER}</footer>
     </div>
   )

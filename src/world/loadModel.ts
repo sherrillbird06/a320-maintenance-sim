@@ -20,3 +20,12 @@ export function describeLoadError(url: string, error: unknown): { title: string;
     body: `The file ${file} did not load${reason}. Check your connection and reload the page.`,
   }
 }
+
+/** Which of the given asset URLs a loader error refers to, if any. */
+export function failedAsset(error: unknown, urls: string[]): string | undefined {
+  if (!(error instanceof Error)) return undefined
+  return urls.find((url) => {
+    const file = url.split('/').pop()
+    return error.message.includes(url) || (file !== undefined && error.message.includes(file))
+  })
+}
