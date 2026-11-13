@@ -17,7 +17,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "format": "prettier --write .",
-    "check": "npm run lint && npm run typecheck && npm run test"
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "docs": "vitest run tests/unit/generatedDocs.test.ts -u"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

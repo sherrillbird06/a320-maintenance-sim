@@ -104,7 +104,7 @@ docs/         this design, source list, screenshots
 
 ## 6. The aircraft
 
-**(call)** A320-214, CFM56-5B engines, wingtip fences. Built at real scale from published dimensions (length 37.57 m, span 34.10 m, height 11.76 m, fuselage width 3.95 m), to be re-verified against the Airbus document in Milestone 0.
+**(call)** A320-214, CFM56-5B engines, wingtip fences. Built at real scale from published dimensions (length 37.57 m, span 34.10 m, fuselage width 3.95 m, tail height 12.08 m standing empty in maintenance configuration), as read from the Airbus document in Milestone 0 and recorded with figure references in `src/data/aircraft.ts`.
 
 One mesh per inspectable component, roughly 150–180 in total:
 
