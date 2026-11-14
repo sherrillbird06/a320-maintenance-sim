@@ -3,7 +3,7 @@ import { AIRCRAFT } from '../data/aircraft'
 import { ATA_CHAPTERS } from '../data/ata'
 import { byId } from '../data/components'
 import { DEFECT_TYPES } from '../data/defects'
-import type { DefectCategory, Finding } from '../data/schema'
+import type { DefectCategory, Finding, HydraulicSystem } from '../data/schema'
 import { ZONES } from '../data/zones'
 import { session, useSession, useView, view } from '../state/useSession'
 import { ChapterLink, Library, openLibrary } from './Library'
@@ -343,12 +343,15 @@ function ReportForm() {
   const [ata, setAta] = useState('')
   const [category, setCategory] = useState<DefectCategory | ''>('')
   const [condition, setCondition] = useState('')
+  const [system, setSystem] = useState<HydraulicSystem | ''>('')
   const [remarks, setRemarks] = useState('')
   const close = () => view.setState({ panel: 'none' })
   if (!selection || !component) return null
 
   const conditions = category ? conditionsFor(category) : []
-  const complete = ata !== '' && category !== '' && condition !== ''
+  const needsSystem = category === 'hydraulic-leak'
+  const complete =
+    ata !== '' && category !== '' && condition !== '' && (!needsSystem || system !== '')
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
@@ -360,6 +363,7 @@ function ReportForm() {
       category,
       condition,
       remarks,
+      ...(needsSystem && system !== '' ? { hydraulicSystem: system } : {}),
     }
     session.getState().addFinding(finding)
     close()
@@ -428,6 +432,20 @@ function ReportForm() {
               <p className="muted">
                 No standard wordings for this type in the current training set.
               </p>
+            )}
+            {needsSystem && (
+              <label>
+                Hydraulic system
+                <select
+                  value={system}
+                  onChange={(e) => setSystem(e.target.value as HydraulicSystem | '')}
+                >
+                  <option value="">Select…</option>
+                  <option value="green">Green</option>
+                  <option value="blue">Blue</option>
+                  <option value="yellow">Yellow</option>
+                </select>
+              </label>
             )}
             <label>
               Remarks <span className="muted">(recorded, not graded)</span>

@@ -262,7 +262,7 @@ export function Player({ aircraftRoot }: PlayerProps) {
       <spotLight
         ref={light}
         visible={flashlight}
-        intensity={60}
+        intensity={14}
         angle={0.32}
         penumbra={0.45}
         distance={14}

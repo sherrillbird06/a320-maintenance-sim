@@ -9,6 +9,8 @@ export interface FindingChecks {
   ata: boolean
   category: boolean
   condition: boolean
+  /** Present only for defects that belong to one hydraulic system. */
+  system?: boolean
 }
 
 export interface GradedFinding {
@@ -38,6 +40,8 @@ function distance(a: readonly number[], b: readonly number[]): number {
 const NOTHING_THERE =
   'There is no discrepancy at the tagged location. Reporting a sound part costs time and can ground an aircraft for nothing; confirm what you see before writing it up.'
 const ALREADY_REPORTED = 'This discrepancy was already reported. A defect is written up once.'
+
+const capitalize = (word: string) => word.charAt(0).toUpperCase() + word.slice(1)
 
 /**
  * Compares what the technician reported with what is actually wrong with the
@@ -83,6 +87,12 @@ export function gradeInspection(
     if (!checks.category) problems.push(`the discrepancy type should be "${type.label}"`)
     if (!checks.condition) {
       problems.push(`the observed condition should read "${type.correctCondition}"`)
+    }
+    if (type.hydraulicSystem) {
+      checks.system = finding.hydraulicSystem === type.hydraulicSystem
+      if (!checks.system) {
+        problems.push(`the hydraulic system should be ${capitalize(type.hydraulicSystem)}`)
+      }
     }
 
     graded.push({

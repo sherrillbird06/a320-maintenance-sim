@@ -112,7 +112,81 @@ const paintDent: Painter = (context, size, rng) => {
   }
 }
 
+/** Hydraulic fluid: a wet purple streak trailing aft from a source, with drips along it. */
+const paintStreak: Painter = (context, size, rng) => {
+  const mid = size / 2
+  const streak = context.createLinearGradient(size * 0.1, 0, size * 0.95, 0)
+  streak.addColorStop(0, 'rgba(128, 44, 150, 0.95)')
+  streak.addColorStop(0.5, 'rgba(140, 62, 160, 0.75)')
+  streak.addColorStop(1, 'rgba(150, 80, 168, 0)')
+  context.fillStyle = streak
+  context.beginPath()
+  context.moveTo(size * 0.08, mid - size * 0.05)
+  context.bezierCurveTo(
+    size * 0.4,
+    mid - size * 0.16,
+    size * 0.7,
+    mid - size * 0.1,
+    size * 0.96,
+    mid - size * 0.02,
+  )
+  context.bezierCurveTo(
+    size * 0.7,
+    mid + size * 0.12,
+    size * 0.4,
+    mid + size * 0.18,
+    size * 0.08,
+    mid + size * 0.06,
+  )
+  context.closePath()
+  context.fill()
+  for (let i = 0; i < 9; i++) {
+    const x = size * (0.12 + rng() * 0.6)
+    const y = mid + (rng() - 0.5) * size * 0.2
+    const r = size * (0.012 + rng() * 0.02)
+    context.fillStyle = 'rgba(96, 26, 118, 0.98)'
+    context.beginPath()
+    context.arc(x, y, r, 0, Math.PI * 2)
+    context.fill()
+    context.fillStyle = 'rgba(235, 215, 245, 0.8)'
+    context.beginPath()
+    context.arc(x - r * 0.3, y - r * 0.3, r * 0.3, 0, Math.PI * 2)
+    context.fill()
+  }
+}
+
+/** The puddle the drips leave on the floor. */
+const paintPuddle: Painter = (context, size, rng) => {
+  const mid = size / 2
+  context.fillStyle = 'rgba(118, 40, 138, 0.88)'
+  context.beginPath()
+  for (let i = 0; i <= 24; i++) {
+    const a = (Math.PI * 2 * i) / 24
+    const r = size * (0.26 + rng() * 0.08)
+    const x = mid + Math.cos(a) * r
+    const y = mid + Math.sin(a) * r * 0.8
+    if (i === 0) context.moveTo(x, y)
+    else context.lineTo(x, y)
+  }
+  context.closePath()
+  context.fill()
+  context.fillStyle = 'rgba(230, 210, 240, 0.35)'
+  context.beginPath()
+  context.ellipse(
+    mid - size * 0.07,
+    mid - size * 0.06,
+    size * 0.1,
+    size * 0.04,
+    -0.4,
+    0,
+    Math.PI * 2,
+  )
+  context.fill()
+}
+
 const PAINTERS: Record<string, Painter> = {
+  hydraulic_streak: paintStreak,
+  hydraulic_puddle: paintPuddle,
   tire_cut: paintCut,
   tire_worn: paintWorn,
   blade_nick: paintNick,
@@ -133,6 +207,7 @@ function defectTexture(name: string, seed: number): CanvasTexture {
 }
 
 const FACING = new Vector3(0, 0, 1)
+const UP = new Vector3(0, 1, 0)
 const ORIGIN: [number, number, number] = [0, 0, 0]
 
 /**
@@ -146,9 +221,24 @@ export function Defects() {
     if (!scenario) return []
     return scenario.defects.flatMap((defect, index) => {
       const type = DEFECT_TYPES.find((t) => t.id === defect.defectTypeId)
-      if (!type || type.visual.kind !== 'decal') return []
+      if (!type || (type.visual.kind !== 'decal' && type.visual.kind !== 'drip')) return []
       const normal = new Vector3(...defect.normal).normalize()
+      // A dripping leak also leaves a puddle on the floor directly below it.
+      const puddle =
+        type.visual.kind === 'drip'
+          ? [
+              {
+                key: `${defect.componentId}-${index}-puddle`,
+                componentId: '',
+                size: 0.42,
+                position: new Vector3(defect.position[0], 0.006, defect.position[2]),
+                quaternion: new Quaternion().setFromUnitVectors(FACING, UP),
+                texture: defectTexture('hydraulic_puddle', scenario.seed * 17 + index),
+              },
+            ]
+          : []
       return [
+        ...puddle,
         {
           key: `${defect.componentId}-${index}`,
           componentId: defect.componentId,

@@ -215,3 +215,35 @@ test('the training record reflects signed-off inspections', async ({ page }) => 
   await expect(level).not.toContainText('Available')
   await expect(page.getByText(/ATA chapters practised/)).toBeVisible()
 })
+
+test('a hydraulic leak report asks which system and grades the answer', async ({ page }) => {
+  await page.goto('./?e2e=1')
+  await page.getByRole('radio', { name: /Hydraulic system/ }).check()
+  await acceptWorkOrder(page, '11')
+  const [first] = await defects(page)
+  if (!first) throw new Error('scenario has no defects')
+  const system = first.componentId.replace('hyd_service_panel_', '')
+  await selectOnAircraft(page, first)
+  await expect(
+    page.getByRole('heading', {
+      name: new RegExp(system + ' hydraulic system service panel', 'i'),
+    }),
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Report discrepancy' }).click()
+  const report = page.getByRole('dialog', { name: 'Discrepancy report' })
+  await report.getByLabel('ATA chapter').selectOption('29')
+  await report.getByLabel('Discrepancy type').selectOption('hydraulic-leak')
+  await report
+    .getByLabel('Observed condition')
+    .selectOption('Fresh fluid streak with drips from the panel edge')
+  // The report cannot be recorded until a system is chosen.
+  await expect(report.getByRole('button', { name: 'Record finding' })).toBeDisabled()
+  await report.getByLabel('Hydraulic system').selectOption(system)
+  await report.getByRole('button', { name: 'Record finding' }).click()
+
+  await page.keyboard.press('Tab')
+  await page.getByRole('button', { name: 'Sign off inspection' }).click()
+  await page.getByRole('button', { name: 'Confirm sign-off' }).click()
+  await expect(page.locator('.review .chip', { hasText: /^Correct$/ })).toBeVisible()
+})

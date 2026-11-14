@@ -321,10 +321,12 @@ def build_nose_gear(x, spacing, keel_z, mats, structure):
     _named("nlg_bay", bm, [dark])
 
 
-def build_hydraulic_panels(panels, surface_z, paint_dark):
+def build_hydraulic_panels(panels, surface_z, paint, outline):
     """Service panels on the belly fairing. panels maps a name to (x, y)."""
     for name, (x, y) in panels.items():
         z = surface_z(x, y) - 0.012
         bm = bmesh.new()
-        box(bm, (x - 0.22, y - 0.16, z), (x + 0.22, y + 0.16, z + 0.008))
-        _named(f"hyd_service_panel_{name}", bm, [paint_dark])
+        # Painted door standing just proud of a dark outline, like the other access doors.
+        box(bm, (x - 0.235, y - 0.175, z + 0.004), (x + 0.235, y + 0.175, z + 0.01), 1)
+        box(bm, (x - 0.22, y - 0.16, z), (x + 0.22, y + 0.16, z + 0.008), 0)
+        _named(f"hyd_service_panel_{name}", bm, [paint, outline])

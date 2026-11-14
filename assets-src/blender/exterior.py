@@ -122,7 +122,7 @@ def build():
 
     # Hydraulic service panels (stations from src/data/aircraft.ts); left is -Y.
     _gear.build_hydraulic_panels(
-        {"green": (19.17, -1.27), "yellow": (19.17, 1.27), "blue": (20.22, -1.27)}, _fuselage.fairing_bottom_z, gap
+        {"green": (19.17, -1.27), "yellow": (19.17, 1.27), "blue": (20.22, -1.27)}, _fuselage.fairing_bottom_z, paint, gap
     )
 
     lens_red = common.material("lens_red", (0.45, 0.02, 0.02), roughness=0.15)

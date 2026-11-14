@@ -215,6 +215,62 @@ describe('gradeInspection', () => {
   })
 })
 
+describe('hydraulic leak grading', () => {
+  const leakTemplate = SCENARIO_TEMPLATES.find((t) => t.id === 'hydraulic_leak_inspection')
+  if (!leakTemplate) throw new Error('no hydraulic template')
+  const scenario = generateScenario(leakTemplate, DEFECT_TYPES, 11)
+  const placed = scenario.defects[0]
+  if (!placed) throw new Error('no leak placed')
+  const type = DEFECT_TYPES.find((d) => d.id === placed.defectTypeId)
+  if (!type?.hydraulicSystem) throw new Error('leak has no system')
+  const report: Finding = {
+    componentId: placed.componentId,
+    taggedPoint: placed.position,
+    ata: '29',
+    category: 'hydraulic-leak',
+    condition: type.correctCondition,
+    remarks: '',
+    hydraulicSystem: type.hydraulicSystem,
+  }
+
+  it('places leaks only at the hydraulic service panels, under the belly fairing', () => {
+    for (const defect of scenario.defects) {
+      expect(defect.componentId).toMatch(/^hyd_service_panel_(green|yellow|blue)$/)
+      expect(defect.position[1]).toBeGreaterThan(1.2)
+      expect(defect.position[1]).toBeLessThan(1.8)
+    }
+  })
+
+  it('ties each leak to the system its panel serves', () => {
+    for (const defect of DEFECT_TYPES.filter((d) => d.category === 'hydraulic-leak')) {
+      expect(defect.anchors[0]?.componentId).toBe(`hyd_service_panel_${defect.hydraulicSystem}`)
+    }
+  })
+
+  it('is correct when the right system is named', () => {
+    const result = gradeInspection(scenario, [report], DEFECT_TYPES)
+    expect(result.findings[0]?.verdict).toBe('correct')
+    expect(result.findings[0]?.checks?.system).toBe(true)
+  })
+
+  it('is only partly correct when the wrong system is named, and says which is right', () => {
+    const wrong = type.hydraulicSystem === 'green' ? 'blue' : 'green'
+    const result = gradeInspection(scenario, [{ ...report, hydraulicSystem: wrong }], DEFECT_TYPES)
+    expect(result.findings[0]?.verdict).toBe('partial')
+    expect(result.findings[0]?.checks?.system).toBe(false)
+    expect(result.findings[0]?.explanation.toLowerCase()).toContain(
+      `should be ${type.hydraulicSystem}`,
+    )
+  })
+
+  it('is only partly correct when no system is named', () => {
+    const unnamed: Finding = { ...report }
+    delete unnamed.hydraulicSystem
+    const result = gradeInspection(scenario, [unnamed], DEFECT_TYPES)
+    expect(result.findings[0]?.verdict).toBe('partial')
+  })
+})
+
 describe('logbook', () => {
   const scenario = generateScenario(template, DEFECT_TYPES, 7)
   const technician = { name: 'A. Technician', id: 'T-0042' }

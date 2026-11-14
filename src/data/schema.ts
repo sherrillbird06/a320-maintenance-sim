@@ -132,6 +132,8 @@ export const DefectTypeSchema = z.object({
   /** Why this is a discrepancy and how it is recognised. Never cites a limit. */
   explanation: z.string().min(1),
   libraryChapters: z.array(AtaChapterNumber).min(1),
+  /** For a leak that can only come from one hydraulic system: which one. */
+  hydraulicSystem: HydraulicSystemSchema.optional(),
 })
 export type DefectType = z.infer<typeof DefectTypeSchema>
 

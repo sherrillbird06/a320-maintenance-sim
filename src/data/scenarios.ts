@@ -37,6 +37,40 @@ export const SCENARIO_TEMPLATES: ScenarioTemplate[] = [
     parTimeMinutes: 10,
   },
   {
+    id: 'hydraulic_leak_inspection',
+    level: 5,
+    title: 'Hydraulic system — leak check at the service panels',
+    zones: ['C'],
+    defectCount: { min: 1, max: 2 },
+    defectPool: ['hydraulic-leak'],
+    distractorCount: 0,
+    aircraftConfig: {
+      flapsExtended: false,
+      slatsExtended: false,
+      spoilersRaised: false,
+      openDoors: [],
+    },
+    referenceChapters: ['29', '12'],
+    checklist: [
+      {
+        id: 'green_panel',
+        title: 'Green system service panel',
+        components: ['hyd_service_panel_green'],
+      },
+      {
+        id: 'yellow_panel',
+        title: 'Yellow system service panel',
+        components: ['hyd_service_panel_yellow'],
+      },
+      {
+        id: 'blue_panel',
+        title: 'Blue system service panel',
+        components: ['hyd_service_panel_blue'],
+      },
+    ],
+    parTimeMinutes: 10,
+  },
+  {
     id: 'engine_inlet_inspection',
     level: 6,
     title: 'Engine inspection — inlet and fan',

@@ -114,7 +114,73 @@ const ENGINE_REAL_WORLD =
   'In real maintenance, damage to a fan blade or inlet is assessed only against the limits in the approved maintenance data for that engine and aircraft.'
 const ENGINE_SOURCE = '(General turbine engine inspection: FAA-H-8083-32B.)'
 
+// --- Hydraulic service panels -----------------------------------------------------
+// The belly fairing underside, mirroring FAIRING_STATIONS and fairing_bottom_z in
+// assets-src/blender/_fuselage.py: station, half width, depth below the keel.
+const FAIRING: [x: number, halfWidth: number, depth: number][] = [
+  [10.9, 0.05, 0.0], [11.2, 0.75, 0.05], [11.6, 1.3, 0.14], [12.1, 1.72, 0.26], [12.8, 2.02, 0.36],
+  [13.6, 2.15, 0.41], [16.0, 2.18, 0.42], [18.8, 2.15, 0.41], [19.8, 2.0, 0.36], [20.6, 1.66, 0.25],
+  [21.3, 1.15, 0.12], [21.8, 0.55, 0.04], [22.1, 0.05, 0.0],
+] // prettier-ignore
+const KEEL_HEIGHT = 1.79
+const FAIRING_TOP = 2.95
+
+function fairingUnderside(x: number, lateral: number): number {
+  for (let i = 0; i < FAIRING.length - 1; i++) {
+    const [x0, w0, d0] = FAIRING[i] as [number, number, number]
+    const [x1, w1, d1] = FAIRING[i + 1] as [number, number, number]
+    if (x >= x0 && x <= x1) {
+      const t = (x - x0) / (x1 - x0)
+      const halfWidth = w0 + (w1 - w0) * t
+      const bottom = KEEL_HEIGHT - (d0 + (d1 - d0) * t)
+      const centre = (FAIRING_TOP + bottom) / 2
+      const halfHeight = (FAIRING_TOP - bottom) / 2
+      const c = Math.min(Math.abs(lateral) / halfWidth, 1) ** (1 / 0.6)
+      return centre - halfHeight * Math.sqrt(Math.max(0, 1 - c * c)) ** 0.6
+    }
+  }
+  return KEEL_HEIGHT
+}
+
+/** A leak at the aft edge of a service panel, on the underside of the belly fairing. */
+function panelLeak(system: 'green' | 'yellow' | 'blue'): DefectAnchor[] {
+  const panel = AIRCRAFT.hydraulicServicePanels[system]
+  // Aircraft left is +Z in model coordinates.
+  const z = panel.side === 'LH' ? panel.offset : -panel.offset
+  const x = panel.x + 0.12
+  return [
+    {
+      componentId: `hyd_service_panel_${system}`,
+      position: [x, fairingUnderside(x, z) - 0.02, z],
+      normal: [0, -1, 0],
+    },
+  ]
+}
+
+const LEAK_EXPLANATION = (system: string) =>
+  `Fresh hydraulic fluid is wet and shiny, leaves a coloured streak that runs with gravity and the airflow, and collects as drips at the lowest edge with a puddle beneath. Tracing the streak back to its wettest point gives the source: here it is the servicing door of the ${system} system, so that is the system written on the report. In real maintenance, how much leakage is allowed from a component is found only in the approved maintenance data for that aircraft. (General hydraulic system inspection: FAA-H-8083-31B.)`
+
+const leak = (system: 'green' | 'yellow' | 'blue', name: string): DefectType => ({
+  id: `hyd_leak_${system}`,
+  category: 'hydraulic-leak',
+  label: 'Hydraulic fluid leak',
+  anchors: panelLeak(system),
+  visual: { kind: 'drip', texture: 'hydraulic_streak', sizeM: 0.5 },
+  correctCondition: 'Fresh fluid streak with drips from the panel edge',
+  wrongConditions: [
+    'Old dry stain with no fresh fluid',
+    'Water droplets from condensation',
+    'Panel unlatched with no fluid present',
+  ],
+  explanation: LEAK_EXPLANATION(name),
+  libraryChapters: ['29'],
+  hydraulicSystem: system,
+})
+
 export const DEFECT_TYPES: DefectType[] = [
+  leak('green', 'Green'),
+  leak('yellow', 'Yellow'),
+  leak('blue', 'Blue'),
   {
     id: 'fan_blade_nick',
     category: 'foreign-object-damage',
