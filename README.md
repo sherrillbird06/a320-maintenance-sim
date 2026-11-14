@@ -15,21 +15,22 @@ up in an ATA-organized technical library, and write up your findings in a mainte
 
 The project is built in milestones; each one is tested and deployed before the next starts.
 
-| #   | Milestone                                                              | Status  |
-| --- | ---------------------------------------------------------------------- | ------- |
-| 0   | Foundations: toolchain, data model, sources, asset pipeline, look test | Done    |
-| 1   | Aircraft exterior: airframe, engines, landing gear, livery             | Next    |
-| 2   | Hangar, access stands, ground equipment, lighting                      | Planned |
-| 3   | Inspection core: walking, close-up view, component information         | Planned |
-| 4   | Defects, randomized scenarios, grading, discrepancy reports, logbook   | Planned |
-| 5   | Workstation UI, ATA library, progression                               | Planned |
-| 6   | Engine, hydraulic and flight-control tasks; difficulty levels          | Planned |
-| 7   | Cockpit and aircraft systems modules                                   | Planned |
-| 8   | Advanced troubleshooting scenarios, performance pass                   | Planned |
+| #   | Milestone                                                              | Status                                                                                |
+| --- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| 0   | Foundations: toolchain, data model, sources, asset pipeline, look test | Done                                                                                  |
+| 1   | Aircraft exterior: airframe, engines, landing gear, livery             | First pass built: all 209 exterior components; close-up detail and review still to do |
+| 2   | Hangar, access stands, ground equipment, lighting                      | First pass built: simple shapes, no baked lighting                                    |
+| 3   | Inspection core: walking, selection, component information             | Working: walk, select, zoom, flashlight; component descriptions not written yet       |
+| 4   | Defects, randomized scenarios, grading, discrepancy reports, logbook   | Working for one assignment (wheels and tires)                                         |
+| 5   | Workstation UI, ATA library, progression                               | Not started                                                                           |
+| 6   | Engine, hydraulic and flight-control tasks; difficulty levels          | Not started                                                                           |
+| 7   | Cockpit and aircraft systems modules                                   | Not started                                                                           |
+| 8   | Advanced troubleshooting scenarios, performance pass                   | Not started                                                                           |
 
-What exists today: the app shell, the full data model, a registry of 254 inspectable components
-with their ATA chapters ([asset list](docs/asset-list.md)), sourced aircraft dimensions, the
-Blender-to-browser model pipeline, and a materials and lighting test at `?scene=lookdev`.
+What you can do today: accept a work order, walk around the aircraft in the hangar, select any of its
+209 exterior components, find randomized tire defects, write up discrepancy reports, sign off, read a
+graded review that explains each result, and see the inspection in the logbook. Most shapes are still
+simple and are labelled provisional in the model scripts ([asset list](docs/asset-list.md)).
 
 ## How it is built
 

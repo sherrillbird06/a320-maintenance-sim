@@ -31,7 +31,7 @@ export const FLOOR_URLS = {
 /** Every file this scene downloads; used to name the culprit if one fails. */
 export const LOOKDEV_ASSET_URLS = [ENV_URL, TIRE_URL, ...Object.values(FLOOR_URLS)]
 
-const FLOOR_SIZE_M = 60
+const FLOOR_SIZE_M = 80
 /** The floor scan covers a 2 m square. */
 const FLOOR_TILE_M = 2
 

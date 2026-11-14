@@ -95,7 +95,8 @@ function registrationTexture(): CanvasTexture {
   return texture
 }
 
-const PAINT = { metalness: 0.35, roughness: 0.4, clearcoat: 1, clearcoatRoughness: 0.07 }
+// Low metalness: a strongly metallic paint takes on the colour of whatever surrounds it.
+const PAINT = { metalness: 0.12, roughness: 0.4, clearcoat: 1, clearcoatRoughness: 0.07 }
 
 /**
  * Replaces the model's plain materials with the simulator's: painted skin with

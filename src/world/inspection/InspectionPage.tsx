@@ -7,6 +7,7 @@ import { useSession } from '../../state/useSession'
 import { InspectionUi } from '../../ui/InspectionUi'
 import { applyAircraftMaterials } from '../aircraft/materials'
 import { modelUrl } from '../loadModel'
+import { Hangar, HANGAR_URL } from '../hangar/Hangar'
 import { ENV_URL, Floor, FLOOR_URLS } from '../lookdev/LookTest'
 import { RENDER_CONFIG } from '../renderConfig'
 import { SceneCanvas } from '../SceneCanvas'
@@ -14,7 +15,7 @@ import { Defects } from './Defects'
 import { Player } from './Player'
 
 const EXTERIOR_URL = modelUrl('exterior')
-const URLS = [EXTERIOR_URL, ENV_URL, ...Object.values(FLOOR_URLS)]
+const URLS = [EXTERIOR_URL, HANGAR_URL, ENV_URL, ...Object.values(FLOOR_URLS)]
 const AIRCRAFT_ROOT = 'aircraft-root'
 /** The model's X axis starts at the nose; this centres the aircraft on the floor. */
 const AIRCRAFT_OFFSET: [number, number, number] = [-18, 0, 0]
@@ -67,7 +68,9 @@ export default function InspectionPage() {
               shadow-camera-far={120}
               shadow-bias={-0.0005}
             />
+            <hemisphereLight args={['#e8edf2', '#5a5d61', 0.55]} />
             <Floor />
+            <Hangar />
             <Aircraft />
             <SelectionBox />
           </Suspense>
