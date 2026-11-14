@@ -30,13 +30,23 @@ def _mirror(a, left):
     return 180.0 - a if left else a
 
 
-def panel(name, x, a, length, arc, material, offset=0.004):
-    """A flush panel on the fuselage: `length` along the aircraft, `arc` metres around it."""
+def panel(name, x, a, length, arc, material, offset=0.004, outline=None):
+    """A flush panel on the fuselage: `length` along the aircraft, `arc` metres around it.
+
+    With `outline`, a slightly larger patch in that material sits just under it, so the
+    panel shows a dark edge like a door.
+    """
     _, half_height, half_width = fus.section(x)
-    half_angle = math.degrees(arc / 2 / ((half_height + half_width) / 2))
+    per_metre = math.degrees(1.0 / ((half_height + half_width) / 2))
+    half_angle = arc / 2 * per_metre
     bm = bmesh.new()
-    fus.patch(bm, [x - length / 2, x, x + length / 2], lambda _: a - half_angle, lambda _: a + half_angle, offset, 0, a_step=3)
-    return _named(name, bm, [material], recalc=False)
+    stations = lambda half: [x - half + 2 * half * i / 6 for i in range(7)]  # noqa: E731
+    if outline is not None:
+        edge = 0.012
+        grow = edge * per_metre
+        fus.patch(bm, stations(length / 2 + edge), lambda _: a - half_angle - grow, lambda _: a + half_angle + grow, offset - 0.002, 1, a_step=3)
+    fus.patch(bm, stations(length / 2), lambda _: a - half_angle, lambda _: a + half_angle, offset, 0, a_step=3)
+    return _named(name, bm, [material] if outline is None else [material, outline], recalc=False)
 
 
 def _normal(x, a):
@@ -124,6 +134,10 @@ def fairing_plate(name, x, y, size, material):
 
 
 def build(paint, dark, metal, glass, red, green, white, fin_top_z, nose_gear_x):
+    # Nose gear forward doors: closed with the gear down, flush in the lower nose skin.
+    panel("nlg_door_fwd_lh", 4.13, 265.2, 1.46, 0.30, paint, outline=dark)
+    panel("nlg_door_fwd_rh", 4.13, 274.8, 1.46, 0.30, paint, outline=dark)
+
     # --- Air data probes and sensors (positions PROVISIONAL) -----------------
     probe("pitot_probe_1", 2.10, _mirror(-28, True), 0.14, 0.011, metal)
     probe("pitot_probe_3", 2.45, _mirror(-32, True), 0.14, 0.011, metal)
@@ -148,13 +162,13 @@ def build(paint, dark, metal, glass, red, green, white, fin_top_z, nose_gear_x):
     # --- Fuselage lights (positions PROVISIONAL) -----------------------------
     dome("upper_beacon", fus.surf(16.0, CROWN), (0, 0, 1), 0.07, red)
     dome("lower_beacon", (14.0, 0.0, fus.fairing_bottom_z(14.0, 0.0)), (0, 0, -1), 0.07, red)
-    dome("taxi_light", (nose_gear_x - 0.13, 0.0, 1.12), (-1, 0, 0), 0.06, glass)
-    dome("takeoff_light", (nose_gear_x - 0.13, 0.0, 0.94), (-1, 0, 0), 0.07, glass)
+    dome("taxi_light", (nose_gear_x + 0.02, 0.0, 1.22), (-1, 0, 0), 0.06, white)
+    dome("takeoff_light", (nose_gear_x - 0.01, 0.0, 1.06), (-1, 0, 0), 0.07, white)
     for suffix, side in (("lh", -1), ("rh", 1)):
-        dome(f"runway_turnoff_light_{suffix}", (nose_gear_x - 0.10, side * 0.13, 1.30), (-1, side * 0.5, 0), 0.05, glass)
-        dome(f"wing_scan_light_{suffix}", fus.surf(10.6, _mirror(-2, side < 0)), (0, side, 0), 0.05, glass)
-        dome(f"logo_light_{suffix}", wing_point(2.6, 0.35, True, side, srf.tail_section), (0, 0, 1), 0.06, glass)
-        dome(f"landing_light_{suffix}", wing_point(2.75, 0.30, False, side), (0, 0, -1), 0.10, glass)
+        dome(f"runway_turnoff_light_{suffix}", (nose_gear_x + 0.04, side * 0.14, 1.38), (-1, side * 0.5, 0), 0.05, white)
+        dome(f"wing_scan_light_{suffix}", fus.surf(10.6, _mirror(-2, side < 0)), (0, side, 0), 0.05, white)
+        dome(f"logo_light_{suffix}", wing_point(2.6, 0.35, True, side, srf.tail_section), (0, 0, 1), 0.06, white)
+        dome(f"landing_light_{suffix}", wing_point(2.75, 0.30, False, side), (0, 0, -1), 0.10, white)
         tip = wing_point(srf.WING_TIP - 0.05, 0.25, True, side)
         dome(f"nav_light_{suffix}", tip, (-1, side, 0), 0.05, red if side < 0 else green)
         dome(f"wing_strobe_light_{suffix}", wing_point(srf.WING_TIP - 0.05, 0.45, True, side), (0, side, 0.3), 0.04, white)

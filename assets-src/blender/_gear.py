@@ -114,7 +114,16 @@ def wheel_set(prefix, suffix, x, y, tire, toward_strut, mats, brake=False):
         p0 = place(centre[0] - 0.008, centre[1], centre[2])
         p1 = place(centre[0] + 0.008, centre[1], centre[2])
         tube(bm, p0, p1, 0.010, sides=6, material_index=1)
-    _named(f"{prefix}_wheel_{suffix}", bm, [wheel_paint, bolt_steel])
+    holes, hole_r = 8, rim_diameter / 2 * 0.50
+    for i in range(holes):
+        a = 2 * math.pi * (i + 0.5) / holes
+        face = outboard * 0.535 * width / 2
+        centre = (face, hole_r * math.cos(a), hole_r * math.sin(a))
+        tube(bm, place(centre[0] - 0.004, centre[1], centre[2]), place(centre[0] + outboard * 0.012, centre[1], centre[2]),
+             rim_diameter * 0.045, sides=10, material_index=2)  # fmt: skip
+    cap = outboard * 0.76 * width / 2
+    tube(bm, place(cap, 0, 0), place(cap + outboard * 0.05, 0, 0), rim_diameter * 0.085, rim_diameter * 0.06, sides=12, material_index=1)
+    _named(f"{prefix}_wheel_{suffix}", bm, [wheel_paint, bolt_steel, brake_dark])
 
     if brake:
         # Brake pack on the axle, between the wheel and the leg.
@@ -125,7 +134,19 @@ def wheel_set(prefix, suffix, x, y, tire, toward_strut, mats, brake=False):
         _named(f"mlg_brake_{suffix}", bm, [brake_dark])
 
 
+def _along(p0, p1, t):
+    return tuple(p0[k] + (p1[k] - p0[k]) * t for k in range(3))
+
+
 def build_main_gear(side, suffix, numbers, x, track_half, spacing, top_z, mats, structure):
+    """One main gear, laid out as in Airbus figures 2-9-0-991-010 and -011.
+
+    The leg is a main fitting with a forked top carrying fore and aft pintle
+    pins, a shock absorber sliding out of its lower end to the axle, torque
+    links ahead of the leg, a folding side stay and lock stay running inboard,
+    and the retraction actuating cylinder at the top. The leg leans aft toward
+    the top. Proportions are read from those figures; cross-sections are PROVISIONAL.
+    """
     paint, chrome, dark, line = structure
     y0 = side * track_half
     tire = (46 * INCH, 17 * INCH, 20 * INCH)
@@ -135,47 +156,79 @@ def build_main_gear(side, suffix, numbers, x, track_half, spacing, top_z, mats, 
     for number, offset in zip(numbers, (-spacing / 2, spacing / 2)):
         wheel_set("mlg", str(number), x, y0 + offset, tire, toward_strut=-1 if offset > 0 else 1, mats=mats, brake=True)
 
+    axle = (x, y0, axle_z)
+    pintle = (x + 0.28, y0, top_z)
+    gland = _along(axle, pintle, 0.36)
+
     bm = bmesh.new()
-    tube(bm, (x, y0 - spacing / 2 - 0.05, axle_z), (x, y0 + spacing / 2 + 0.05, axle_z), 0.075, material_index=0)
-    tube(bm, (x, y0, axle_z - 0.02), (x, y0, 1.50), 0.072, material_index=1)  # sliding tube
-    tube(bm, (x, y0, 1.38), (x, y0, 1.46), 0.135, material_index=0)  # gland
-    tube(bm, (x, y0, 1.42), (x, y0 + in_ * 0.10, top_z), 0.125, 0.14, material_index=0)  # main fitting
-    tube(bm, (x - 0.45, y0 + in_ * 0.10, top_z - 0.05), (x + 0.45, y0 + in_ * 0.10, top_z - 0.05), 0.09, material_index=0)  # pintle
+    tube(bm, (x, y0 - spacing / 2 - 0.06, axle_z), (x, y0 + spacing / 2 + 0.06, axle_z), 0.078)
+    tube(bm, (x, y0 - 0.16, axle_z), (x, y0 + 0.16, axle_z), 0.11)  # axle boss under the leg
+    tube(bm, _along(axle, pintle, -0.02), _along(axle, pintle, 0.40), 0.072, material_index=1)  # sliding tube
+    for t, r in ((0.34, 0.118), (0.37, 0.132), (0.40, 0.118)):
+        tube(bm, _along(axle, pintle, t - 0.012), _along(axle, pintle, t + 0.012), r)  # gland rings
+    tube(bm, gland, _along(axle, pintle, 0.80), 0.118, 0.105)  # main fitting barrel
+    fork = _along(axle, pintle, 0.80)
+    for dx in (-0.34, 0.34):
+        lug = (pintle[0] + dx, y0, top_z)
+        tube(bm, fork, lug, 0.085, 0.07)
+        tube(bm, (lug[0], y0 - 0.09, top_z), (lug[0], y0 + 0.09, top_z), 0.075)  # pintle pin housing
+    tube(bm, (pintle[0] - 0.34, y0, top_z), (pintle[0] + 0.34, y0, top_z), 0.045)
     _named(f"mlg_shock_strut_{suffix}", bm, [paint, chrome])
 
     bm = bmesh.new()
-    apex = (x + 0.42, y0, 1.02)
-    for dy in (-0.07, 0.07):
-        tube(bm, (x + 0.10, y0 + dy, 1.40), (apex[0], apex[1] + dy * 0.4, apex[2]), 0.032, 0.026)
-        tube(bm, (apex[0], apex[1] + dy * 0.4, apex[2]), (x + 0.07, y0 + dy, axle_z + 0.08), 0.026, 0.032)
-    tube(bm, (apex[0], y0 - 0.06, apex[2]), (apex[0], y0 + 0.06, apex[2]), 0.03)
+    upper = _along(axle, pintle, 0.33)
+    apex = (x - 0.46, y0, axle_z + 0.50)
+    for dy in (-0.075, 0.075):
+        tube(bm, (upper[0] - 0.10, y0 + dy, upper[2]), (apex[0], y0 + dy * 0.5, apex[2]), 0.034, 0.028)
+        tube(bm, (apex[0], y0 + dy * 0.5, apex[2]), (x - 0.09, y0 + dy, axle_z + 0.07), 0.028, 0.034)
+    tube(bm, (apex[0], y0 - 0.07, apex[2]), (apex[0], y0 + 0.07, apex[2]), 0.034)
     _named(f"mlg_torque_links_{suffix}", bm, [paint])
 
+    # Side stay: lower arm from the leg, upper arm to the wing, with the lock stay bracing the joint.
     bm = bmesh.new()
-    knee = (x, y0 + in_ * 0.85, 2.10)
-    tube(bm, (x, y0 + in_ * 0.10, 1.85), knee, 0.05)
-    tube(bm, knee, (x, y0 + in_ * 1.55, top_z - 0.05), 0.055)
-    tube(bm, (x - 0.07, knee[1], knee[2]), (x + 0.07, knee[1], knee[2]), 0.06)
-    _named(f"mlg_side_stay_{suffix}", bm, [paint])
+    foot = _along(axle, pintle, 0.47)
+    foot = (foot[0], y0 + in_ * 0.10, foot[2])
+    wing_end = (x + 0.10, y0 + in_ * 1.90, top_z - 0.02)
+    knee = _along(foot, wing_end, 0.52)
+    tube(bm, foot, knee, 0.052)
+    tube(bm, knee, wing_end, 0.056, 0.05)
+    tube(bm, (knee[0] - 0.08, knee[1], knee[2]), (knee[0] + 0.08, knee[1], knee[2]), 0.06)
+    lock_top = _along(axle, pintle, 0.86)
+    lock_top = (lock_top[0], y0 + in_ * 0.10, lock_top[2])
+    lock_mid = _along(knee, lock_top, 0.5)
+    tube(bm, knee, lock_mid, 0.03)
+    tube(bm, lock_mid, lock_top, 0.03)
+    tube(bm, lock_mid, (lock_mid[0], lock_mid[1] + in_ * 0.34, lock_mid[2] + 0.22), 0.028, material_index=1)  # downlock actuator
+    _named(f"mlg_side_stay_{suffix}", bm, [paint, chrome])
 
     bm = bmesh.new()
-    a, b = (x - 0.22, y0 + in_ * 0.12, 2.45), (x - 0.22, y0 + in_ * 1.15, top_z - 0.02)
-    mid = tuple((p + q) / 2 for p, q in zip(a, b))
-    tube(bm, a, mid, 0.032, material_index=1)
-    tube(bm, mid, b, 0.062, material_index=0)
+    a, b = (pintle[0] - 0.10, y0 + in_ * 0.16, top_z + 0.02), (pintle[0] - 0.10, y0 + in_ * 1.30, top_z + 0.06)
+    tube(bm, a, _along(a, b, 0.42), 0.034, material_index=1)
+    tube(bm, _along(a, b, 0.42), b, 0.072)
+    tube(bm, (a[0] - 0.05, a[1], a[2]), (a[0] + 0.05, a[1], a[2]), 0.05)
     _named(f"mlg_retraction_actuator_{suffix}", bm, [paint, chrome])
 
+    # Brake lines down the aft face of the leg, with a flexible run to each brake.
     bm = bmesh.new()
-    for dx in (0.11, 0.14):
-        tube(bm, (x + dx, y0 + in_ * 0.08, top_z - 0.25), (x + dx, y0, 1.50), 0.011, sides=8)
-        tube(bm, (x + dx, y0, 1.50), (x + dx + 0.06, y0, axle_z + 0.12), 0.011, sides=8)
-        for offset in (-spacing / 2 + 0.16, spacing / 2 - 0.16):
-            tube(bm, (x + dx + 0.06, y0, axle_z + 0.12), (x + dx + 0.04, y0 + offset, axle_z + 0.16), 0.011, sides=8)
-    _named(f"mlg_brake_lines_{suffix}", bm, [line])
+    for dy in (-0.035, 0.035):
+        top = _along(axle, pintle, 0.78)
+        mid = _along(axle, pintle, 0.40)
+        low = _along(axle, pintle, 0.10)
+        tube(bm, (top[0] + 0.125, y0 + dy, top[2]), (mid[0] + 0.135, y0 + dy, mid[2]), 0.010, sides=8)
+        tube(bm, (mid[0] + 0.135, y0 + dy, mid[2]), (low[0] + 0.13, y0 + dy * 3, low[2] + 0.16), 0.012, sides=8, material_index=1)
+        target = y0 + math.copysign(spacing / 2 - 0.20, dy)
+        tube(bm, (low[0] + 0.13, y0 + dy * 3, low[2] + 0.16), (x + 0.10, target, axle_z + 0.17), 0.012, sides=8, material_index=1)
+    _named(f"mlg_brake_lines_{suffix}", bm, [line, dark])
 
-    # Leg fairing door fixed to the outside of the leg.
+    # Leg fairing door on the outboard side of the leg.
     bm = bmesh.new()
-    box(bm, (x - 0.30, y0 - in_ * 0.19, 1.62), (x + 0.30, y0 - in_ * 0.17, top_z - 0.06))
+    lo, hi = _along(axle, pintle, 0.46), _along(axle, pintle, 0.98)
+    y_face = y0 - in_ * 0.17
+    plate = lambda dy: [  # noqa: E731
+        (lo[0] - 0.22, y_face + dy, lo[2]), (lo[0] + 0.22, y_face + dy, lo[2]),
+        (hi[0] + 0.34, y_face + dy, hi[2]), (hi[0] - 0.34, y_face + dy, hi[2]),
+    ]  # fmt: skip
+    common.loft(bm, [plate(-0.008), plate(0.008)])
     _named(f"mlg_door_hinged_{suffix}", bm, [paint])
     # Main door under the belly, closed with the gear down.
     bm = bmesh.new()
@@ -183,55 +236,88 @@ def build_main_gear(side, suffix, numbers, x, track_half, spacing, top_z, mats, 
     _named(f"mlg_door_main_{suffix}", bm, [paint])
     # Bay in the wing root that the leg folds into.
     bm = bmesh.new()
-    box(bm, (x - 0.62, min(y0 + in_ * 0.25, y0 + in_ * 1.70), top_z - 0.03), (x + 0.62, max(y0 + in_ * 0.25, y0 + in_ * 1.70), top_z + 0.01))
+    box(bm, (x - 0.45, min(y0 + in_ * 0.25, y0 + in_ * 1.95), top_z + 0.09), (x + 0.75, max(y0 + in_ * 0.25, y0 + in_ * 1.95), top_z + 0.12))
     _named(f"mlg_bay_{suffix}", bm, [dark])
 
 
 def build_nose_gear(x, spacing, keel_z, mats, structure):
+    """Nose gear, laid out as in Airbus figures 2-9-0-991-014 and -015.
+
+    The leg leans aft toward the top and pivots on a wide forked head inside the
+    bay. It carries the steering actuating cylinder across it, torque links
+    behind, a drag strut running forward into the bay, and a towing fitting at
+    the axle. Forward doors close once the gear is down; aft doors stay open.
+    Proportions are read from those figures; cross-sections are PROVISIONAL.
+    """
     paint, chrome, dark, _ = structure
     tire = (30 * INCH, 8.8 * INCH, 15 * INCH)
     axle_z = tire[0] / 2
     for suffix, y in (("lh", -spacing / 2), ("rh", spacing / 2)):
         wheel_set("nlg", suffix, x, y, tire, toward_strut=1 if y < 0 else -1, mats=mats)
 
+    axle = (x, 0.0, axle_z)
+    pivot = (x + 0.31, 0.0, keel_z + 0.52)  # about 9 degrees of rake
     bm = bmesh.new()
-    tube(bm, (x, -spacing / 2 - 0.03, axle_z), (x, spacing / 2 + 0.03, axle_z), 0.045)
-    tube(bm, (x, 0, axle_z - 0.02), (x, 0, 1.05), 0.048, material_index=1)
-    tube(bm, (x, 0, 0.98), (x, 0, 1.04), 0.095)
-    tube(bm, (x, 0, 1.02), (x - 0.12, 0, keel_z + 0.10), 0.085, 0.095)
+    tube(bm, (x, -spacing / 2 - 0.04, axle_z), (x, spacing / 2 + 0.04, axle_z), 0.045)
+    tube(bm, (x, -0.10, axle_z), (x, 0.10, axle_z), 0.075)
+    tube(bm, _along(axle, pivot, -0.02), _along(axle, pivot, 0.36), 0.048, material_index=1)
+    for t, r in ((0.31, 0.082), (0.34, 0.094)):
+        tube(bm, _along(axle, pivot, t - 0.012), _along(axle, pivot, t + 0.012), r)
+    tube(bm, _along(axle, pivot, 0.33), _along(axle, pivot, 0.80), 0.085, 0.08)
+    head = _along(axle, pivot, 0.78)
+    for dy in (-0.44, 0.44):
+        tube(bm, head, (pivot[0], dy, pivot[2]), 0.07, 0.055)  # forked head
+        tube(bm, (pivot[0], dy - math.copysign(0.07, dy), pivot[2]), (pivot[0], dy + math.copysign(0.07, dy), pivot[2]), 0.06)
+    tube(bm, (pivot[0], -0.44, pivot[2]), (pivot[0], 0.44, pivot[2]), 0.035)
+    # Towing fitting ahead of the axle, and the leg door on the front of the leg.
+    tube(bm, (x - 0.07, 0, axle_z), (x - 0.17, 0, axle_z - 0.02), 0.03, 0.022)
+    lo, hi = _along(axle, pivot, 0.42), _along(axle, pivot, 0.74)
+    door = lambda dx: [(lo[0] - 0.10 + dx, -0.16, lo[2]), (lo[0] - 0.10 + dx, 0.16, lo[2]), (hi[0] - 0.10 + dx, 0.19, hi[2]), (hi[0] - 0.10 + dx, -0.19, hi[2])]  # noqa: E731
+    common.loft(bm, [door(-0.006), door(0.006)])
     _named("nlg_shock_strut", bm, [paint, chrome])
 
     bm = bmesh.new()
-    apex = (x - 0.30, 0.0, 0.74)
+    upper = _along(axle, pivot, 0.30)
+    apex = (x + 0.36, 0.0, axle_z + 0.34)
     for dy in (-0.05, 0.05):
-        tube(bm, (x - 0.07, dy, 1.00), (apex[0], dy * 0.4, apex[2]), 0.022)
-        tube(bm, (apex[0], dy * 0.4, apex[2]), (x - 0.05, dy, axle_z + 0.07), 0.022)
+        tube(bm, (upper[0] + 0.07, dy, upper[2]), (apex[0], dy * 0.5, apex[2]), 0.022)
+        tube(bm, (apex[0], dy * 0.5, apex[2]), (x + 0.06, dy, axle_z + 0.05), 0.022)
+    tube(bm, (apex[0], -0.05, apex[2]), (apex[0], 0.05, apex[2]), 0.024)
     _named("nlg_torque_links", bm, [paint])
 
     bm = bmesh.new()
-    tube(bm, (x - 0.06, 0, 1.45), (x - 1.05, 0, keel_z + 0.08), 0.04)
+    start = _along(axle, pivot, 0.66)
+    end = (x - 0.95, 0.0, keel_z + 0.42)
+    for dy in (-0.06, 0.06):
+        tube(bm, (start[0], dy, start[2]), (end[0], dy * 3.2, end[2]), 0.034)
+    tube(bm, (end[0], -0.22, end[2]), (end[0], 0.22, end[2]), 0.04)
     _named("nlg_drag_strut", bm, [paint])
 
     bm = bmesh.new()
-    tube(bm, (x - 0.03, 0, 1.22), (x - 0.05, 0, 1.36), 0.125)
-    tube(bm, (x - 0.04, -0.20, 1.29), (x - 0.04, 0.20, 1.29), 0.045)
+    collar = _along(axle, pivot, 0.47)
+    tube(bm, _along(axle, pivot, 0.43), _along(axle, pivot, 0.51), 0.125)
+    tube(bm, (collar[0], -0.30, collar[2]), (collar[0], 0.30, collar[2]), 0.05)
+    for dy in (-0.33, 0.33):
+        tube(bm, (collar[0], dy - 0.03, collar[2]), (collar[0], dy + 0.03, collar[2]), 0.062)
     _named("nlg_steering_actuator", bm, [paint])
 
     bm = bmesh.new()
-    box(bm, (x - 0.22, -0.09, 1.50), (x - 0.16, 0.09, 1.66))
+    panel_at = _along(axle, pivot, 0.60)
+    box(bm, (panel_at[0] - 0.19, -0.09, panel_at[2] - 0.08), (panel_at[0] - 0.12, 0.09, panel_at[2] + 0.08))
     _named("apu_external_panel", bm, [dark])
 
     for suffix, side in (("lh", -1), ("rh", 1)):
-        # Forward doors close again once the gear is down; aft doors stay open beside the leg.
+        # Aft door: hinged at the bay edge, hanging open and leaning slightly outward.
         bm = bmesh.new()
-        box(bm, (3.35, min(0.0, side * 0.30), keel_z - 0.012), (4.72, max(0.0, side * 0.30), keel_z - 0.002))
-        _named(f"nlg_door_fwd_{suffix}", bm, [paint])
-        bm = bmesh.new()
-        box(bm, (4.80, side * 0.31 - 0.008, keel_z - 0.52), (5.72, side * 0.31 + 0.008, keel_z + 0.02))
+        plate = lambda dy: [  # noqa: E731
+            (4.92, side * 0.31 + dy, keel_z + 0.02), (5.74, side * 0.31 + dy, keel_z + 0.04),
+            (5.70, side * 0.40 + dy, keel_z - 0.46), (4.96, side * 0.40 + dy, keel_z - 0.46),
+        ]  # fmt: skip
+        common.loft(bm, [plate(-0.007), plate(0.007)])
         _named(f"nlg_door_aft_{suffix}", bm, [paint])
 
     bm = bmesh.new()
-    box(bm, (4.80, -0.30, keel_z - 0.004), (5.72, 0.30, keel_z + 0.004))
+    box(bm, (4.90, -0.30, keel_z + 0.004), (5.76, 0.30, keel_z + 0.012))
     _named("nlg_bay", bm, [dark])
 
 

@@ -96,6 +96,17 @@ def build(number, y, inlet_x, clearance, paint, hot_metal, dark, blade_metal, li
     for label, (a0, a1) in (("inboard", inboard), ("outboard", outboard)):
         bm = bmesh.new()
         _shell(bm, fan_cowl, a0 + 0.4, a1 - 0.4, 36, place)
+        if label == "inboard":
+            # Strake on the upper inboard side of the cowl (size and angle PROVISIONAL).
+            angle = math.radians(52 if y < 0 else 128)
+            ca, sa = math.cos(angle), math.sin(angle)
+            fin = lambda offset: [  # noqa: E731
+                place(1.02 + offset, 1.15 * ca, 1.15 * sa), place(1.95 + offset, 1.14 * ca, 1.14 * sa),
+                place(1.90 + offset, 1.36 * ca, 1.36 * sa), place(1.30 + offset, 1.30 * ca, 1.30 * sa),
+            ]  # fmt: skip
+            across = (0.0, -sa * 0.012, ca * 0.012)
+            ring = lambda sign: [tuple(p[k] + sign * across[k] for k in range(3)) for p in fin(0.0)]  # noqa: E731
+            common.loft(bm, [ring(-1), ring(1)])
         _named(f"{prefix}_fan_cowl_{label}", bm, [paint])
         bm = bmesh.new()
         _shell(bm, reverser, a0 + 0.4, a1 - 0.4, 36, place)
