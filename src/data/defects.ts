@@ -55,6 +55,12 @@ const ENGINE_OFFSET = AIRCRAFT.dimensions.engineCentrelineOffset.value
 const NACELLE_RADIUS = 1.16
 const AXIS_HEIGHT = AIRCRAFT.dimensions.nacelleGroundClearance.value + NACELLE_RADIUS
 const FAN_STATION = 0.92
+/** Centre of each fan on its engine axis, in model coordinates. The fan turns about the X axis here. */
+export const FAN_CENTRES: Record<string, [number, number, number]> = {
+  eng1_fan: [INLET_X + FAN_STATION, AXIS_HEIGHT, ENGINE_OFFSET],
+  eng2_fan: [INLET_X + FAN_STATION, AXIS_HEIGHT, -ENGINE_OFFSET],
+}
+
 /** Engine prefix and lateral position of its axis (+ is aircraft left). */
 const ENGINES: [prefix: string, z: number][] = [
   ['eng1', ENGINE_OFFSET],

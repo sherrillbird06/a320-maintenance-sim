@@ -14,12 +14,6 @@ function browserStorage(): Storage | undefined {
 /** The one inspection session for this browser tab. */
 export const session = createSessionStore({ storage: browserStorage() })
 
-// Browser tests drive the inspection through the store, because a headless browser cannot
-// capture the mouse to look around. Only exposed when the page is opened with ?e2e=1.
-if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')) {
-  ;(window as unknown as { __session: typeof session }).__session = session
-}
-
 export function useSession<T>(selector: (state: SessionState) => T): T {
   return useStore(session, selector)
 }
@@ -34,6 +28,8 @@ interface ViewState {
   looking: boolean
   panel: Panel
   flashlight: boolean
+  /** How far each fan has been turned by hand, in radians, keyed by fan component id. */
+  fanAngle: Record<string, number>
 }
 
 /** Short-lived view state that changes many times a second and is never saved. */
@@ -42,8 +38,16 @@ export const view = createStore<ViewState>(() => ({
   looking: false,
   panel: 'none',
   flashlight: false,
+  fanAngle: {},
 }))
 
 export function useView<T>(selector: (state: ViewState) => T): T {
   return useStore(view, selector)
+}
+
+// Browser tests drive the inspection through the store, because a headless browser cannot
+// capture the mouse to look around. Only exposed when the page is opened with ?e2e=1.
+if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('e2e')) {
+  ;(window as unknown as { __session: typeof session }).__session = session
+  ;(window as unknown as { __view: typeof view }).__view = view
 }

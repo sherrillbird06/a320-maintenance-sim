@@ -1,9 +1,9 @@
 import { Environment, useGLTF } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import { Suspense, useMemo } from 'react'
+import { Suspense, useEffect, useMemo } from 'react'
 import { Box3 } from 'three'
 import { AssetErrorBoundary } from '../../app/AssetErrorBoundary'
-import { useSession } from '../../state/useSession'
+import { useSession, useView } from '../../state/useSession'
 import { InspectionUi } from '../../ui/InspectionUi'
 import { applyAircraftMaterials } from '../aircraft/materials'
 import { modelUrl } from '../loadModel'
@@ -29,6 +29,21 @@ function Aircraft() {
       <Defects />
     </group>
   )
+}
+
+/** Turns each fan mesh to the angle the technician has turned it to. */
+function FanSpin() {
+  const angles = useView((s) => s.fanAngle)
+  const scene = useThree((s) => s.scene)
+  const invalidate = useThree((s) => s.invalidate)
+  useEffect(() => {
+    for (const [id, angle] of Object.entries(angles)) {
+      const fan = scene.getObjectByName(id)
+      if (fan) fan.rotation.x = angle
+    }
+    invalidate()
+  }, [angles, scene, invalidate])
+  return null
 }
 
 /** A thin box around the selected component, so the technician can see what the tag is on. */
@@ -73,6 +88,7 @@ export default function InspectionPage() {
             <Hangar />
             <Aircraft />
             <SelectionBox />
+            <FanSpin />
           </Suspense>
           <Player aircraftRoot={AIRCRAFT_ROOT} />
         </SceneCanvas>

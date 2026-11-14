@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { CanvasTexture, Quaternion, SRGBColorSpace, Vector3 } from 'three'
-import { DEFECT_TYPES } from '../../data/defects'
-import { useSession } from '../../state/useSession'
+import { DEFECT_TYPES, FAN_CENTRES } from '../../data/defects'
+import { useSession, useView } from '../../state/useSession'
 import { createRng } from '../../sim/rng'
 
 type Painter = (context: CanvasRenderingContext2D, size: number, rng: () => number) => void
@@ -133,6 +133,7 @@ function defectTexture(name: string, seed: number): CanvasTexture {
 }
 
 const FACING = new Vector3(0, 0, 1)
+const ORIGIN: [number, number, number] = [0, 0, 0]
 
 /**
  * Draws the scenario's defects on the aircraft. They carry no labels and take no
@@ -140,6 +141,7 @@ const FACING = new Vector3(0, 0, 1)
  */
 export function Defects() {
   const scenario = useSession((s) => s.scenario)
+  const fanAngle = useView((s) => s.fanAngle)
   const marks = useMemo(() => {
     if (!scenario) return []
     return scenario.defects.flatMap((defect, index) => {
@@ -149,6 +151,7 @@ export function Defects() {
       return [
         {
           key: `${defect.componentId}-${index}`,
+          componentId: defect.componentId,
           size: type.visual.sizeM,
           position: new Vector3(...defect.position).addScaledVector(normal, 0.006),
           quaternion: new Quaternion().setFromUnitVectors(FACING, normal),
@@ -160,24 +163,34 @@ export function Defects() {
 
   return (
     <>
-      {marks.map((mark) => (
-        <mesh
-          key={mark.key}
-          position={mark.position}
-          quaternion={mark.quaternion}
-          raycast={() => null}
-        >
-          <planeGeometry args={[mark.size, mark.size]} />
-          <meshStandardMaterial
-            map={mark.texture}
-            transparent
-            roughness={0.9}
-            depthWrite={false}
-            polygonOffset
-            polygonOffsetFactor={-4}
-          />
-        </mesh>
-      ))}
+      {marks.map((mark) => {
+        // A defect on a fan blade turns with the fan, about the engine axis.
+        const centre = FAN_CENTRES[mark.componentId] ?? ORIGIN
+        const turn = fanAngle[mark.componentId] ?? 0
+        return (
+          <group key={mark.key} position={centre} rotation={[turn, 0, 0]}>
+            <mesh
+              position={[
+                mark.position.x - centre[0],
+                mark.position.y - centre[1],
+                mark.position.z - centre[2],
+              ]}
+              quaternion={mark.quaternion}
+              raycast={() => null}
+            >
+              <planeGeometry args={[mark.size, mark.size]} />
+              <meshStandardMaterial
+                map={mark.texture}
+                transparent
+                roughness={0.9}
+                depthWrite={false}
+                polygonOffset
+                polygonOffsetFactor={-4}
+              />
+            </mesh>
+          </group>
+        )
+      })}
     </>
   )
 }

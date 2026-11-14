@@ -1,5 +1,6 @@
 import type { Component } from '../schema'
 import { perEngine, seedsFor } from './builders'
+import { engineText } from './engineText'
 
 const b = seedsFor('B')
 
@@ -7,7 +8,7 @@ const b = seedsFor('B')
  * Zone B — the two CFM56-5B power plants. Each record exists once per engine.
  * The fan's blades are child meshes of the fan, not separate records.
  */
-export const ENGINES: Component[] = [
+const PARTS: Component[] = [
   ...perEngine(b('inlet_cowl', 'inlet cowl', '71', ['engine', 'pneumatic'])),
   ...perEngine(b('spinner', 'fan spinner', '72', ['engine'])),
   ...perEngine(b('fan', 'fan', '72', ['engine'])),
@@ -24,3 +25,6 @@ export const ENGINES: Component[] = [
   ...perEngine(b('pylon', 'pylon', '54', ['engine', 'fire-protection'])),
   ...perEngine(b('drain_mast', 'drain mast', '71', ['engine'])),
 ]
+
+/** The power plants with their component information attached. */
+export const ENGINES: Component[] = PARTS.map((part) => ({ ...part, ...engineText(part.id) }))

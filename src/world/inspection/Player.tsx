@@ -12,7 +12,9 @@ import {
   type SpotLight,
 } from 'three'
 import { byId } from '../../data/components'
+import { FAN_CENTRES } from '../../data/defects'
 import { blocked, resolveMove, type Obstacle } from '../../sim/collision'
+import { unspin } from '../../sim/spin'
 import { session, useSession, useView, view } from '../../state/useSession'
 
 const EYE_HEIGHT_M = 1.7
@@ -112,8 +114,12 @@ export function Player({ aircraftRoot }: PlayerProps) {
       const hit = raycaster.intersectObject(root, true)[0]
       const componentId = componentOf(hit?.object ?? null)
       if (!hit || !componentId) return null
-      const point = root.worldToLocal(hit.point.clone())
-      return { componentId, point: [point.x, point.y, point.z] as [number, number, number] }
+      const local = root.worldToLocal(hit.point.clone())
+      let point: [number, number, number] = [local.x, local.y, local.z]
+      // A fan may have been turned by hand; record the tag where that blade sits at rest.
+      const centre = FAN_CENTRES[componentId]
+      if (centre) point = unspin(point, centre, view.getState().fanAngle[componentId] ?? 0)
+      return { componentId, point }
     }
 
     const onKey = (event: KeyboardEvent) => {
@@ -150,6 +156,13 @@ export function Player({ aircraftRoot }: PlayerProps) {
         zoom.current = false
       }
     }
+    // Scrolling while pointing at a fan turns it, as a technician turns it by hand to see every blade.
+    const onWheel = (event: WheelEvent) => {
+      const id = view.getState().hoverId
+      if (!document.pointerLockElement || !id || !FAN_CENTRES[id]) return
+      const angles = view.getState().fanAngle
+      view.setState({ fanAngle: { ...angles, [id]: (angles[id] ?? 0) + event.deltaY * 0.0012 } })
+    }
     const noMenu = (event: Event) => event.preventDefault()
     // Capture the mouse only from a click on the 3D view itself, and only while inspecting with no panel open.
     const capture = () => {
@@ -167,6 +180,7 @@ export function Player({ aircraftRoot }: PlayerProps) {
     window.addEventListener('keyup', onKey)
     window.addEventListener('mousedown', onMouseDown)
     window.addEventListener('mouseup', onMouseUp)
+    window.addEventListener('wheel', onWheel, { passive: true })
     document.addEventListener('pointerlockchange', onLockChange)
     gl.domElement.addEventListener('contextmenu', noMenu)
     gl.domElement.addEventListener('click', capture)
@@ -176,6 +190,7 @@ export function Player({ aircraftRoot }: PlayerProps) {
       window.removeEventListener('keyup', onKey)
       window.removeEventListener('mousedown', onMouseDown)
       window.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener('wheel', onWheel)
       document.removeEventListener('pointerlockchange', onLockChange)
       gl.domElement.removeEventListener('contextmenu', noMenu)
       gl.domElement.removeEventListener('click', capture)

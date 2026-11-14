@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { COMPONENTS } from '../../src/data/components'
 
-const gear = COMPONENTS.filter((c) => c.zone === 'C')
+const gear = COMPONENTS.filter((c) => c.zone === 'C' || /^eng\d_/.test(c.id))
 
-describe('landing gear component information', () => {
+describe('landing gear and engine component information', () => {
   it.each(gear.map((c) => [c.id, c] as const))(
     '%s has a description, a normal condition and checks',
     (_id, c) => {
@@ -18,6 +18,13 @@ describe('landing gear component information', () => {
     const rh = gear.find((c) => c.id === 'mlg_side_stay_rh')
     expect(lh?.description).toBe(rh?.description)
     expect(lh?.checks).toEqual(rh?.checks)
+  })
+
+  it('gives both engines the same information', () => {
+    const one = gear.find((c) => c.id === 'eng1_fan')
+    const two = gear.find((c) => c.id === 'eng2_fan')
+    expect(one?.description).toBe(two?.description)
+    expect(one?.checks).toEqual(two?.checks)
   })
 
   it('states no limit, pressure, quantity or interval', () => {

@@ -250,6 +250,9 @@ function Hud() {
           <kbd>F</kbd> flashlight {flashlight ? 'on' : 'off'}
         </span>
         <span>
+          <kbd>Scroll</kbd> turn fan
+        </span>
+        <span>
           <kbd>E</kbd> report
         </span>
         <span>
