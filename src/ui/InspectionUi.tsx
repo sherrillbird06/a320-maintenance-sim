@@ -247,6 +247,26 @@ function Hud() {
               </>
             )}
           </dl>
+          {component.description && <p className="component__text">{component.description}</p>}
+          {component.normalCondition && (
+            <>
+              <h3 className="component__heading">Normal condition</h3>
+              <p className="component__text">{component.normalCondition}</p>
+            </>
+          )}
+          {component.checks && (
+            <>
+              <h3 className="component__heading">What to look at</h3>
+              <ul className="component__list">
+                {component.checks.map((check) => (
+                  <li key={check}>{check}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          {component.description && (
+            <p className="component__note">Educational summary. Not an inspection procedure.</p>
+          )}
           <div className="component__actions">
             <button
               className="button button--primary"

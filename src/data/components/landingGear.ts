@@ -1,5 +1,6 @@
 import type { Component, Side } from '../schema'
 import { mirrored, numbered, seedsFor, single } from './builders'
+import { landingGearText } from './landingGearText'
 
 const c = seedsFor('C')
 
@@ -13,7 +14,7 @@ function mainWheelSide(component: Component, index: number): Component {
 }
 
 /** Zone C — nose and main landing gear, their doors and bays, and the hydraulic service points. */
-export const LANDING_GEAR: Component[] = [
+const PARTS: Component[] = [
   // Nose landing gear
   single(c('nlg_shock_strut', 'Nose gear shock strut', '32', GEAR)),
   single(c('nlg_torque_links', 'Nose gear torque links', '32', GEAR)),
@@ -46,3 +47,9 @@ export const LANDING_GEAR: Component[] = [
   ),
   single(c('hyd_service_panel_blue', 'Blue hydraulic system service panel', '29', ['hydraulic'])),
 ]
+
+/** Zone C with its component information attached. */
+export const LANDING_GEAR: Component[] = PARTS.map((part) => ({
+  ...part,
+  ...landingGearText(part.id),
+}))
