@@ -60,6 +60,17 @@ describe('session', () => {
     expect(state.findings).toEqual([])
   })
 
+  it('starts whichever assignment is chosen', () => {
+    store.getState().startAssignment(technician, 5, 'engine_inlet_inspection')
+    const state = store.getState()
+    expect(state.template.id).toBe('engine_inlet_inspection')
+    expect(state.entry?.assignment).toMatch(/Engine inspection/)
+    for (const defect of state.scenario?.defects ?? []) {
+      expect(defect.componentId).toMatch(/^eng[12]_(fan|inlet_cowl)$/)
+    }
+    expect(state.scenario?.defects.length).toBeGreaterThan(0)
+  })
+
   it('records and removes findings', () => {
     store.getState().startAssignment(technician, 5)
     store.getState().addFinding(findingFor())

@@ -68,7 +68,56 @@ const paintWorn: Painter = (context, size, rng) => {
   }
 }
 
-const PAINTERS: Record<string, Painter> = { tire_cut: paintCut, tire_worn: paintWorn }
+/** A nick: a small sharp notch with bright torn metal around a dark centre. */
+const paintNick: Painter = (context, size, rng) => {
+  const mid = size / 2
+  context.fillStyle = 'rgba(8, 8, 9, 0.95)'
+  context.beginPath()
+  context.moveTo(mid - size * 0.3, mid - size * 0.2)
+  context.lineTo(mid + size * 0.12 + rng() * size * 0.05, mid - size * 0.03)
+  context.lineTo(mid + size * 0.05, mid + size * 0.06)
+  context.lineTo(mid - size * 0.3, mid + size * 0.22)
+  context.closePath()
+  context.fill()
+  context.strokeStyle = 'rgba(236, 238, 242, 0.95)'
+  context.lineWidth = size * 0.035
+  context.lineJoin = 'round'
+  context.stroke()
+}
+
+/** A dent: a shadowed hollow with a bright rim on one side and scrapes through the middle. */
+const paintDent: Painter = (context, size, rng) => {
+  const mid = size / 2
+  const hollow = context.createRadialGradient(mid, mid, size * 0.03, mid, mid, size * 0.42)
+  hollow.addColorStop(0, 'rgba(20, 20, 22, 0.8)')
+  hollow.addColorStop(0.7, 'rgba(40, 40, 42, 0.35)')
+  hollow.addColorStop(1, 'rgba(60, 60, 60, 0)')
+  context.fillStyle = hollow
+  context.beginPath()
+  context.ellipse(mid, mid, size * 0.42, size * 0.3, 0.3, 0, Math.PI * 2)
+  context.fill()
+  context.strokeStyle = 'rgba(245, 246, 248, 0.7)'
+  context.lineWidth = size * 0.02
+  context.beginPath()
+  context.ellipse(mid, mid, size * 0.34, size * 0.23, 0.3, Math.PI * 1.05, Math.PI * 1.75)
+  context.stroke()
+  context.strokeStyle = 'rgba(215, 218, 222, 0.75)'
+  context.lineWidth = size * 0.008
+  for (let i = 0; i < 6; i++) {
+    const y = mid + (rng() - 0.5) * size * 0.2
+    context.beginPath()
+    context.moveTo(mid - size * 0.2, y)
+    context.lineTo(mid + size * 0.2, y + (rng() - 0.5) * size * 0.06)
+    context.stroke()
+  }
+}
+
+const PAINTERS: Record<string, Painter> = {
+  tire_cut: paintCut,
+  tire_worn: paintWorn,
+  blade_nick: paintNick,
+  lip_dent: paintDent,
+}
 
 function defectTexture(name: string, seed: number): CanvasTexture {
   const size = 256

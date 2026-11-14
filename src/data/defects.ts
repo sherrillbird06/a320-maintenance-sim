@@ -48,7 +48,97 @@ const REAL_WORLD =
   'In real maintenance the decision to keep or replace a tire is made only against the limits in the approved maintenance data for that aircraft.'
 const SOURCE = '(General tire inspection: FAA-H-8083-31B, Aircraft Landing Gear Systems.)'
 
+// --- Engines -------------------------------------------------------------------
+// Geometry below mirrors assets-src/blender/_engine.py and exterior.py.
+const INLET_X = AIRCRAFT.dimensions.noseToEngineInlet.value
+const ENGINE_OFFSET = AIRCRAFT.dimensions.engineCentrelineOffset.value
+const NACELLE_RADIUS = 1.16
+const AXIS_HEIGHT = AIRCRAFT.dimensions.nacelleGroundClearance.value + NACELLE_RADIUS
+const FAN_STATION = 0.92
+/** Engine prefix and lateral position of its axis (+ is aircraft left). */
+const ENGINES: [prefix: string, z: number][] = [
+  ['eng1', ENGINE_OFFSET],
+  ['eng2', -ENGINE_OFFSET],
+]
+
+/** Points on fan blade leading edges, at the given angles round the fan and radius from its axis. */
+function bladeAnchors(anglesDeg: number[], radius: number): DefectAnchor[] {
+  // Where the leading edge sits relative to the fan hub at this radius (see _blade_mesh).
+  const t = (radius - 0.29) / 0.585
+  const chord = 0.2 + 0.12 * t
+  const stagger = ((26 + 36 * t) * Math.PI) / 180
+  const ahead = 0.07 - (Math.cos(stagger) * chord) / 2
+  const across = (-Math.sin(stagger) * chord) / 2
+  return ENGINES.flatMap(([prefix, z]) =>
+    anglesDeg.map((deg): DefectAnchor => {
+      const a = (deg * Math.PI) / 180
+      // Blade stands along +Z in the fan's frame and is turned about the engine axis by the angle.
+      const lateral = across * Math.cos(a) - radius * Math.sin(a)
+      const up = across * Math.sin(a) + radius * Math.cos(a)
+      return {
+        componentId: `${prefix}_fan`,
+        position: [INLET_X + FAN_STATION + ahead - 0.004, AXIS_HEIGHT + up, z - lateral],
+        normal: [-1, 0, 0],
+      }
+    }),
+  )
+}
+
+/** Points on the inlet lip, at the given angles round it (0 is the outboard side of the right engine). */
+function lipAnchors(anglesDeg: number[]): DefectAnchor[] {
+  const lipRadius = 1.0
+  return ENGINES.flatMap(([prefix, z]) =>
+    anglesDeg.map((deg): DefectAnchor => {
+      const a = (deg * Math.PI) / 180
+      const length = Math.hypot(0.8, 0.6)
+      return {
+        componentId: `${prefix}_inlet_cowl`,
+        position: [
+          INLET_X + 0.02,
+          AXIS_HEIGHT + lipRadius * Math.sin(a),
+          z - lipRadius * Math.cos(a),
+        ],
+        normal: [-0.8 / length, (0.6 * Math.sin(a)) / length, (-0.6 * Math.cos(a)) / length],
+      }
+    }),
+  )
+}
+
+const ENGINE_REAL_WORLD =
+  'In real maintenance, damage to a fan blade or inlet is assessed only against the limits in the approved maintenance data for that engine and aircraft.'
+const ENGINE_SOURCE = '(General turbine engine inspection: FAA-H-8083-32B.)'
+
 export const DEFECT_TYPES: DefectType[] = [
+  {
+    id: 'fan_blade_nick',
+    category: 'foreign-object-damage',
+    label: 'Fan blade damage — leading-edge nick',
+    anchors: bladeAnchors([40, 150, 260], 0.62),
+    visual: { kind: 'decal', texture: 'blade_nick', sizeM: 0.11 },
+    correctCondition: 'Nick in the fan blade leading edge',
+    wrongConditions: [
+      'Normal blade leading-edge profile',
+      'Surface dirt or staining on the blade',
+      'Dent in the inlet lip skin',
+    ],
+    explanation: `An object drawn into the inlet strikes the fan first. It leaves a small sharp notch in a blade's leading edge, with bright exposed metal, on one blade while its neighbours are smooth. Comparing each blade with the ones beside it is how such damage is found. ${ENGINE_REAL_WORLD} ${ENGINE_SOURCE}`,
+    libraryChapters: ['72'],
+  },
+  {
+    id: 'inlet_lip_dent',
+    category: 'foreign-object-damage',
+    label: 'Inlet damage — lip dent',
+    anchors: lipAnchors([20, 200, 300]),
+    visual: { kind: 'decal', texture: 'lip_dent', sizeM: 0.22 },
+    correctCondition: 'Dent in the inlet lip skin',
+    wrongConditions: [
+      'Paint scuff with no deformation',
+      'Nick in the fan blade leading edge',
+      'Normal lip surface',
+    ],
+    explanation: `The inlet lip is the first surface an object or a piece of ground equipment meets. A dent shows as a shadowed hollow that breaks the smooth reflection running round the lip, often with scraped metal at its centre. ${ENGINE_REAL_WORLD} ${ENGINE_SOURCE}`,
+    libraryChapters: ['71'],
+  },
   {
     id: 'tire_tread_cut',
     category: 'tire',

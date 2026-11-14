@@ -391,3 +391,11 @@ kbd {
   color: var(--sheet-dim);
   font-size: 11px;
 }
+
+.table--choice {
+  margin-bottom: 14px;
+}
+
+.table--choice td:first-child {
+  width: 28px;
+}

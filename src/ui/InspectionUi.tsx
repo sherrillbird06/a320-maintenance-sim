@@ -92,7 +92,10 @@ function Logbook() {
 
 /** Before an inspection: the work order to accept, and the logbook of past ones. */
 function StartPanel() {
-  const template = useSession((s) => s.template)
+  const templates = useSession((s) => s.templates)
+  const last = useSession((s) => s.template)
+  const [templateId, setTemplateId] = useState(last.id)
+  const template = templates.find((t) => t.id === templateId) ?? last
   const saved = useSession((s) => s.technician)
   const error = useSession((s) => s.error)
   const [name, setName] = useState(saved.name)
@@ -103,14 +106,41 @@ function StartPanel() {
     event.preventDefault()
     const typed = Number.parseInt(replay.replace(/\D/g, ''), 10)
     const seed = Number.isFinite(typed) ? typed : Math.floor(Date.now() % 90000) + 10000
-    session.getState().startAssignment({ name, id }, seed)
+    session.getState().startAssignment({ name, id }, seed, template.id)
   }
 
   return (
     <div className="sheet">
       <section className="sheet__section">
         <h1 className="sheet__title">Work order</h1>
-        <p className="sheet__lead">{template.title}</p>
+        <table className="table table--choice">
+          <thead>
+            <tr>
+              <th />
+              <th>Assignment</th>
+              <th>Zone</th>
+              <th>Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            {templates.map((t) => (
+              <tr key={t.id}>
+                <td>
+                  <input
+                    type="radio"
+                    name="assignment"
+                    aria-label={t.title}
+                    checked={t.id === template.id}
+                    onChange={() => setTemplateId(t.id)}
+                  />
+                </td>
+                <td>{t.title}</td>
+                <td>{t.zones.map((z) => `${z} — ${zoneTitle(z)}`).join(', ')}</td>
+                <td className="mono">{t.level}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
         <AircraftBlock />
         <dl className="facts">
           <dt>Inspection zone</dt>

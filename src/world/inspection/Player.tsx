@@ -2,6 +2,7 @@ import { PointerLockControls } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import {
+  Box3,
   MathUtils,
   Raycaster,
   Vector2,
@@ -11,6 +12,7 @@ import {
   type SpotLight,
 } from 'three'
 import { byId } from '../../data/components'
+import { blocked, resolveMove, type Obstacle } from '../../sim/collision'
 import { session, useSession, useView, view } from '../../state/useSession'
 
 const EYE_HEIGHT_M = 1.7
@@ -23,6 +25,18 @@ const ZOOM_FOV = 16
 const REACH_M = 12
 /** Walkable area of the hangar floor, metres from its centre. */
 const BOUNDS = { x: 34, z: 28 }
+
+const BODY_RADIUS_M = 0.3
+/** Head height above the eyes. */
+const HEAD_ROOM_M = 0.1
+
+/**
+ * Things the technician cannot walk through: wheels and gear legs, engine
+ * nacelles, the underside of the fuselage (which can be passed by crouching),
+ * and the hangar's stands and equipment. Each is treated as its bounding box.
+ */
+const SOLID =
+  /^(mlg_tire_|nlg_tire_|mlg_wheel_|nlg_wheel_|mlg_shock_strut|nlg_shock_strut|eng\d_(inlet_cowl|fan_cowl|reverser_cowl|exhaust_nozzle)|belly_fairing|fwd_fuselage_belly|aft_fuselage_belly|door_stairs|engine_stand|tail_lift|toolbox_roll_cab|workbench|documentation_station|ground_power_unit|fire_extinguisher)/
 
 /** The registry component an object belongs to: the nearest ancestor whose name is a component id. */
 function componentOf(object: Object3D | null): string | null {
@@ -50,6 +64,28 @@ export function Player({ aircraftRoot }: PlayerProps) {
   const zoom = useRef(false)
   const light = useRef<SpotLight>(null)
   const raycaster = useMemo(() => new Raycaster(), [])
+  const obstacles = useRef<Obstacle[]>([])
+
+  // Models arrive after the scene mounts, so the obstacle list is rebuilt until it settles.
+  useEffect(() => {
+    const collect = () => {
+      const found: Obstacle[] = []
+      scene.traverse((object) => {
+        if (!SOLID.test(object.name)) return
+        const box = new Box3().setFromObject(object)
+        if (box.isEmpty()) return
+        found.push({
+          min: [box.min.x, box.min.y, box.min.z],
+          max: [box.max.x, box.max.y, box.max.z],
+        })
+      })
+      obstacles.current = found
+    }
+    collect()
+    const timer = window.setInterval(collect, 2000)
+    return () => window.clearInterval(timer)
+  }, [scene])
+
   const active = phase === 'inspecting' && panel === 'none'
 
   const invalidate = useThree((state) => state.invalidate)
@@ -165,11 +201,28 @@ export function Player({ aircraftRoot }: PlayerProps) {
         .add(side.multiplyScalar(strafe))
         .normalize()
         .multiplyScalar(speed * delta)
-      camera.position.x = MathUtils.clamp(camera.position.x + step.x, -BOUNDS.x, BOUNDS.x)
-      camera.position.z = MathUtils.clamp(camera.position.z + step.z, -BOUNDS.z, BOUNDS.z)
+      const target = {
+        x: MathUtils.clamp(camera.position.x + step.x, -BOUNDS.x, BOUNDS.x),
+        z: MathUtils.clamp(camera.position.z + step.z, -BOUNDS.z, BOUNDS.z),
+      }
+      const body = { radius: BODY_RADIUS_M, height: camera.position.y + HEAD_ROOM_M }
+      const next = resolveMove(
+        { x: camera.position.x, z: camera.position.z },
+        target,
+        body,
+        obstacles.current,
+      )
+      camera.position.x = next.x
+      camera.position.z = next.z
     }
 
-    const height = pressed.has('KeyC') ? CROUCH_HEIGHT_M : EYE_HEIGHT_M
+    const here = { x: camera.position.x, z: camera.position.z }
+    const standing = { radius: BODY_RADIUS_M, height: EYE_HEIGHT_M + HEAD_ROOM_M }
+    const crouching = { radius: BODY_RADIUS_M, height: CROUCH_HEIGHT_M + HEAD_ROOM_M }
+    // Stay down while under something that only a crouch clears.
+    const underLow =
+      blocked(here, standing, obstacles.current) && !blocked(here, crouching, obstacles.current)
+    const height = pressed.has('KeyC') || underLow ? CROUCH_HEIGHT_M : EYE_HEIGHT_M
     camera.position.y = MathUtils.damp(camera.position.y, height, 10, delta)
 
     const lens = camera as PerspectiveCamera

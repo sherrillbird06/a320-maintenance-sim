@@ -101,3 +101,38 @@ test('reporting a sound component is graded incorrect and the real defects are l
   ).toBeVisible()
   await expect(page.locator('.review .chip', { hasText: /^Missed$/ }).first()).toBeVisible()
 })
+
+test('the engine inlet assignment can be chosen and its defects are on the engines', async ({
+  page,
+}) => {
+  await page.goto('./?e2e=1')
+  await page.getByRole('radio', { name: /Engine inspection/ }).check()
+  await acceptWorkOrder(page, '77')
+  await expect(page.getByText('Engine inspection — inlet and fan')).toBeVisible()
+
+  const found = await defects(page)
+  expect(found.length).toBeGreaterThan(0)
+  for (const defect of found) expect(defect.componentId).toMatch(/^eng[12]_(fan|inlet_cowl)$/)
+
+  const [first] = found
+  if (!first) throw new Error('scenario has no defects')
+  await selectOnAircraft(page, first)
+  await page.getByRole('button', { name: 'Report discrepancy' }).click()
+  const report = page.getByRole('dialog', { name: 'Discrepancy report' })
+  await report
+    .getByLabel('ATA chapter')
+    .selectOption(first.componentId.endsWith('_fan') ? '72' : '71')
+  await report.getByLabel('Discrepancy type').selectOption('foreign-object-damage')
+  await report
+    .getByLabel('Observed condition')
+    .selectOption(
+      first.componentId.endsWith('_fan')
+        ? 'Nick in the fan blade leading edge'
+        : 'Dent in the inlet lip skin',
+    )
+  await report.getByRole('button', { name: 'Record finding' }).click()
+  await page.keyboard.press('Tab')
+  await page.getByRole('button', { name: 'Sign off inspection' }).click()
+  await page.getByRole('button', { name: 'Confirm sign-off' }).click()
+  await expect(page.locator('.review .chip', { hasText: /^Correct$/ })).toBeVisible()
+})

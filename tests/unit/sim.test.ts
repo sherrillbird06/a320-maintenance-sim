@@ -51,6 +51,33 @@ describe('scenario data', () => {
   })
 })
 
+describe('engine defect anchors', () => {
+  const INLET_X = 11.19
+  const AXIS = { y: 0.67 + 1.16, z: 5.75 }
+
+  it('puts fan blade nicks on the fan disc, inside the inlet duct', () => {
+    const nick = DEFECT_TYPES.find((d) => d.id === 'fan_blade_nick')
+    for (const anchor of nick?.anchors ?? []) {
+      const [x, y, z] = anchor.position
+      const radius = Math.hypot(y - AXIS.y, Math.abs(z) - AXIS.z)
+      expect(x).toBeGreaterThan(INLET_X + 0.7)
+      expect(x).toBeLessThan(INLET_X + 1.1)
+      expect(radius).toBeGreaterThan(0.3)
+      expect(radius).toBeLessThan(0.88)
+    }
+    expect(nick?.anchors.length).toBe(6)
+  })
+
+  it('puts inlet dents on the lip at the front of each nacelle', () => {
+    const dent = DEFECT_TYPES.find((d) => d.id === 'inlet_lip_dent')
+    for (const anchor of dent?.anchors ?? []) {
+      const [x, y, z] = anchor.position
+      expect(x).toBeCloseTo(INLET_X, 1)
+      expect(Math.hypot(y - AXIS.y, Math.abs(z) - AXIS.z)).toBeCloseTo(1.0, 1)
+    }
+  })
+})
+
 describe('generateScenario', () => {
   it('is reproducible from its seed', () => {
     expect(generateScenario(template, DEFECT_TYPES, 1234)).toEqual(

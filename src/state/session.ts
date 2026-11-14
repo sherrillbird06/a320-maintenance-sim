@@ -34,7 +34,8 @@ export interface SessionState {
   result: InspectionResult | null
   logbook: FiledEntry[]
   error: string | null
-  startAssignment: (technician: Technician, seed: number) => void
+  templates: ScenarioTemplate[]
+  startAssignment: (technician: Technician, seed: number, templateId?: string) => void
   select: (selection: Selection | null) => void
   addFinding: (finding: Finding) => void
   removeFinding: (index: number) => void
@@ -87,6 +88,7 @@ export function createSessionStore({ storage, now = Date.now }: Dependencies = {
     phase: 'idle',
     technician: saved.technician,
     template,
+    templates: SCENARIO_TEMPLATES,
     scenario: null,
     entry: null,
     startedAtMs: 0,
@@ -96,18 +98,20 @@ export function createSessionStore({ storage, now = Date.now }: Dependencies = {
     logbook: saved.logbook,
     error: null,
 
-    startAssignment(technician, seed) {
+    startAssignment(technician, seed, templateId) {
       if (!technician.name.trim() || !technician.id.trim()) {
         set({ error: 'Enter your name and ID before taking a work order.' })
         return
       }
-      const scenario = generateScenario(template, DEFECT_TYPES, seed)
+      const chosen = SCENARIO_TEMPLATES.find((t) => t.id === templateId) ?? get().template
+      const scenario = generateScenario(chosen, DEFECT_TYPES, seed)
       const startedAtMs = now()
       set({
         phase: 'inspecting',
         technician,
         scenario,
-        entry: openEntry(scenario, template, technician, new Date(startedAtMs).toISOString()),
+        template: chosen,
+        entry: openEntry(scenario, chosen, technician, new Date(startedAtMs).toISOString()),
         startedAtMs,
         findings: [],
         selection: null,
