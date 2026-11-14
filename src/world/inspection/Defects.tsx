@@ -184,7 +184,41 @@ const paintPuddle: Painter = (context, size, rng) => {
   context.fill()
 }
 
+/** Delamination: the edge split into a lifted lip, with a dark gap and pale exposed core. */
+const paintDelamination: Painter = (context, size, rng) => {
+  const mid = size / 2
+  // Drawn along the picture's vertical axis, which lies along the span once the mark is on the wing.
+  context.translate(size, 0)
+  context.rotate(Math.PI / 2)
+  context.fillStyle = 'rgba(214, 205, 180, 0.92)'
+  context.beginPath()
+  context.moveTo(size * 0.06, mid)
+  for (let i = 0; i <= 12; i++) {
+    context.lineTo(
+      size * (0.06 + 0.073 * i),
+      mid - size * (0.03 + rng() * 0.07) * Math.sin((Math.PI * i) / 12),
+    )
+  }
+  context.lineTo(size * 0.94, mid)
+  for (let i = 12; i >= 0; i--) {
+    context.lineTo(
+      size * (0.06 + 0.073 * i),
+      mid + size * (0.02 + rng() * 0.04) * Math.sin((Math.PI * i) / 12),
+    )
+  }
+  context.closePath()
+  context.fill()
+  context.strokeStyle = 'rgba(12, 12, 13, 0.92)'
+  context.lineWidth = size * 0.022
+  context.beginPath()
+  context.moveTo(size * 0.08, mid)
+  for (let i = 1; i <= 11; i++)
+    context.lineTo(size * (0.08 + 0.076 * i), mid + (rng() - 0.5) * size * 0.03)
+  context.stroke()
+}
+
 const PAINTERS: Record<string, Painter> = {
+  edge_delamination: paintDelamination,
   hydraulic_streak: paintStreak,
   hydraulic_puddle: paintPuddle,
   tire_cut: paintCut,

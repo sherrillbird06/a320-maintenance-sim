@@ -96,7 +96,7 @@ describe('summarize', () => {
 
   it('shows which levels have an assignment to attempt', () => {
     const profile = summarize([], SCENARIO_TEMPLATES)
-    expect(profile.levels.filter((l) => l.available).map((l) => l.level)).toEqual([4, 5, 6])
+    expect(profile.levels.filter((l) => l.available).map((l) => l.level)).toEqual([3, 4, 5, 6])
   })
 
   it('records practice per ATA chapter', () => {

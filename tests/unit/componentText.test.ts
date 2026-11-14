@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { COMPONENTS } from '../../src/data/components'
 
-const gear = COMPONENTS.filter((c) => c.zone === 'C' || /^eng\d_/.test(c.id))
+const gear = COMPONENTS.filter(
+  (c) =>
+    c.zone === 'C' ||
+    /^eng\d_/.test(c.id) ||
+    /^(slat|flap_inboard|flap_outboard|spoiler|aileron|elevator|rudder)/.test(c.id),
+)
 
 describe('landing gear and engine component information', () => {
   it.each(gear.map((c) => [c.id, c] as const))(

@@ -1,12 +1,13 @@
 import type { Component } from '../schema'
 import { mirrored, seedsFor, single } from './builders'
+import { flightControlText } from './flightControlText'
 
 const d = seedsFor('D')
 
 const FLIGHT_CONTROL = ['flight-controls', 'hydraulic'] as const
 
 /** Zone D — rear fuselage, aft doors, tail surfaces and the APU installation. */
-export const TAIL: Component[] = [
+const PARTS: Component[] = [
   // Structure
   ...mirrored(d('aft_fuselage_skin', 'Aft fuselage skin', '53')),
   single(d('aft_fuselage_belly', 'Aft fuselage lower skin', '53')),
@@ -43,3 +44,6 @@ export const TAIL: Component[] = [
   single(d('tail_strobe_light', 'Tail strobe light', '33', ['electrical'])),
   single(d('static_dischargers_tail', 'Tail static dischargers', '23')),
 ]
+
+/** With component information attached where it has been written. */
+export const TAIL: Component[] = PARTS.map((part) => ({ ...part, ...flightControlText(part.id) }))

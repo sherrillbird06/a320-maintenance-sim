@@ -177,7 +177,107 @@ const leak = (system: 'green' | 'yellow' | 'blue', name: string): DefectType => 
   hydraulicSystem: system,
 })
 
+// --- Wing surfaces ------------------------------------------------------------------
+// Mirrors wing_section and _profile in assets-src/blender/_surfaces.py.
+const WING_THICKNESS: [eta: number, ratio: number][] = [
+  [0, 0.15],
+  [4, 0.13],
+  [6.4, 0.118],
+  [17.05, 0.108],
+]
+
+function thicknessAt(eta: number): number {
+  for (let i = 0; i < WING_THICKNESS.length - 1; i++) {
+    const [e0, t0] = WING_THICKNESS[i] as [number, number]
+    const [e1, t1] = WING_THICKNESS[i + 1] as [number, number]
+    if (eta <= e1) return t0 + (t1 - t0) * Math.max(0, (eta - e0) / (e1 - e0))
+  }
+  return 0.108
+}
+
+/**
+ * A point on the wing surface: `eta` metres out from the centreline, `chord` from 0 at the
+ * leading edge to 1 at the trailing edge. `side` is +1 for the left wing, -1 for the right.
+ */
+function wingPoint(eta: number, chord: number, upper: boolean, side: 1 | -1): Vec3 {
+  const le = 13.18 + 0.518 * (eta - 2.5)
+  const te = 18.86 + 0.306 * Math.max(0, eta - 6.4)
+  const height = 2.96 + 0.093 * Math.max(0, eta - 2)
+  const length = te - le
+  const t = thicknessAt(eta)
+  const half =
+    5 *
+    t *
+    (0.2969 * Math.sqrt(chord) -
+      0.126 * chord -
+      0.3516 * chord ** 2 +
+      0.2843 * chord ** 3 -
+      0.1036 * chord ** 4)
+  const camber =
+    chord < 0.4
+      ? (0.02 / 0.16) * (0.8 * chord - chord ** 2)
+      : (0.02 / 0.36) * (0.2 + 0.8 * chord - chord ** 2)
+  return [le + chord * length, height + (camber + (upper ? half : -half)) * length, side * eta]
+}
+
+/** Anchors on the underside of named surfaces, on both wings. */
+function underside(spots: [base: string, eta: number, chord: number][]): DefectAnchor[] {
+  return ([1, -1] as const).flatMap((side) =>
+    spots.map(([base, eta, chord]): DefectAnchor => {
+      const [x, y, z] = wingPoint(eta, chord, false, side)
+      return {
+        componentId: `${base}_${side === 1 ? 'lh' : 'rh'}`,
+        position: [x, y - 0.004, z],
+        normal: [0, -1, 0],
+      }
+    }),
+  )
+}
+
+const SURFACE_REAL_WORLD =
+  'In real maintenance, damage to a control surface is measured and assessed only against the limits in the approved structural repair data for that aircraft.'
+const SURFACE_SOURCE = '(General structural inspection: FAA-H-8083-31B and AC 43.13-1B.)'
+
 export const DEFECT_TYPES: DefectType[] = [
+  {
+    id: 'surface_dent',
+    category: 'panel-damage',
+    label: 'Control surface damage — dent',
+    anchors: underside([
+      ['flap_inboard', 4.6, 0.88],
+      ['flap_outboard', 9.4, 0.88],
+      ['aileron', 14.3, 0.88],
+      ['slat_3', 10.2, 0.06],
+    ]),
+    visual: { kind: 'decal', texture: 'lip_dent', sizeM: 0.3 },
+    correctCondition: 'Dent in the skin with scraped paint',
+    wrongConditions: [
+      'Paint scuff with no deformation',
+      'Normal access panel edge',
+      'Fluid stain with the skin undamaged',
+    ],
+    explanation: `A dent is a hollow in the skin: it breaks the smooth reflection across the surface and usually has scraped or cracked paint at its centre. The undersides of the flaps and the leading edges of the slats take most impacts, from stones and debris thrown up by the wheels and from birds. Control surfaces are light structures, so a dent matters more on them than on thicker skin. ${SURFACE_REAL_WORLD} ${SURFACE_SOURCE}`,
+    libraryChapters: ['27', '57'],
+  },
+  {
+    id: 'trailing_edge_delamination',
+    category: 'panel-damage',
+    label: 'Control surface damage — trailing edge delamination',
+    anchors: underside([
+      ['flap_outboard', 9.9, 0.975],
+      ['aileron', 15.2, 0.975],
+      ['flap_inboard', 4.4, 0.975],
+    ]),
+    visual: { kind: 'decal', texture: 'edge_delamination', sizeM: 0.34 },
+    correctCondition: 'Trailing edge delaminated with lifted skin',
+    wrongConditions: [
+      'Normal trailing edge profile',
+      'Paint scuff with no deformation',
+      'Dent in the skin with scraped paint',
+    ],
+    explanation: `Many control surfaces are bonded layered structures. Delamination is those layers coming apart: along a trailing edge it shows as a split or lifted lip where the edge should be one clean line, often with a pale exposed core. It lets moisture in and grows in service. ${SURFACE_REAL_WORLD} ${SURFACE_SOURCE}`,
+    libraryChapters: ['27', '57'],
+  },
   leak('green', 'Green'),
   leak('yellow', 'Yellow'),
   leak('blue', 'Blue'),

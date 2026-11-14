@@ -247,3 +247,35 @@ test('a hydraulic leak report asks which system and grades the answer', async ({
   await page.getByRole('button', { name: 'Confirm sign-off' }).click()
   await expect(page.locator('.review .chip', { hasText: /^Correct$/ })).toBeVisible()
 })
+
+test('the flight control assignment places damage on wing surfaces and grades a correct report', async ({
+  page,
+}) => {
+  await page.goto('./?e2e=1')
+  await page.getByRole('radio', { name: /Flight control inspection/ }).check()
+  await acceptWorkOrder(page, '21')
+  const found = await defects(page)
+  expect(found.length).toBeGreaterThan(0)
+  for (const defect of found)
+    expect(defect.componentId).toMatch(/^(slat_\d|flap_inboard|flap_outboard|aileron)_(lh|rh)$/)
+
+  const [first] = found
+  if (!first) throw new Error('scenario has no defects')
+  await selectOnAircraft(page, first)
+  await expect(page.getByText('What to look at')).toBeVisible()
+  await page.getByRole('button', { name: 'Report discrepancy' }).click()
+  const report = page.getByRole('dialog', { name: 'Discrepancy report' })
+  await report.getByLabel('ATA chapter').selectOption('27')
+  await report.getByLabel('Discrepancy type').selectOption('panel-damage')
+  const options = await report.getByLabel('Observed condition').locator('option').allTextContents()
+  expect(options).toContain('Dent in the skin with scraped paint')
+  expect(options).toContain('Trailing edge delaminated with lifted skin')
+  await report.getByLabel('Observed condition').selectOption({ index: 1 })
+  await report.getByRole('button', { name: 'Record finding' }).click()
+  await page.keyboard.press('Tab')
+  await page.getByRole('button', { name: 'Sign off inspection' }).click()
+  await page.getByRole('button', { name: 'Confirm sign-off' }).click()
+  await expect(
+    page.locator('.review .chip', { hasText: /^(Correct|Partly correct)$/ }).first(),
+  ).toBeVisible()
+})

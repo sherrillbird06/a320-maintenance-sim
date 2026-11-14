@@ -37,6 +37,47 @@ export const SCENARIO_TEMPLATES: ScenarioTemplate[] = [
     parTimeMinutes: 10,
   },
   {
+    id: 'flight_control_inspection',
+    level: 3,
+    title: 'Flight control inspection — wing surfaces',
+    zones: ['B'],
+    defectCount: { min: 1, max: 2 },
+    defectPool: ['panel-damage'],
+    distractorCount: 0,
+    aircraftConfig: {
+      flapsExtended: false,
+      slatsExtended: false,
+      spoilersRaised: false,
+      openDoors: [],
+    },
+    referenceChapters: ['27', '57'],
+    checklist: [
+      {
+        id: 'left_slats',
+        title: 'Left wing slats 1 to 5',
+        components: ['slat_1_lh', 'slat_2_lh', 'slat_3_lh', 'slat_4_lh', 'slat_5_lh'],
+      },
+      {
+        id: 'left_flaps',
+        title: 'Left wing flaps, inboard and outboard',
+        components: ['flap_inboard_lh', 'flap_outboard_lh'],
+      },
+      { id: 'left_aileron', title: 'Left aileron', components: ['aileron_lh'] },
+      {
+        id: 'right_slats',
+        title: 'Right wing slats 1 to 5',
+        components: ['slat_1_rh', 'slat_2_rh', 'slat_3_rh', 'slat_4_rh', 'slat_5_rh'],
+      },
+      {
+        id: 'right_flaps',
+        title: 'Right wing flaps, inboard and outboard',
+        components: ['flap_inboard_rh', 'flap_outboard_rh'],
+      },
+      { id: 'right_aileron', title: 'Right aileron', components: ['aileron_rh'] },
+    ],
+    parTimeMinutes: 15,
+  },
+  {
     id: 'hydraulic_leak_inspection',
     level: 5,
     title: 'Hydraulic system — leak check at the service panels',

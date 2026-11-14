@@ -1,12 +1,13 @@
 import type { Component } from '../schema'
 import { mirrored, numbered, seedsFor, single } from './builders'
+import { flightControlText } from './flightControlText'
 
 const b = seedsFor('B')
 
 const FLIGHT_CONTROL = ['flight-controls', 'hydraulic'] as const
 
 /** Zone B — wings, centre fuselage and the service points on them. Engines are in engine.ts. */
-export const WINGS: Component[] = [
+const PARTS: Component[] = [
   // Wing structure
   ...mirrored(b('wing_upper_skin', 'Wing upper surface', '57')),
   ...mirrored(b('wing_lower_skin', 'Wing lower surface', '57')),
@@ -54,3 +55,6 @@ export const WINGS: Component[] = [
   ...mirrored(b('wing_scan_light', 'Wing and engine scan light', '33', ['electrical'])),
   ...mirrored(b('static_dischargers_wing', 'Wing static dischargers', '23')),
 ]
+
+/** With component information attached where it has been written. */
+export const WINGS: Component[] = PARTS.map((part) => ({ ...part, ...flightControlText(part.id) }))

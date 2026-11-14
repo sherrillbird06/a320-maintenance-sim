@@ -215,6 +215,42 @@ describe('gradeInspection', () => {
   })
 })
 
+describe('flight control defect anchors', () => {
+  const types = DEFECT_TYPES.filter((d) => d.category === 'panel-damage')
+
+  it('sits on the underside of wing control surfaces, on both wings', () => {
+    expect(types.length).toBeGreaterThanOrEqual(2)
+    const sides = new Set<string>()
+    for (const type of types) {
+      for (const anchor of type.anchors) {
+        const [x, y, z] = anchor.position
+        expect(anchor.componentId).toMatch(/^(slat_\d|flap_inboard|flap_outboard|aileron)_(lh|rh)$/)
+        // Under the wing: above head height, within the span, between the leading and trailing edges.
+        expect(y).toBeGreaterThan(2.5)
+        expect(y).toBeLessThan(4.5)
+        expect(Math.abs(z)).toBeLessThan(17.05)
+        expect(x).toBeGreaterThan(12)
+        expect(x).toBeLessThan(22.5)
+        // Left-hand parts are on the aircraft's left, which is +Z.
+        expect(Math.sign(z)).toBe(anchor.componentId.endsWith('_lh') ? 1 : -1)
+        sides.add(anchor.componentId.slice(-2))
+      }
+    }
+    expect([...sides].sort()).toEqual(['lh', 'rh'])
+  })
+
+  it('puts trailing edge damage at the trailing edge, aft of the dents on the same surface', () => {
+    const dent = types
+      .find((t) => t.id === 'surface_dent')
+      ?.anchors.find((a) => a.componentId === 'aileron_lh')
+    const edge = types
+      .find((t) => t.id === 'trailing_edge_delamination')
+      ?.anchors.find((a) => a.componentId === 'aileron_lh')
+    expect(dent && edge).toBeTruthy()
+    if (dent && edge) expect(edge.position[0]).toBeGreaterThan(dent.position[0] - 0.5)
+  })
+})
+
 describe('hydraulic leak grading', () => {
   const leakTemplate = SCENARIO_TEMPLATES.find((t) => t.id === 'hydraulic_leak_inspection')
   if (!leakTemplate) throw new Error('no hydraulic template')
