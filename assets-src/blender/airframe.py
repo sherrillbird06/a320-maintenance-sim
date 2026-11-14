@@ -26,6 +26,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import _fuselage  # noqa: E402
+import _surfaces  # noqa: E402
 import bmesh  # noqa: E402
 import common  # noqa: E402
 
@@ -62,88 +63,8 @@ DOORS = {
     "bulk_cargo_door": (26.29, 0.95, 0.77),
 }
 
-WING_LE_X_AT_2_5 = 13.18
-WING_LE_SLOPE = 0.518  # metres aft per metre outboard
-WING_TE_INBOARD_X = 18.86
-WING_KINK_ETA = 6.4
-WING_TE_OUTBOARD_SLOPE = 0.306
-WING_Z_AT_2 = 2.96
-WING_DIHEDRAL_SLOPE = 0.093
-
-TAIL_LE_X_AT_2 = 32.88
-TAIL_LE_SLOPE = 0.648
-TAIL_TE_TIP_X = 36.72
-TAIL_TE_SLOPE = 0.22
-TAIL_Z_ROOT = 4.55
-TAIL_DIHEDRAL_SLOPE = 0.1275
-
-FIN_LE_X_AT_6_3 = 30.0
-FIN_LE_SLOPE = 0.936  # metres aft per metre up
-FIN_TE_X_AT_5_9 = 35.4
-FIN_TE_SLOPE = 0.215
-
 # --- Provisional shape parameters ------------------------------------------
-WING_THICKNESS = [(0.0, 0.150), (4.0, 0.130), (WING_KINK_ETA, 0.118), (HALF_SPAN, 0.108)]
 NACELLE_RADIUS = 1.16
-
-
-def lerp_table(table, x):
-    for (x0, y0), (x1, y1) in zip(table, table[1:]):
-        if x <= x1:
-            t = (x - x0) / (x1 - x0)
-            return y0 + (y1 - y0) * max(0.0, t)
-    return table[-1][1]
-
-
-def aerofoil(thickness, camber=0.0, points=18):
-    """NACA four-digit style section as a closed loop of (x/c, z/c): upper TE to LE, lower LE to TE."""
-    def half(xc):
-        yt = 5 * thickness * (
-            0.2969 * math.sqrt(xc) - 0.1260 * xc - 0.3516 * xc**2 + 0.2843 * xc**3 - 0.1036 * xc**4
-        )
-        p = 0.4
-        yc = camber / p**2 * (2 * p * xc - xc**2) if xc < p else camber / (1 - p) ** 2 * (
-            (1 - 2 * p) + 2 * p * xc - xc**2
-        )
-        return yt, yc
-
-    xs = [0.5 * (1 - math.cos(math.pi * i / points)) for i in range(points + 1)]
-    upper = [(x, half(x)[1] + half(x)[0]) for x in reversed(xs)]
-    lower = [(x, half(x)[1] - half(x)[0]) for x in xs[1:-1]]
-    return upper + lower
-
-
-def wing_section(eta):
-    le = WING_LE_X_AT_2_5 + WING_LE_SLOPE * (eta - 2.5)
-    te = WING_TE_INBOARD_X + WING_TE_OUTBOARD_SLOPE * max(0.0, eta - WING_KINK_ETA)
-    z = WING_Z_AT_2 + WING_DIHEDRAL_SLOPE * max(0.0, eta - 2.0)
-    return le, te - le, z, lerp_table(WING_THICKNESS, eta)
-
-
-def tail_section(eta):
-    le = TAIL_LE_X_AT_2 + TAIL_LE_SLOPE * (eta - 2.0)
-    te = TAIL_TE_TIP_X - TAIL_TE_SLOPE * (HALF_TAIL_SPAN - eta)
-    return le, te - le, TAIL_Z_ROOT + TAIL_DIHEDRAL_SLOPE * eta, 0.10
-
-
-def surface_rings(section, etas, side, camber):
-    """Rings for a wing-like surface; side is -1 for left, +1 for right."""
-    rings = []
-    for eta in etas:
-        le, chord, z, thickness = section(eta)
-        ring = [(le + xc * chord, side * eta, z + zc * chord) for xc, zc in aerofoil(thickness, camber)]
-        rings.append(ring if side > 0 else list(reversed(ring)))
-    return rings
-
-
-def fin_rings():
-    top = CROWN_Z + FIN_HEIGHT_ABOVE_CROWN
-    rings = []
-    for z in (5.60, 6.30, 8.00, 10.00, top):
-        le = FIN_LE_X_AT_6_3 + FIN_LE_SLOPE * (z - 6.3)
-        te = FIN_TE_X_AT_5_9 + FIN_TE_SLOPE * (z - 5.9)
-        rings.append([(le + xc * (te - le), zc * (te - le), z) for xc, zc in aerofoil(0.10)])
-    return rings
 
 
 def add_wheel(bm, x, y, tire, materials):
@@ -191,7 +112,7 @@ def nacelle(bm, y):
 
 def pylon(bm, y):
     nacelle_top = NACELLE_CLEARANCE + 2 * NACELLE_RADIUS - 0.08
-    _, _, wing_z, _ = wing_section(ENGINE_Y)
+    wing_z = _surfaces.wing_section(ENGINE_Y)[2]
     box = lambda x0, x1, z, half: [(x0, y - half, z), (x1, y - half, z), (x1, y + half, z), (x0, y + half, z)]  # noqa: E731
     x0 = ENGINE_INLET_X
     common.loft(bm, [box(x0 + 0.9, x0 + 4.2, nacelle_top, 0.20), box(x0 + 2.4, x0 + 6.3, wing_z - 0.05, 0.16)])
@@ -199,7 +120,7 @@ def pylon(bm, y):
 
 def build():
     common.reset_scene()
-    paint = common.material("fuselage_paint", (0.60, 0.62, 0.64), metallic=0.5, roughness=0.4, coat=1.0)
+    paint = common.material("fuselage_paint", (0.70, 0.72, 0.74), metallic=0.2, roughness=0.4, coat=1.0)
     hot_metal = common.material("engine_metal", (0.30, 0.30, 0.31), metallic=1.0, roughness=0.45)
     dark = common.material("fan_dark", (0.03, 0.03, 0.035), metallic=0.6, roughness=0.5)
     gear_paint = common.material("gear_paint", (0.55, 0.56, 0.57), metallic=0.3, roughness=0.5)
@@ -209,28 +130,10 @@ def build():
     gap = common.material("panel_gap", (0.02, 0.02, 0.02), roughness=0.8)
     _fuselage.build(paint, glass, gap, hot_metal, DOORS)
 
-    wing_etas = [0.0, 1.975, 4.0, WING_KINK_ETA, 9.0, 12.0, 15.0, HALF_SPAN - 0.02]
-    tail_etas = [0.0, 1.0, 3.0, HALF_TAIL_SPAN]
     for side, suffix in ((-1, "lh"), (1, "rh")):
-        bm = bmesh.new()
-        common.loft(bm, surface_rings(wing_section, wing_etas, side, camber=0.02))
-        # Wing tip fence: a thin swept plate above and below the tip (shape provisional).
-        le, chord, z, _ = wing_section(HALF_SPAN)
-        y = side * (HALF_SPAN - 0.02)
-        fence = lambda dy: [  # noqa: E731
-            (le + 0.15, y + dy, z), (le + chord + 0.25, y + dy, z + 0.95),
-            (le + chord + 0.30, y + dy, z), (le + chord + 0.25, y + dy, z - 0.85),
-        ]  # fmt: skip
-        common.loft(bm, [fence(-0.02), fence(0.02)])
-        common.object_from_bmesh(f"wing_{suffix}", bm, [paint])
-
-        bm = bmesh.new()
-        common.loft(bm, surface_rings(tail_section, tail_etas, side, camber=0.0))
-        common.object_from_bmesh(f"horizontal_stabilizer_{suffix}", bm, [paint])
-
-    bm = bmesh.new()
-    common.loft(bm, fin_rings())
-    common.object_from_bmesh("vertical_stabilizer", bm, [paint])
+        _surfaces.build_wing(side, suffix, paint)
+        _surfaces.build_tailplane(side, suffix, paint)
+    _surfaces.build_fin(CROWN_Z + FIN_HEIGHT_ABOVE_CROWN, paint)
 
     for number, y in ((1, -ENGINE_Y), (2, ENGINE_Y)):
         bm = bmesh.new()
@@ -251,7 +154,7 @@ def build():
         bm = bmesh.new()
         for offset in (-MAIN_WHEEL_SPACING / 2, MAIN_WHEEL_SPACING / 2):
             add_wheel(bm, main_x, side * HALF_TRACK + offset, MAIN_TIRE, (0, 1))
-        add_strut(bm, main_x, side * HALF_TRACK, MAIN_TIRE[0] / 2, wing_section(HALF_TRACK)[2], 0.11, 1)
+        add_strut(bm, main_x, side * HALF_TRACK, MAIN_TIRE[0] / 2, _surfaces.wing_section(HALF_TRACK)[2], 0.11, 1)
         common.object_from_bmesh(f"mlg_{suffix}", bm, [rubber, gear_paint])
 
 

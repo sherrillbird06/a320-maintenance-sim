@@ -92,3 +92,56 @@ describe('airframe.glb matches the sourced dimensions', async () => {
     expect(model.triangles).toBeLessThan(400_000)
   })
 })
+
+describe('airframe.glb wing and tail surfaces', async () => {
+  const model = await readModel('public/models/airframe.glb')
+  const sides = ['lh', 'rh']
+  const names = sides.flatMap((s) => [
+    ...[1, 2, 3, 4, 5].flatMap((n) => [`slat_${n}_${s}`, `spoiler_${n}_${s}`]),
+    ...[2, 3, 4].map((n) => `flap_track_fairing_${n}_${s}`),
+    `flap_inboard_${s}`,
+    `flap_outboard_${s}`,
+    `aileron_${s}`,
+    `wing_upper_skin_${s}`,
+    `wing_lower_skin_${s}`,
+    `wingtip_fence_${s}`,
+    `horizontal_stabilizer_${s}`,
+    `elevator_${s}`,
+  ])
+
+  it.each([...names, 'vertical_stabilizer', 'rudder'])('has %s as an inspectable node', (name) => {
+    expect(model.nodeNames).toContain(name)
+    expect(model.inspectableNodes).toContain(name)
+  })
+
+  const lateral = (name: string) => {
+    const b = model.nodeBounds[name]
+    return b ? Math.abs((b.min[2] + b.max[2]) / 2) : NaN
+  }
+  const station = (name: string) => {
+    const b = model.nodeBounds[name]
+    return b ? (b.min[0] + b.max[0]) / 2 : NaN
+  }
+
+  it.each(sides)('numbers slats and spoilers from the fuselage outward (%s)', (s) => {
+    for (const part of ['slat', 'spoiler']) {
+      const positions = [1, 2, 3, 4, 5].map((n) => lateral(`${part}_${n}_${s}`))
+      expect(positions).toEqual([...positions].sort((a, b) => a - b))
+    }
+  })
+
+  it.each(sides)('orders the trailing edge inboard flap, outboard flap, aileron (%s)', (s) => {
+    expect(lateral(`flap_inboard_${s}`)).toBeLessThan(lateral(`flap_outboard_${s}`))
+    expect(lateral(`flap_outboard_${s}`)).toBeLessThan(lateral(`aileron_${s}`))
+  })
+
+  it.each(sides)('puts slats ahead of spoilers ahead of flaps (%s)', (s) => {
+    expect(station(`slat_3_${s}`)).toBeLessThan(station(`spoiler_3_${s}`))
+    expect(station(`spoiler_1_${s}`)).toBeLessThan(station(`flap_inboard_${s}`))
+  })
+
+  it('hinges the rudder and elevators behind their fixed surfaces', () => {
+    expect(station('rudder')).toBeGreaterThan(station('vertical_stabilizer'))
+    expect(station('elevator_lh')).toBeGreaterThan(station('horizontal_stabilizer_lh'))
+  })
+})
