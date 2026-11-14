@@ -11,6 +11,7 @@ export interface SourcedDimension {
 
 const AC = 'airbus_ac_a320'
 const DIMENSIONS_FIG = 'Figure 2-2-0-991-004-A01, General Aircraft Dimensions – Wing Tip Fence'
+const DOORS_FIG = 'Figures 2-7-0-991-003-A01 and 2-7-0-991-022-A01 to -028-A01, Door Location and Clearances'
 const CLEARANCES_FIG =
   'Figure 2-3-0-991-004-A01, Ground Clearances – Wing Tip Fence, empty weight for maintenance'
 
@@ -87,4 +88,14 @@ export const AIRCRAFT = {
       ref: `${CLEARANCES_FIG}, sheet 3 (N1, CFM 5B nacelle low point)`,
     },
   } satisfies Record<string, SourcedDimension>,
+  /** Door and exit positions and clear opening sizes, in metres. x is measured aft from the nose to the door centre. */
+  doors: {
+    pax_door_fwd: { x: 5.04, width: 0.81, height: 1.85, source: AC, ref: DOORS_FIG },
+    pax_door_aft: { x: 29.64, width: 0.81, height: 1.85, source: AC, ref: DOORS_FIG },
+    overwing_exit_fwd: { x: 14.43, width: 0.5, height: 0.9, source: AC, ref: DOORS_FIG },
+    overwing_exit_aft: { x: 15.28, width: 0.5, height: 0.9, source: AC, ref: DOORS_FIG },
+    fwd_cargo_door: { x: 8.16, width: 1.82, height: 1.24, source: AC, ref: DOORS_FIG },
+    aft_cargo_door: { x: 22.69, width: 1.82, height: 1.23, source: AC, ref: DOORS_FIG },
+    bulk_cargo_door: { x: 26.29, width: 0.95, height: 0.77, source: AC, ref: DOORS_FIG },
+  },
 } as const

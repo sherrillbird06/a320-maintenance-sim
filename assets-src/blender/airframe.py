@@ -25,6 +25,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import _fuselage  # noqa: E402
 import bmesh  # noqa: E402
 import common  # noqa: E402
 
@@ -48,41 +49,18 @@ MAIN_TIRE = (46 * INCH, 17 * INCH)  # 46x17R20: outside diameter, width
 NOSE_TIRE = (30 * INCH, 8.8 * INCH)  # 30x8.8R15
 
 # --- Measured from the figure silhouettes ----------------------------------
-CROWN_Z = 5.87
-KEEL_Z = 1.79
-# x, top z, bottom z, half width
-FUSELAGE_STATIONS = [
-    (0.00, 3.21, 2.98, 0.10),
-    (0.20, 3.50, 2.70, 0.36),
-    (0.50, 3.77, 2.45, 0.615),
-    (1.00, 4.05, 2.24, 0.935),
-    (1.50, 4.36, 2.09, 1.155),
-    (2.00, 4.86, 1.98, 1.34),
-    (2.50, 5.16, 1.90, 1.49),
-    (3.00, 5.36, 1.84, 1.63),
-    (3.50, 5.53, 1.81, 1.73),
-    (4.00, 5.66, 1.79, 1.815),
-    (4.50, 5.73, 1.79, 1.88),
-    (5.00, 5.81, 1.79, 1.91),
-    (5.50, 5.84, 1.79, 1.95),
-    (6.00, CROWN_Z, KEEL_Z, FUSELAGE_HALF_WIDTH),
-    (24.00, CROWN_Z, 1.82, FUSELAGE_HALF_WIDTH),
-    (25.00, CROWN_Z, 1.87, FUSELAGE_HALF_WIDTH),
-    (26.00, CROWN_Z, 1.95, FUSELAGE_HALF_WIDTH),
-    (27.00, CROWN_Z, 2.06, 1.95),
-    (28.00, CROWN_Z, 2.23, 1.90),
-    (29.00, CROWN_Z, 2.45, 1.80),
-    (30.00, CROWN_Z, 2.66, 1.66),
-    (31.00, CROWN_Z, 2.88, 1.50),
-    (32.00, CROWN_Z, 3.12, 1.29),
-    (33.00, CROWN_Z, 3.38, 1.10),
-    (34.00, 5.78, 3.65, 0.92),
-    (35.00, 5.61, 3.93, 0.74),
-    (36.00, 5.52, 4.21, 0.56),
-    (37.00, 5.38, 4.50, 0.36),
-    (37.50, 5.25, 4.74, 0.16),
-    (LENGTH, 5.20, 4.85, 0.12),
-]
+CROWN_Z = _fuselage.CROWN_Z
+
+# Door and exit stations and opening sizes (x, width, height), from src/data/aircraft.ts.
+DOORS = {
+    "pax_door_fwd": (5.04, 0.81, 1.85),
+    "pax_door_aft": (29.64, 0.81, 1.85),
+    "overwing_exit_fwd": (14.43, 0.50, 0.90),
+    "overwing_exit_aft": (15.28, 0.50, 0.90),
+    "fwd_cargo_door": (8.16, 1.82, 1.24),
+    "aft_cargo_door": (22.69, 1.82, 1.23),
+    "bulk_cargo_door": (26.29, 0.95, 0.77),
+}
 
 WING_LE_X_AT_2_5 = 13.18
 WING_LE_SLOPE = 0.518  # metres aft per metre outboard
@@ -133,19 +111,6 @@ def aerofoil(thickness, camber=0.0, points=18):
     upper = [(x, half(x)[1] + half(x)[0]) for x in reversed(xs)]
     lower = [(x, half(x)[1] - half(x)[0]) for x in xs[1:-1]]
     return upper + lower
-
-
-def fuselage_rings(sides=48):
-    rings = []
-    for x, top, bottom, half_width in FUSELAGE_STATIONS:
-        centre, half_height = (top + bottom) / 2, (top - bottom) / 2
-        rings.append(
-            [
-                (x, half_width * math.cos(a), centre + half_height * math.sin(a))
-                for a in (2 * math.pi * i / sides for i in range(sides))
-            ]
-        )
-    return rings
 
 
 def wing_section(eta):
@@ -240,9 +205,9 @@ def build():
     gear_paint = common.material("gear_paint", (0.55, 0.56, 0.57), metallic=0.3, roughness=0.5)
     rubber = common.material("tire_rubber", (0.012, 0.012, 0.013), roughness=0.95)
 
-    bm = bmesh.new()
-    common.loft(bm, fuselage_rings())
-    common.object_from_bmesh("fuselage", bm, [paint], sharp_angle_deg=50)
+    glass = common.material("glass", (0.015, 0.02, 0.028), metallic=0.0, roughness=0.06)
+    gap = common.material("panel_gap", (0.02, 0.02, 0.02), roughness=0.8)
+    _fuselage.build(paint, glass, gap, hot_metal, DOORS)
 
     wing_etas = [0.0, 1.975, 4.0, WING_KINK_ETA, 9.0, 12.0, 15.0, HALF_SPAN - 0.02]
     tail_etas = [0.0, 1.0, 3.0, HALF_TAIL_SPAN]

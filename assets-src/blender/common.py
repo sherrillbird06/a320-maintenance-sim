@@ -45,9 +45,11 @@ def material(name, base_color, metallic=0.0, roughness=0.5, coat=0.0, coat_rough
     return mat
 
 
-def object_from_bmesh(name, bm, materials, sharp_angle_deg=35.0):
+def object_from_bmesh(name, bm, materials, sharp_angle_deg=35.0, recalc_normals=True):
     """Turn a bmesh into a linked, smooth-shaded object with sharp creases kept."""
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    # Closed shapes get consistent outward normals; open patches keep the winding they were built with.
+    if recalc_normals:
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     mesh = bpy.data.meshes.new(name)
     bm.to_mesh(mesh)
     bm.free()

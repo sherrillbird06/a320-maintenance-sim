@@ -23,16 +23,47 @@ describe('airframe.glb matches the sourced dimensions', async () => {
   })
 
   it('has the fin top 5.87 m above the fuselage crown', () => {
-    const crown = model.nodeBounds['fuselage']?.max[1] ?? 0
+    const crown = model.nodeBounds['fwd_fuselage_skin_rh']?.max[1] ?? 0
     expect(model.bounds.max[1] - crown).toBeCloseTo(d.finHeightAboveFuselage.value, 1)
   })
 
   it('has a fuselage of the published width and height', () => {
-    const fuselage = model.nodeBounds['fuselage']
-    expect(fuselage).toBeDefined()
-    if (!fuselage) return
-    expect(fuselage.max[2] - fuselage.min[2]).toBeCloseTo(d.fuselageWidth.value, 1)
-    expect(fuselage.max[1] - fuselage.min[1]).toBeGreaterThan(d.fuselageHeight.value - 0.15)
+    const left = model.nodeBounds['fwd_fuselage_skin_lh']
+    const right = model.nodeBounds['fwd_fuselage_skin_rh']
+    const belly = model.nodeBounds['fwd_fuselage_belly']
+    expect(left && right && belly).toBeTruthy()
+    if (!left || !right || !belly) return
+    const width = Math.max(left.max[2], right.max[2]) - Math.min(left.min[2], right.min[2])
+    expect(width).toBeCloseTo(d.fuselageWidth.value, 1)
+    expect(right.max[1] - belly.min[1]).toBeGreaterThan(d.fuselageHeight.value - 0.15)
+  })
+
+  it.each(Object.entries(AIRCRAFT.doors))('places %s at its published station and width', (id, door) => {
+    const mirrored = id.startsWith('pax_door') || id.startsWith('overwing')
+    for (const name of mirrored ? [id + '_lh', id + '_rh'] : [id]) {
+      const b = model.nodeBounds[name]
+      expect(b, name).toBeDefined()
+      if (!b) continue
+      expect((b.min[0] + b.max[0]) / 2).toBeCloseTo(door.x, 1)
+      expect(b.max[0] - b.min[0]).toBeCloseTo(door.width, 1)
+      expect(model.inspectableNodes).toContain(name)
+    }
+  })
+
+  it('puts the cargo doors on the right side only', () => {
+    for (const name of ['fwd_cargo_door', 'aft_cargo_door', 'bulk_cargo_door']) {
+      // Aircraft right is +Y in the model, which is -Z in glTF.
+      expect(model.nodeBounds[name]?.max[2] ?? 1).toBeLessThan(0)
+    }
+  })
+
+  it.each([
+    'radome', 'nose_skin_lh', 'nose_skin_rh', 'fwd_fuselage_skin_lh', 'aft_fuselage_skin_rh',
+    'aft_fuselage_belly', 'tail_cone', 'belly_fairing', 'apu_exhaust', 'cabin_windows_lh',
+    'cabin_windows_rh', 'windshield_lh', 'windshield_rh', 'sliding_window_lh', 'fixed_side_window_rh',
+  ])('has the fuselage component %s as an inspectable node', (name) => {
+    expect(model.nodeNames).toContain(name)
+    expect(model.inspectableNodes).toContain(name)
   })
 
   it('places the engines at the published distance from the centreline', () => {
