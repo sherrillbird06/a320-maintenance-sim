@@ -4,8 +4,8 @@ import { readModel } from '../../tools/readModel'
 
 // The airframe model is built from the Airbus dimension figure. Blender's X (aft), Y (right)
 // and Z (up) arrive in glTF as X, -Z and Y.
-describe('airframe.glb matches the sourced dimensions', async () => {
-  const model = await readModel('public/models/airframe.glb')
+describe('exterior.glb matches the sourced dimensions', async () => {
+  const model = await readModel('public/models/exterior.glb')
   const size = (axis: 0 | 1 | 2) => model.bounds.max[axis] - model.bounds.min[axis]
   const d = AIRCRAFT.dimensions
 
@@ -109,8 +109,8 @@ describe('airframe.glb matches the sourced dimensions', async () => {
   })
 })
 
-describe('airframe.glb wing and tail surfaces', async () => {
-  const model = await readModel('public/models/airframe.glb')
+describe('exterior.glb wing and tail surfaces', async () => {
+  const model = await readModel('public/models/exterior.glb')
   const sides = ['lh', 'rh']
   const names = sides.flatMap((s) => [
     ...[1, 2, 3, 4, 5].flatMap((n) => [`slat_${n}_${s}`, `spoiler_${n}_${s}`]),
@@ -162,8 +162,8 @@ describe('airframe.glb wing and tail surfaces', async () => {
   })
 })
 
-describe('airframe.glb power plants', async () => {
-  const model = await readModel('public/models/airframe.glb')
+describe('exterior.glb power plants', async () => {
+  const model = await readModel('public/models/exterior.glb')
   const parts = [
     'inlet_cowl',
     'spinner',
@@ -219,8 +219,8 @@ describe('airframe.glb power plants', async () => {
   })
 })
 
-describe('airframe.glb landing gear', async () => {
-  const model = await readModel('public/models/airframe.glb')
+describe('exterior.glb landing gear', async () => {
+  const model = await readModel('public/models/exterior.glb')
   const d = AIRCRAFT.dimensions
   const mirrored = (ids: string[]) => ids.flatMap((id) => [id + '_lh', id + '_rh'])
   const names = [

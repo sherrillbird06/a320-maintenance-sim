@@ -25,6 +25,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import _details  # noqa: E402
 import _engine  # noqa: E402
 import _fuselage  # noqa: E402
 import _gear  # noqa: E402
@@ -118,6 +119,14 @@ def build():
     # Hydraulic service panels (stations from src/data/aircraft.ts); left is -Y.
     _gear.build_hydraulic_panels(
         {"green": (19.17, -1.27), "yellow": (19.17, 1.27), "blue": (20.22, -1.27)}, _fuselage.fairing_bottom_z, gap
+    )
+
+    lens_red = common.material("lens_red", (0.45, 0.02, 0.02), roughness=0.15)
+    lens_green = common.material("lens_green", (0.02, 0.35, 0.08), roughness=0.15)
+    lens_white = common.material("lens_white", (0.85, 0.85, 0.85), roughness=0.15)
+    probe_metal = common.material("probe_metal", (0.55, 0.55, 0.56), metallic=1.0, roughness=0.3)
+    _details.build(
+        paint, gap, probe_metal, glass, lens_red, lens_green, lens_white, CROWN_Z + FIN_HEIGHT_ABOVE_CROWN, NOSE_GEAR_X
     )
 
 

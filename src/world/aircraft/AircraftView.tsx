@@ -6,7 +6,7 @@ import { ENV_URL, Floor, FLOOR_URLS } from '../lookdev/LookTest'
 import { RENDER_CONFIG } from '../renderConfig'
 import { SceneCanvas } from '../SceneCanvas'
 
-const AIRFRAME_URL = modelUrl('airframe')
+const AIRFRAME_URL = modelUrl('exterior')
 const URLS = [AIRFRAME_URL, ENV_URL, ...Object.values(FLOOR_URLS)]
 
 function Airframe() {
