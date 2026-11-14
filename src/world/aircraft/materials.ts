@@ -1,6 +1,7 @@
 import {
   CanvasTexture,
   DataTexture,
+  DoubleSide,
   LinearFilter,
   LinearMipmapLinearFilter,
   Mesh,
@@ -96,6 +97,31 @@ function registrationTexture(): CanvasTexture {
 }
 
 // Low metalness: a strongly metallic paint takes on the colour of whatever surrounds it.
+/** A cabin window: grey frame, rounded dark glass with a faint sky gradient, clear corners. */
+function windowTexture(): CanvasTexture {
+  const { element, context } = canvas(128, 192)
+  const round = (x: number, y: number, w: number, h: number, r: number) => {
+    context.beginPath()
+    context.roundRect(x, y, w, h, r)
+    context.fill()
+  }
+  context.clearRect(0, 0, 128, 192)
+  context.fillStyle = '#5d646b'
+  round(6, 8, 116, 176, 46)
+  context.fillStyle = '#1d2227'
+  round(13, 15, 102, 162, 40)
+  const glass = context.createLinearGradient(0, 20, 0, 172)
+  glass.addColorStop(0, '#2b3a49')
+  glass.addColorStop(0.5, '#10161c')
+  glass.addColorStop(1, '#070a0d')
+  context.fillStyle = glass
+  round(19, 21, 90, 150, 35)
+  const texture = new CanvasTexture(element)
+  texture.colorSpace = SRGBColorSpace
+  texture.anisotropy = 8
+  return texture
+}
+
 const PAINT = { metalness: 0.12, roughness: 0.4, clearcoat: 1, clearcoatRoughness: 0.07 }
 
 /**
@@ -120,8 +146,24 @@ export function applyAircraftMaterials(root: Object3D): void {
     polygonOffsetFactor: -2,
   })
 
+  const cabinWindow = new MeshPhysicalMaterial({
+    map: windowTexture(),
+    transparent: true,
+    roughness: 0.08,
+    clearcoat: 1,
+    clearcoatRoughness: 0.03,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+  })
+
   const swap = (mesh: Mesh, material: MeshStandardMaterial) => {
     switch (material.name) {
+      case 'cabin_window':
+        return cabinWindow
+      case 'panel_gap':
+        // Gap walls are single sheets that can be seen from either side.
+        material.side = DoubleSide
+        return material
       case 'fuselage_paint':
         return mesh.geometry.hasAttribute('uv') ? skinPaint : smoothPaint
       case 'tail_livery':

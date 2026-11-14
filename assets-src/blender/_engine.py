@@ -51,9 +51,9 @@ def _blade_mesh(materials):
     for i in range(6):
         t = i / 5
         r = HUB_RADIUS - 0.01 + (TIP_RADIUS - HUB_RADIUS + 0.01) * t
-        chord = 0.17 + 0.09 * t
-        stagger = math.radians(24 + 38 * t)
-        thickness = 0.009 - 0.005 * t
+        chord = 0.20 + 0.12 * t
+        stagger = math.radians(26 + 36 * t)
+        thickness = 0.010 - 0.006 * t
         dx, dy = math.cos(stagger) * chord / 2, math.sin(stagger) * chord / 2
         nx, ny = -math.sin(stagger) * thickness, math.cos(stagger) * thickness
         rings.append([
@@ -73,7 +73,7 @@ def _blade_mesh(materials):
     return mesh
 
 
-def build(number, y, inlet_x, clearance, paint, hot_metal, dark, blade_metal):
+def build(number, y, inlet_x, clearance, paint, hot_metal, dark, blade_metal, lip_metal):
     prefix = f"eng{number}"
     axis_z = clearance + RADIUS
     x0 = inlet_x
@@ -82,11 +82,14 @@ def build(number, y, inlet_x, clearance, paint, hot_metal, dark, blade_metal):
     outboard, inboard = ((-90, 90), (90, 270)) if y > 0 else ((90, 270), (-90, 90))
 
     bm = bmesh.new()
-    inlet = [(0.0, 0.98), (0.06, 1.04), (0.31, 1.11), (1.0, 1.155), (1.0, 0.89), (0.31, 0.88), (0.06, 0.91)]
+    # Bare-metal lip ring at the front of the inlet, painted cowl behind it.
+    lip = [(0.0, 0.98), (0.05, 1.035), (0.15, 1.078), (0.15, 0.892), (0.05, 0.915)]
+    inlet = [(0.15, 1.078), (0.31, 1.11), (1.0, 1.155), (1.0, 0.89), (0.31, 0.88), (0.15, 0.892)]
+    _shell(bm, lip, 0, 360, 72, place, material_index=2)
     _shell(bm, inlet, 0, 360, 72, place)
     # Dark backing behind the fan so the inlet does not show daylight through the engine.
     common.revolve(bm, [(1.14, 0.0), (1.14, 0.89)], 48, material_index=1, place=place)
-    _named(f"{prefix}_inlet_cowl", bm, [paint, dark])
+    _named(f"{prefix}_inlet_cowl", bm, [paint, dark, lip_metal])
 
     fan_cowl = [(1.0, 1.155), (1.11, RADIUS), (2.2, 1.14), (2.2, 0.92), (1.0, 0.89)]
     reverser = [(2.2, 1.14), (3.11, 1.02), (3.56, 0.93), (3.56, 0.90), (2.81, 0.92), (2.2, 0.92)]

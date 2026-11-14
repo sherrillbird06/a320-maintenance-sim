@@ -156,22 +156,47 @@ def _span(lo, hi, breaks=()):
     return [lo] + [b for b in breaks if lo < b < hi] + [hi]
 
 
-def _named(name, bm, materials, recalc=True):
+GAP = 0.012  # clearance left around every moving surface, so its outline shows
+
+
+def _skin_uv(x, y, z):
+    """Plan-view UVs in 2 m tiles, matching the fuselage skin, for seams and rivets."""
+    return (x / 2.0, y / 2.0)
+
+
+def _named(name, bm, materials, recalc=True, uv=_skin_uv):
     obj = common.object_from_bmesh(name, bm, materials, recalc_normals=recalc)
+    if uv is not None:
+        common.planar_uv(obj, uv)
     common.mark_inspectable(obj)
     return obj
 
 
-def build_wing(side, suffix, paint):
+def web(bm, section, stations, chord_fraction, side, material_index=0):
+    """A dark closing wall inside the wing at one chord fraction, seen through the surface gaps."""
+    rows = []
+    for station in stations:
+        place, thickness, camber = _place(section, station, side, False)
+        yt, yc = _profile(chord_fraction, thickness, camber)
+        rows.append((bm.verts.new(place(chord_fraction, yc + yt)), bm.verts.new(place(chord_fraction, yc - yt))))
+    for (a_top, a_bottom), (b_top, b_bottom) in zip(rows, rows[1:]):
+        bm.faces.new((a_top, b_top, b_bottom, a_bottom)).material_index = material_index
+
+
+def build_wing(side, suffix, paint, gap):
     mats = [paint]
     kink = (WING_KINK_ETA,)
 
     # Fixed structure: the box between the slats and the flaps, plus fixed leading and trailing edges.
+    box_stations = _span(0.0, WING_TIP, (FUSELAGE_SIDE, 4.0, WING_KINK_ETA, 9.0, 12.0, 15.0))
     for upper, name in ((True, "wing_upper_skin"), (False, "wing_lower_skin")):
         bm = bmesh.new()
-        skin(bm, wing_section, _span(0.0, WING_TIP, (FUSELAGE_SIDE, 4.0, WING_KINK_ETA, 9.0, 12.0, 15.0)),
-             SLAT_CHORD, FLAP_CHORD, side, upper, points=14)  # fmt: skip
-        _named(f"{name}_{suffix}", bm, mats, recalc=False)
+        skin(bm, wing_section, box_stations, SLAT_CHORD, FLAP_CHORD, side, upper, points=14)
+        if upper:
+            # Front and rear spar walls close the box behind the slats and ahead of the flaps.
+            web(bm, wing_section, box_stations, SLAT_CHORD, side, 1)
+            web(bm, wing_section, box_stations, FLAP_CHORD, side, 1)
+        _named(f"{name}_{suffix}", bm, [paint, gap], recalc=False)
     fixed = [(0.0, SLATS[0][0], 0.0, SLAT_CHORD), (SLATS[0][1], SLATS[1][0], 0.0, SLAT_CHORD),
              (SLATS[-1][1], WING_TIP, 0.0, SLAT_CHORD), (0.0, FLAP_INBOARD[0], FLAP_CHORD, 1.0),
              (FLAP_OUTBOARD[1], AILERON[0], FLAP_CHORD, 1.0), (AILERON[1], WING_TIP, FLAP_CHORD, 1.0)]  # fmt: skip
@@ -182,6 +207,7 @@ def build_wing(side, suffix, paint):
     for index, (lo, hi, c0, c1) in enumerate(fixed):
         bm = solid(wing_section, _span(lo, hi, kink), c0, c1, side)
         piece = common.object_from_bmesh(f"_fixed_edge_{suffix}_{index}", bm, mats)
+        common.planar_uv(piece, _skin_uv)
         piece.select_set(True)
     bpy.context.view_layer.objects.active = bpy.data.objects[upper_obj_name]
     bpy.data.objects[upper_obj_name].select_set(True)
@@ -189,10 +215,11 @@ def build_wing(side, suffix, paint):
     bpy.ops.object.select_all(action="DESELECT")
 
     for number, (lo, hi) in enumerate(SLATS, start=1):
-        _named(f"slat_{number}_{suffix}", solid(wing_section, _span(lo, hi, kink), 0.0, SLAT_CHORD, side), mats)
-    _named(f"flap_inboard_{suffix}", solid(wing_section, _span(*FLAP_INBOARD), FLAP_CHORD, 1.0, side), mats)
-    _named(f"flap_outboard_{suffix}", solid(wing_section, _span(*FLAP_OUTBOARD), FLAP_CHORD, 1.0, side), mats)
-    _named(f"aileron_{suffix}", solid(wing_section, _span(*AILERON), FLAP_CHORD, 1.0, side), mats)
+        _named(f"slat_{number}_{suffix}", solid(wing_section, _span(lo + GAP, hi - GAP, kink), 0.0, SLAT_CHORD - 0.004, side), mats)
+    aft = FLAP_CHORD + 0.004
+    _named(f"flap_inboard_{suffix}", solid(wing_section, _span(FLAP_INBOARD[0], FLAP_INBOARD[1] - GAP), aft, 1.0, side), mats)
+    _named(f"flap_outboard_{suffix}", solid(wing_section, _span(FLAP_OUTBOARD[0] + GAP, FLAP_OUTBOARD[1] - GAP), aft, 1.0, side), mats)
+    _named(f"aileron_{suffix}", solid(wing_section, _span(AILERON[0] + GAP, AILERON[1] - GAP), aft, 1.0, side), mats)
 
     for number, (lo, hi) in enumerate(SPOILERS, start=1):
         bm = bmesh.new()
@@ -202,14 +229,14 @@ def build_wing(side, suffix, paint):
     # Flap track fairings: slender bodies under the trailing edge.
     for number, eta in FLAP_TRACK_FAIRINGS.items():
         le, chord, z, thickness, _ = wing_section(eta)
-        centre_x, centre_z = le + chord * 0.86, z - thickness * chord * 0.5 - 0.10
-        length, radius = 2.9, 0.20
+        centre_x, centre_z = le + chord * 0.80, z - thickness * chord * 0.5 - 0.12
+        length, radius = 2.3, 0.25
         profile = [(-length / 2, 0.0)] + [
             (length * (t - 0.5), radius * math.sin(math.pi * t) ** 0.7) for t in (i / 12 for i in range(1, 12))
         ] + [(length / 2, 0.0)]
         bm = bmesh.new()
-        common.revolve(bm, profile, 16, place=lambda x, y, zz: (centre_x + x, side * eta + y * 0.8, centre_z + zz))
-        _named(f"flap_track_fairing_{number}_{suffix}", bm, mats)
+        common.revolve(bm, profile, 16, place=lambda x, y, zz: (centre_x + x, side * eta + y * 0.7, centre_z + zz))
+        _named(f"flap_track_fairing_{number}_{suffix}", bm, mats, uv=None)
 
     # Wing tip fence: a thin swept plate above and below the tip.
     le, chord, z, _, _ = wing_section(HALF_SPAN)
@@ -220,14 +247,14 @@ def build_wing(side, suffix, paint):
     ]  # fmt: skip
     bm = bmesh.new()
     common.loft(bm, [plate(-0.02), plate(0.02)])
-    _named(f"wingtip_fence_{suffix}", bm, mats)
+    _named(f"wingtip_fence_{suffix}", bm, mats, uv=None)
 
 
 def build_tailplane(side, suffix, paint):
     stations = [0.0, 1.0, 3.0, HALF_TAIL_SPAN]
     bm = solid(tail_section, stations, 0.0, ELEVATOR_CHORD, side)
     _named(f"horizontal_stabilizer_{suffix}", bm, [paint])
-    bm = solid(tail_section, _span(*ELEVATOR, breaks=(3.0,)), ELEVATOR_CHORD, 1.0, side)
+    bm = solid(tail_section, _span(ELEVATOR[0] + GAP, ELEVATOR[1], breaks=(3.0,)), ELEVATOR_CHORD + 0.006, 1.0, side)
     _named(f"elevator_{suffix}", bm, [paint])
 
 
@@ -236,7 +263,9 @@ def build_fin(top_z, livery):
     heights = [5.60, 6.30, 8.00, 10.00, top_z]
     base = 5.87
     mapping = lambda x, y, z: (0.5, min(max((z - base) / (top_z - base), 0.0), 1.0))  # noqa: E731
-    fin = _named("vertical_stabilizer", solid(fin_section, heights, 0.0, RUDDER_CHORD, vertical=True), [livery])
-    rudder = _named("rudder", solid(fin_section, [6.0, 8.0, 10.0, top_z], RUDDER_CHORD, 1.0, vertical=True), [livery])
+    fin = _named("vertical_stabilizer", solid(fin_section, heights, 0.0, RUDDER_CHORD, vertical=True), [livery], uv=None)
+    rudder = _named(
+        "rudder", solid(fin_section, [6.05, 8.0, 10.0, top_z - 0.03], RUDDER_CHORD + 0.006, 1.0, vertical=True), [livery], uv=None
+    )
     common.planar_uv(fin, mapping)
     common.planar_uv(rudder, mapping)

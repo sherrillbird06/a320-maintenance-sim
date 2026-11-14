@@ -83,6 +83,7 @@ def build():
     paint = common.material("fuselage_paint", (0.70, 0.72, 0.74), metallic=0.2, roughness=0.4, coat=1.0)
     hot_metal = common.material("engine_metal", (0.30, 0.30, 0.31), metallic=1.0, roughness=0.45)
     dark = common.material("fan_dark", (0.03, 0.03, 0.035), metallic=0.6, roughness=0.5)
+    lip_metal = common.material("inlet_lip_metal", (0.78, 0.78, 0.80), metallic=1.0, roughness=0.16)
     blade_metal = common.material("fan_blade_metal", (0.36, 0.37, 0.39), metallic=1.0, roughness=0.32)
     gear_paint = common.material("gear_paint", (0.55, 0.56, 0.57), metallic=0.3, roughness=0.5)
     rubber = common.material("tire_rubber", (0.012, 0.012, 0.013), roughness=0.95)
@@ -90,16 +91,17 @@ def build():
     glass = common.material("glass", (0.015, 0.02, 0.028), metallic=0.0, roughness=0.06)
     gap = common.material("panel_gap", (0.02, 0.02, 0.02), roughness=0.8)
     decal = common.material("decal_registration", (0.16, 0.18, 0.21), roughness=0.5)
-    _fuselage.build(paint, glass, gap, hot_metal, DOORS, decal)
+    window = common.material("cabin_window", (0.02, 0.025, 0.03), roughness=0.08)
+    _fuselage.build(paint, glass, gap, hot_metal, DOORS, decal, window)
 
     for side, suffix in ((-1, "lh"), (1, "rh")):
-        _surfaces.build_wing(side, suffix, paint)
+        _surfaces.build_wing(side, suffix, paint, gap)
         _surfaces.build_tailplane(side, suffix, paint)
     tail_livery = common.material("tail_livery", (0.70, 0.72, 0.74), metallic=0.2, roughness=0.4, coat=1.0)
     _surfaces.build_fin(CROWN_Z + FIN_HEIGHT_ABOVE_CROWN, tail_livery)
 
     for number, y in ((1, -ENGINE_Y), (2, ENGINE_Y)):
-        _engine.build(number, y, ENGINE_INLET_X, NACELLE_CLEARANCE, paint, hot_metal, dark, blade_metal)
+        _engine.build(number, y, ENGINE_INLET_X, NACELLE_CLEARANCE, paint, hot_metal, dark, blade_metal, lip_metal)
         bm = bmesh.new()
         pylon(bm, y)
         common.mark_inspectable(common.object_from_bmesh(f"eng{number}_pylon", bm, [paint]))

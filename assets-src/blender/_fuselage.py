@@ -147,9 +147,12 @@ def _linspace(x0, x1, n):
     return [x0 + (x1 - x0) * i / n for i in range(n + 1)]
 
 
-def _door(name, x_centre, width, z0, z1, left, materials):
+def _door(name, x_centre, width, z0, z1, left, materials, window=False):
     """A door: a dark gap around the edge with the door skin standing just proud of it."""
     bm = bmesh.new()
+    if window:
+        # Small viewing window in the upper half of a passenger door (size PROVISIONAL).
+        uv_patch(bm, x_centre - 0.12, x_centre + 0.12, z0 + 1.10, z0 + 1.42, left, 0.008, 2, nx=2, nz=2)
     gap = 0.012
     lo, hi = _between_heights(z0 - gap, z1 + gap, left)
     patch(bm, _linspace(x_centre - width / 2, x_centre + width / 2, 6), lo, hi, 0.002, 1, a_step=4)
@@ -206,21 +209,51 @@ def _glazing(name, corners, left, materials):
     common.mark_inspectable(obj)
 
 
-def _cabin_windows(name, left, materials):
+def uv_patch(bm, x0, x1, z0, z1, left, offset=0.005, material_index=0, nx=4, nz=4, flip_u=False):
+    """A patch between two stations and two heights whose UVs run 0..1 across it and 0..1 up it.
+
+    Used for anything drawn with a picture: windows, markings. v is written
+    top-down because the exporter flips it.
+    """
+    uv_layer = bm.loops.layers.uv.verify()
+    grid = []
+    for i in range(nx + 1):
+        s = i / nx
+        x = x0 + (x1 - x0) * s
+        row = []
+        for j in range(nz + 1):
+            t = j / nz
+            a = angle_at(x, z0 + (z1 - z0) * t, left)
+            row.append((bm.verts.new(surf(x, a, offset)), (1 - s if flip_u else s, 1 - t)))
+        grid.append(row)
+    for i in range(nx):
+        for j in range(nz):
+            corners = [grid[i][j], grid[i][j + 1], grid[i + 1][j + 1], grid[i + 1][j]]
+            if left:
+                corners.reverse()
+            face = bm.faces.new([c[0] for c in corners])
+            face.material_index = material_index
+            for loop, corner in zip(face.loops, corners):
+                loop[uv_layer].uv = corner[1]
+
+
+WINDOW_FRAME = 0.035  # margin around the glass that the window picture uses for its frame
+
+
+def _cabin_windows(name, left, material):
+    """Cabin windows. Each is one patch; the app draws the rounded glass and frame on it."""
     bm = bmesh.new()
-    frame = 0.02
+    m = WINDOW_FRAME
     for x in WINDOW_STATIONS:
-        lo, hi = _between_heights(WINDOW_Z0 - frame, WINDOW_Z1 + frame, left)
-        patch(bm, _linspace(x - frame, x + WINDOW_WIDTH + frame, 2), lo, hi, 0.002, 1, a_step=3)
-        lo, hi = _between_heights(WINDOW_Z0, WINDOW_Z1, left)
-        patch(bm, _linspace(x, x + WINDOW_WIDTH, 2), lo, hi, 0.005, 0, a_step=3)
-    obj = common.object_from_bmesh(name, bm, materials, recalc_normals=False)
+        uv_patch(bm, x - m, x + WINDOW_WIDTH + m, WINDOW_Z0 - m, WINDOW_Z1 + m, left, 0.004, nx=2, nz=3)
+    obj = common.object_from_bmesh(name, bm, [material], recalc_normals=False)
     common.mark_inspectable(obj)
 
 
 FAIRING_STATIONS = [
-        (11.3, 0.02, 0.02), (11.9, 1.55, 0.25), (13.2, 2.12, 0.40), (16.0, 2.18, 0.42),
-        (19.4, 2.12, 0.40), (20.9, 1.50, 0.22), (21.6, 0.02, 0.02),
+    (10.9, 0.05, 0.00), (11.2, 0.75, 0.05), (11.6, 1.30, 0.14), (12.1, 1.72, 0.26), (12.8, 2.02, 0.36),
+    (13.6, 2.15, 0.41), (16.0, 2.18, 0.42), (18.8, 2.15, 0.41), (19.8, 2.00, 0.36), (20.6, 1.66, 0.25),
+    (21.3, 1.15, 0.12), (21.8, 0.55, 0.04), (22.1, 0.05, 0.00),
 ]  # fmt: skip
 FAIRING_TOP_Z = 2.95
 
@@ -259,34 +292,14 @@ def _belly_fairing(materials):
 
 
 def _registration(name, x0, x1, z0, z1, left, material):
-    """A strip of skin that carries the registration, with UVs that read left to right from outside."""
+    """A strip of skin that carries the registration, reading left to right from outside."""
     bm = bmesh.new()
-    uv_layer = bm.loops.layers.uv.verify()
-    nx, nz = 16, 4
-    grid = []
-    for i in range(nx + 1):
-        s = i / nx
-        x = x0 + (x1 - x0) * s
-        row = []
-        for j in range(nz + 1):
-            t = j / nz
-            a = angle_at(x, z0 + (z1 - z0) * t, left)
-            # Seen from outside the nose is to the left on the left side, to the right on the right; v is
-            # written top-down because the exporter flips it.
-            row.append((bm.verts.new(surf(x, a, 0.006)), (s if left else 1 - s, 1 - t)))
-        grid.append(row)
-    for i in range(nx):
-        for j in range(nz):
-            corners = [grid[i][j], grid[i][j + 1], grid[i + 1][j + 1], grid[i + 1][j]]
-            if left:
-                corners.reverse()
-            face = bm.faces.new([c[0] for c in corners])
-            for loop, corner in zip(face.loops, corners):
-                loop[uv_layer].uv = corner[1]
+    # Seen from outside the nose is to the left on the left side and to the right on the right.
+    uv_patch(bm, x0, x1, z0, z1, left, 0.006, nx=16, nz=4, flip_u=not left)
     common.object_from_bmesh(name, bm, [material], recalc_normals=False)
 
 
-def build(paint, glass, gap, exhaust, doors, decal):
+def build(paint, glass, gap, exhaust, doors, decal, window):
     """Create every fuselage object. doors maps door ids to (x, width, height)."""
     skin = [paint]
     radome_end, nose_end, mid, tail_start = 1.0, 5.6, 15.9, 33.6
@@ -310,8 +323,8 @@ def build(paint, glass, gap, exhaust, doors, decal):
         for key, sill in (("pax_door_fwd", PAX_SILL_Z), ("pax_door_aft", PAX_SILL_Z),
                           ("overwing_exit_fwd", EXIT_SILL_Z), ("overwing_exit_aft", EXIT_SILL_Z)):  # fmt: skip
             x, width, height = doors[key]
-            _door(f"{key}_{suffix}", x, width, sill, sill + height, left, door_mats)
-        _cabin_windows(f"cabin_windows_{suffix}", left, [glass, gap])
+            _door(f"{key}_{suffix}", x, width, sill, sill + height, left, door_mats + [window], window=key.startswith("pax"))
+        _cabin_windows(f"cabin_windows_{suffix}", left, window)
         # Flight-deck glazing outlines (PROVISIONAL): (station, angle) corners on the right side.
         _glazing(f"windshield_{suffix}", [(1.52, 52), (2.12, 50), (2.12, 86), (1.52, 84)], left, [glass, gap])
         _glazing(f"sliding_window_{suffix}", [(2.22, 24), (2.86, 23), (2.80, 48), (2.20, 49)], left, [glass, gap])
