@@ -1,31 +1,14 @@
-# A320 Maintenance & Inspection Simulator
-
-A browser-based training simulator: walk into a maintenance hangar, take an inspection
-assignment on an Airbus A320, examine the aircraft, find the discrepancies yourself, look things
-up in an ATA-organized technical library, and write up your findings in a maintenance logbook.
-
-**Live site:** https://sherrillbird06.github.io/a320-maintenance-sim/
-
-> **Training simulation — not approved maintenance data.** Nothing here is an Airbus or airline
-> procedure. The simulator contains no torque values, tolerances, servicing quantities, intervals
-> or inspection limits. Real maintenance is done only to current, approved, aircraft-specific
-> documentation.
-
-## Status
-
-The project is built in milestones; each one is tested and deployed before the next starts.
-
-| #   | Milestone                                                              | Status                                                                                |
+ATA library built (19 chapters); checklist, diagram, profile and progression not started |||| # | Milestone | Status |
 | --- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| 0   | Foundations: toolchain, data model, sources, asset pipeline, look test | Done                                                                                  |
-| 1   | Aircraft exterior: airframe, engines, landing gear, livery             | First pass built: all 209 exterior components; close-up detail and review still to do |
-| 2   | Hangar, access stands, ground equipment, lighting                      | First pass built: simple shapes, no baked lighting                                    |
-| 3   | Inspection core: walking, selection, component information             | Working: walk, select, zoom, flashlight; component descriptions not written yet       |
-| 4   | Defects, randomized scenarios, grading, discrepancy reports, logbook   | Working for one assignment (wheels and tires)                                         |
-| 5   | Workstation UI, ATA library, progression                               | Not started                                                                           |
-| 6   | Engine, hydraulic and flight-control tasks; difficulty levels          | Not started                                                                           |
-| 7   | Cockpit and aircraft systems modules                                   | Not started                                                                           |
-| 8   | Advanced troubleshooting scenarios, performance pass                   | Not started                                                                           |
+| 0 | Foundations: toolchain, data model, sources, asset pipeline, look test | Done |
+| 1 | Aircraft exterior: airframe, engines, landing gear, livery | First pass built: all 209 exterior components; close-up detail and review still to do |
+| 2 | Hangar, access stands, ground equipment, lighting | First pass built: simple shapes, no baked lighting |
+| 3 | Inspection core: walking, selection, component information | Working: walk, select, zoom, flashlight; component descriptions not written yet |
+| 4 | Defects, randomized scenarios, grading, discrepancy reports, logbook | Working for one assignment (wheels and tires) |
+| 5 | Workstation UI, ATA library, progression | Not started |
+| 6 | Engine, hydraulic and flight-control tasks; difficulty levels | Not started |
+| 7 | Cockpit and aircraft systems modules | Not started |
+| 8 | Advanced troubleshooting scenarios, performance pass | Not started |
 
 What you can do today: accept a work order, walk around the aircraft in the hangar, select any of its
 209 exterior components, find randomized tire defects, write up discrepancy reports, sign off, read a

@@ -136,3 +136,29 @@ test('the engine inlet assignment can be chosen and its defects are on the engin
   await page.getByRole('button', { name: 'Confirm sign-off' }).click()
   await expect(page.locator('.review .chip', { hasText: /^Correct$/ })).toBeVisible()
 })
+
+test('work order references open the technical library at that chapter', async ({ page }) => {
+  await page.goto('./?e2e=1')
+  await page.getByRole('button', { name: /ATA 32/ }).click()
+  const library = page.getByRole('dialog', { name: 'Technical library' })
+  await expect(library.getByRole('heading', { name: /ATA 32 Landing Gear/ })).toBeVisible()
+  await expect(library.getByText('not approved maintenance data')).toBeVisible()
+  await expect(library.getByText(/Main gear shock strut/)).toBeVisible()
+
+  await library.getByRole('button', { name: /29 Hydraulic Power/ }).click()
+  await expect(library.getByRole('heading', { name: /ATA 29 Hydraulic Power/ })).toBeVisible()
+  await expect(library.getByText(/Green, Blue and Yellow/)).toBeVisible()
+
+  await library.getByRole('button', { name: 'Close library' }).click()
+  await expect(page.getByRole('heading', { name: 'Work order' })).toBeVisible()
+})
+
+test('a selected component links to its chapter in the library', async ({ page }) => {
+  await page.goto('./?e2e=1')
+  await acceptWorkOrder(page, '4242')
+  await selectOnAircraft(page, { componentId: 'eng1_fan', position: [12, 2, 5.75] })
+  await page.getByRole('button', { name: /ATA 72/ }).click()
+  await expect(page.getByRole('heading', { name: /ATA 72 Engine/ })).toBeVisible()
+  await page.getByRole('button', { name: 'Close library' }).click()
+  await expect(page.getByText('Selected component')).toBeVisible()
+})

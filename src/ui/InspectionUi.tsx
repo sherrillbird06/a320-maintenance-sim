@@ -1,11 +1,12 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { AIRCRAFT } from '../data/aircraft'
-import { ATA_CHAPTERS, ataTitle } from '../data/ata'
+import { ATA_CHAPTERS } from '../data/ata'
 import { byId } from '../data/components'
 import { DEFECT_TYPES } from '../data/defects'
 import type { DefectCategory, Finding } from '../data/schema'
 import { ZONES } from '../data/zones'
 import { session, useSession, useView, view } from '../state/useSession'
+import { ChapterLink, Library, openLibrary } from './Library'
 import './inspection.css'
 
 const CATEGORY_LABELS: Record<DefectCategory, string> = {
@@ -22,7 +23,6 @@ const CATEGORY_LABELS: Record<DefectCategory, string> = {
 
 const zoneTitle = (id: string) => ZONES.find((z) => z.id === id)?.title ?? id
 const componentName = (id: string) => byId(id)?.name ?? id
-const ataLabel = (chapter: string) => `ATA ${chapter} — ${ataTitle(chapter) ?? 'Unknown'}`
 const duration = (seconds: number) =>
   `${Math.floor(seconds / 60)} min ${String(seconds % 60).padStart(2, '0')} s`
 const percent = (value: number) => `${Math.round(value * 100)}%`
@@ -146,7 +146,14 @@ function StartPanel() {
           <dt>Inspection zone</dt>
           <dd>{template.zones.map((z) => `${z} — ${zoneTitle(z)}`).join(', ')}</dd>
           <dt>References</dt>
-          <dd>{template.referenceChapters.map(ataLabel).join('; ')}</dd>
+          <dd>
+            {template.referenceChapters.map((chapter, i) => (
+              <span key={chapter}>
+                {i > 0 && '; '}
+                <ChapterLink chapter={chapter} />
+              </span>
+            ))}
+          </dd>
           <dt>Task</dt>
           <dd>
             Carry out a general visual inspection of the zone. Tag and report every discrepancy you
@@ -176,9 +183,14 @@ function StartPanel() {
               {error}
             </p>
           )}
-          <button type="submit" className="button button--primary">
-            Accept work order
-          </button>
+          <div className="form__actions">
+            <button type="submit" className="button button--primary">
+              Accept work order
+            </button>
+            <button type="button" className="button" onClick={() => openLibrary()}>
+              Technical library
+            </button>
+          </div>
         </form>
       </section>
       <section className="sheet__section">
@@ -268,7 +280,9 @@ function Hud() {
             <dt>Identifier</dt>
             <dd className="mono">{component.id}</dd>
             <dt>ATA</dt>
-            <dd>{ataLabel(component.ata)}</dd>
+            <dd>
+              <ChapterLink chapter={component.ata} />
+            </dd>
             <dt>Zone</dt>
             <dd>
               {component.zone} — {zoneTitle(component.zone)}
@@ -454,6 +468,15 @@ function Workstation() {
             </dd>
             <dt>Zone</dt>
             <dd>{template.zones.map((z) => `${z} — ${zoneTitle(z)}`).join(', ')}</dd>
+            <dt>References</dt>
+            <dd>
+              {template.referenceChapters.map((chapter, i) => (
+                <span key={chapter}>
+                  {i > 0 && '; '}
+                  <ChapterLink chapter={chapter} />
+                </span>
+              ))}
+            </dd>
             <dt>Status</dt>
             <dd>
               <span className="chip chip--active">In progress</span>
@@ -524,6 +547,9 @@ function Workstation() {
             <>
               <button className="button button--primary" onClick={() => setConfirming(true)}>
                 Sign off inspection
+              </button>
+              <button className="button" onClick={() => openLibrary()}>
+                Technical library
               </button>
               <button className="button" onClick={close}>
                 Return to aircraft
@@ -628,6 +654,13 @@ export function InspectionUi() {
   const phase = useSession((s) => s.phase)
   const panel = useView((s) => s.panel)
 
+  if (panel === 'library') {
+    return (
+      <div className="overlay">
+        <Library />
+      </div>
+    )
+  }
   if (phase === 'idle') {
     return (
       <div className="overlay">
