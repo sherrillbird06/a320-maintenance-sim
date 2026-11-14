@@ -9,9 +9,9 @@
 | Slice | Content | Done when |
 | --- | --- | --- |
 | 1 | Overall shape: fuselage, wings, tail, nacelles, pylons, gear stand-ins | **Done.** 8 dimension tests pass. Shape only: no detail, provisional aerofoils, nacelles, gear |
-| 2 | Fuselage detail: belly fairing, wing root, cockpit glazing, cabin windows, doors, cargo doors, radome and skin panel split, tail cone, APU exhaust | Fuselage components exist under registry ids; door and window positions match the Airbus door figure |
-| 3 | Wing detail: slats 1–5, flaps, spoilers 1–5, ailerons, flap track fairings, fence, lights, access panels; tail surfaces: rudder, elevators | Surfaces are separate meshes with pivots; planform matches the figure |
-| 4 | Power plant: inlet, spinner, 36-blade fan that turns, fan cowls, reverser cowls, nozzle, plug, pylon, drain mast | CFM56-5B recognizable from the front and side; references recorded |
+| 2 | Fuselage detail: belly fairing, wing root, cockpit glazing, cabin windows, doors, cargo doors, radome and skin panel split, tail cone, APU exhaust | **Done.** Door and exit stations and widths are tested against the Airbus door figures. Provisional: window size, glazing outlines, sill heights, fairing shape |
+| 3 | Wing detail: slats 1–5, flaps, spoilers 1–5, ailerons, flap track fairings, fence; tail surfaces: rudder, elevators | **Partly done.** Surfaces are separate inspectable meshes in the right order. Not done: hinge pivots, lights, access panels. Provisional: every split position |
+| 4 | Power plant: inlet, spinner, 36-blade fan that turns, fan cowls, reverser cowls, nozzle, plug, pylon, drain mast | **Partly done.** All 11 components per engine exist; fan has 36 blades on an axis-centred origin. Not done: turning it in the app, photo comparison. Provisional: all cross-sections |
 | 5 | Landing gear: struts, torque links, stays, actuators, wheels, brakes, doors, bays | Each gear component is its own mesh; wheels and tires at sourced sizes |
 | 6 | Probes, antennas, lights, service panels, drain masts, static dischargers | Positions match the Airbus antenna, light and service figures |
 | 7 | Materials and livery: paint with seams and rivets, stencils, glass, unbranded scheme, registration | Holds up at close range in hangar lighting |

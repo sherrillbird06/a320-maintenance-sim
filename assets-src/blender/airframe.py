@@ -25,6 +25,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import _engine  # noqa: E402
 import _fuselage  # noqa: E402
 import _surfaces  # noqa: E402
 import bmesh  # noqa: E402
@@ -92,24 +93,6 @@ def add_strut(bm, x, y, z0, z1, radius, material_index):
     common.loft(bm, [ring(z0), ring(z1)], material_index=material_index)
 
 
-def nacelle(bm, y):
-    z = NACELLE_CLEARANCE + NACELLE_RADIUS
-    place = lambda lx, ly, lz: (lx, y + ly, z + lz)  # noqa: E731
-    x0 = ENGINE_INLET_X
-    cowl = [
-        (x0, 0.98), (x0 + 0.06, 1.04), (x0 + 0.31, 1.11), (x0 + 1.11, NACELLE_RADIUS),
-        (x0 + 2.21, 1.14), (x0 + 3.11, 1.02), (x0 + 3.56, 0.93), (x0 + 3.56, 0.90),
-        (x0 + 2.81, 0.92), (x0 + 1.01, 0.90), (x0 + 0.31, 0.88), (x0 + 0.06, 0.91), (x0, 0.98),
-    ]  # fmt: skip
-    common.revolve(bm, cowl, 64, material_index=0, place=place)
-    core = [(x0 + 2.4, 0.0), (x0 + 2.4, 0.70), (x0 + 3.4, 0.66), (x0 + 4.3, 0.42), (x0 + 4.3, 0.30), (x0 + 4.1, 0.30)]
-    common.revolve(bm, core, 48, material_index=1, place=place)
-    plug = [(x0 + 4.0, 0.28), (x0 + 4.4, 0.24), (x0 + 4.8, 0.0)]
-    common.revolve(bm, plug, 32, material_index=1, place=place)
-    fan = [(x0 + 0.55, 0.0), (x0 + 0.72, 0.18), (x0 + 0.92, 0.30), (x0 + 0.92, 0.88)]
-    common.revolve(bm, fan, 48, material_index=2, place=place)
-
-
 def pylon(bm, y):
     nacelle_top = NACELLE_CLEARANCE + 2 * NACELLE_RADIUS - 0.08
     wing_z = _surfaces.wing_section(ENGINE_Y)[2]
@@ -123,6 +106,7 @@ def build():
     paint = common.material("fuselage_paint", (0.70, 0.72, 0.74), metallic=0.2, roughness=0.4, coat=1.0)
     hot_metal = common.material("engine_metal", (0.30, 0.30, 0.31), metallic=1.0, roughness=0.45)
     dark = common.material("fan_dark", (0.03, 0.03, 0.035), metallic=0.6, roughness=0.5)
+    blade_metal = common.material("fan_blade_metal", (0.36, 0.37, 0.39), metallic=1.0, roughness=0.32)
     gear_paint = common.material("gear_paint", (0.55, 0.56, 0.57), metallic=0.3, roughness=0.5)
     rubber = common.material("tire_rubber", (0.012, 0.012, 0.013), roughness=0.95)
 
@@ -136,12 +120,10 @@ def build():
     _surfaces.build_fin(CROWN_Z + FIN_HEIGHT_ABOVE_CROWN, paint)
 
     for number, y in ((1, -ENGINE_Y), (2, ENGINE_Y)):
-        bm = bmesh.new()
-        nacelle(bm, y)
-        common.object_from_bmesh(f"eng{number}_nacelle", bm, [paint, hot_metal, dark])
+        _engine.build(number, y, ENGINE_INLET_X, NACELLE_CLEARANCE, paint, hot_metal, dark, blade_metal)
         bm = bmesh.new()
         pylon(bm, y)
-        common.object_from_bmesh(f"eng{number}_pylon", bm, [paint])
+        common.mark_inspectable(common.object_from_bmesh(f"eng{number}_pylon", bm, [paint]))
 
     bm = bmesh.new()
     for y in (-NOSE_WHEEL_SPACING / 2, NOSE_WHEEL_SPACING / 2):

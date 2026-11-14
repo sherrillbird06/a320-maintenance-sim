@@ -11,7 +11,8 @@ export interface SourcedDimension {
 
 const AC = 'airbus_ac_a320'
 const DIMENSIONS_FIG = 'Figure 2-2-0-991-004-A01, General Aircraft Dimensions – Wing Tip Fence'
-const DOORS_FIG = 'Figures 2-7-0-991-003-A01 and 2-7-0-991-022-A01 to -028-A01, Door Location and Clearances'
+const DOORS_FIG =
+  'Figures 2-7-0-991-003-A01 and 2-7-0-991-022-A01 to -028-A01, Door Location and Clearances'
 const CLEARANCES_FIG =
   'Figure 2-3-0-991-004-A01, Ground Clearances – Wing Tip Fence, empty weight for maintenance'
 

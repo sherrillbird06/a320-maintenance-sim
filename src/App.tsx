@@ -57,7 +57,7 @@ export function App() {
           {scene === 'lookdev'
             ? 'Look test · materials and lighting'
             : scene === 'aircraft'
-              ? 'Milestone 1 in progress · airframe shape only'
+              ? 'Milestone 1 in progress · unfinished model'
               : 'Milestone 0 · foundations'}
         </span>
       </header>

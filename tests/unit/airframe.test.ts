@@ -38,17 +38,20 @@ describe('airframe.glb matches the sourced dimensions', async () => {
     expect(right.max[1] - belly.min[1]).toBeGreaterThan(d.fuselageHeight.value - 0.15)
   })
 
-  it.each(Object.entries(AIRCRAFT.doors))('places %s at its published station and width', (id, door) => {
-    const mirrored = id.startsWith('pax_door') || id.startsWith('overwing')
-    for (const name of mirrored ? [id + '_lh', id + '_rh'] : [id]) {
-      const b = model.nodeBounds[name]
-      expect(b, name).toBeDefined()
-      if (!b) continue
-      expect((b.min[0] + b.max[0]) / 2).toBeCloseTo(door.x, 1)
-      expect(b.max[0] - b.min[0]).toBeCloseTo(door.width, 1)
-      expect(model.inspectableNodes).toContain(name)
-    }
-  })
+  it.each(Object.entries(AIRCRAFT.doors))(
+    'places %s at its published station and width',
+    (id, door) => {
+      const mirrored = id.startsWith('pax_door') || id.startsWith('overwing')
+      for (const name of mirrored ? [id + '_lh', id + '_rh'] : [id]) {
+        const b = model.nodeBounds[name]
+        expect(b, name).toBeDefined()
+        if (!b) continue
+        expect((b.min[0] + b.max[0]) / 2).toBeCloseTo(door.x, 1)
+        expect(b.max[0] - b.min[0]).toBeCloseTo(door.width, 1)
+        expect(model.inspectableNodes).toContain(name)
+      }
+    },
+  )
 
   it('puts the cargo doors on the right side only', () => {
     for (const name of ['fwd_cargo_door', 'aft_cargo_door', 'bulk_cargo_door']) {
@@ -58,16 +61,28 @@ describe('airframe.glb matches the sourced dimensions', async () => {
   })
 
   it.each([
-    'radome', 'nose_skin_lh', 'nose_skin_rh', 'fwd_fuselage_skin_lh', 'aft_fuselage_skin_rh',
-    'aft_fuselage_belly', 'tail_cone', 'belly_fairing', 'apu_exhaust', 'cabin_windows_lh',
-    'cabin_windows_rh', 'windshield_lh', 'windshield_rh', 'sliding_window_lh', 'fixed_side_window_rh',
+    'radome',
+    'nose_skin_lh',
+    'nose_skin_rh',
+    'fwd_fuselage_skin_lh',
+    'aft_fuselage_skin_rh',
+    'aft_fuselage_belly',
+    'tail_cone',
+    'belly_fairing',
+    'apu_exhaust',
+    'cabin_windows_lh',
+    'cabin_windows_rh',
+    'windshield_lh',
+    'windshield_rh',
+    'sliding_window_lh',
+    'fixed_side_window_rh',
   ])('has the fuselage component %s as an inspectable node', (name) => {
     expect(model.nodeNames).toContain(name)
     expect(model.inspectableNodes).toContain(name)
   })
 
   it('places the engines at the published distance from the centreline', () => {
-    for (const name of ['eng1_nacelle', 'eng2_nacelle']) {
+    for (const name of ['eng1_inlet_cowl', 'eng2_inlet_cowl']) {
       const b = model.nodeBounds[name]
       expect(b, name).toBeDefined()
       if (!b) continue
@@ -143,5 +158,62 @@ describe('airframe.glb wing and tail surfaces', async () => {
   it('hinges the rudder and elevators behind their fixed surfaces', () => {
     expect(station('rudder')).toBeGreaterThan(station('vertical_stabilizer'))
     expect(station('elevator_lh')).toBeGreaterThan(station('horizontal_stabilizer_lh'))
+  })
+})
+
+describe('airframe.glb power plants', async () => {
+  const model = await readModel('public/models/airframe.glb')
+  const parts = [
+    'inlet_cowl',
+    'spinner',
+    'fan',
+    'fan_cowl_inboard',
+    'fan_cowl_outboard',
+    'reverser_cowl_inboard',
+    'reverser_cowl_outboard',
+    'exhaust_nozzle',
+    'exhaust_plug',
+    'pylon',
+    'drain_mast',
+  ]
+
+  it.each(['eng1', 'eng2'].flatMap((e) => parts.map((p) => e + '_' + p)))(
+    'has %s as an inspectable node',
+    (name) => {
+      expect(model.nodeNames).toContain(name)
+      expect(model.inspectableNodes).toContain(name)
+    },
+  )
+
+  it.each(['eng1', 'eng2'])('gives the %s fan 36 separate blades', (engine) => {
+    const blades = model.nodeNames.filter((n) => n.startsWith(engine + '_fan_blade_'))
+    expect(blades).toHaveLength(36)
+    // Blades are detail of the fan, not components in their own right.
+    for (const blade of blades) expect(model.inspectableNodes).not.toContain(blade)
+  })
+
+  it.each(['eng1', 'eng2'])(
+    'puts the %s inboard cowls nearer the fuselage than the outboard ones',
+    (engine) => {
+      const lateral = (name: string) => {
+        const b = model.nodeBounds[name]
+        return b ? Math.abs((b.min[2] + b.max[2]) / 2) : NaN
+      }
+      expect(lateral(engine + '_fan_cowl_inboard')).toBeLessThan(
+        lateral(engine + '_fan_cowl_outboard'),
+      )
+      expect(lateral(engine + '_reverser_cowl_inboard')).toBeLessThan(
+        lateral(engine + '_reverser_cowl_outboard'),
+      )
+    },
+  )
+
+  it('keeps the nacelle low point at the published ground clearance', () => {
+    const lowest = Math.min(
+      ...['eng1_fan_cowl_inboard', 'eng1_fan_cowl_outboard'].map(
+        (n) => model.nodeBounds[n]?.min[1] ?? 99,
+      ),
+    )
+    expect(lowest).toBeCloseTo(AIRCRAFT.dimensions.nacelleGroundClearance.value, 1)
   })
 })
