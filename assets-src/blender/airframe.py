@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import _engine  # noqa: E402
 import _fuselage  # noqa: E402
+import _gear  # noqa: E402
 import _surfaces  # noqa: E402
 import bmesh  # noqa: E402
 import common  # noqa: E402
@@ -68,31 +69,6 @@ DOORS = {
 NACELLE_RADIUS = 1.16
 
 
-def add_wheel(bm, x, y, tire, materials):
-    """A wheel and tire with its axle along Y, resting on the floor. materials = (rubber, hub) indices."""
-    diameter, width = tire
-    radius, w = diameter / 2, width / 2
-    rim = radius * 0.46
-    place = lambda lx, ly, lz: (x - ly, y + lx, radius + lz)  # noqa: E731 - local X becomes world Y
-    tire_profile = [
-        (-w * 0.5, rim), (-w, rim + 0.05), (-w, (radius + rim) / 2 + 0.03), (-w * 0.86, radius - 0.045),
-        (-w * 0.62, radius), (w * 0.62, radius), (w * 0.86, radius - 0.045),
-        (w, (radius + rim) / 2 + 0.03), (w, rim + 0.05), (w * 0.5, rim),
-    ]  # fmt: skip
-    common.revolve(bm, tire_profile, 48, material_index=materials[0], place=place)
-    hub_profile = [(-w * 0.45, 0.0), (-w * 0.45, rim), (w * 0.45, rim), (w * 0.45, 0.0)]
-    common.revolve(bm, hub_profile, 32, material_index=materials[1], place=place)
-
-
-def add_strut(bm, x, y, z0, z1, radius, material_index):
-    sides = 16
-    ring = lambda z: [  # noqa: E731
-        (x + radius * math.cos(a), y + radius * math.sin(a), z)
-        for a in (2 * math.pi * i / sides for i in range(sides))
-    ]
-    common.loft(bm, [ring(z0), ring(z1)], material_index=material_index)
-
-
 def pylon(bm, y):
     nacelle_top = NACELLE_CLEARANCE + 2 * NACELLE_RADIUS - 0.08
     wing_z = _surfaces.wing_section(ENGINE_Y)[2]
@@ -125,19 +101,24 @@ def build():
         pylon(bm, y)
         common.mark_inspectable(common.object_from_bmesh(f"eng{number}_pylon", bm, [paint]))
 
-    bm = bmesh.new()
-    for y in (-NOSE_WHEEL_SPACING / 2, NOSE_WHEEL_SPACING / 2):
-        add_wheel(bm, NOSE_GEAR_X, y, NOSE_TIRE, (0, 1))
-    add_strut(bm, NOSE_GEAR_X, 0.0, NOSE_TIRE[0] / 2, 2.0, 0.07, 1)
-    common.object_from_bmesh("nlg", bm, [rubber, gear_paint])
+    wheel_paint = common.material("wheel_paint", (0.42, 0.43, 0.44), metallic=0.35, roughness=0.5)
+    bolt_steel = common.material("bolt_steel", (0.42, 0.42, 0.43), metallic=1.0, roughness=0.35)
+    brake_dark = common.material("brake_carbon", (0.05, 0.05, 0.055), metallic=0.3, roughness=0.7)
+    chrome = common.material("strut_chrome", (0.80, 0.80, 0.82), metallic=1.0, roughness=0.12)
+    line = common.material("hydraulic_line", (0.20, 0.20, 0.21), metallic=0.9, roughness=0.4)
+    wheel_mats = (rubber, wheel_paint, bolt_steel, brake_dark)
+    structure = (gear_paint, chrome, dark, line)
 
+    _gear.build_nose_gear(NOSE_GEAR_X, NOSE_WHEEL_SPACING, _fuselage.KEEL_Z, wheel_mats, structure)
     main_x = NOSE_GEAR_X + WHEELBASE
-    for side, suffix in ((-1, "lh"), (1, "rh")):
-        bm = bmesh.new()
-        for offset in (-MAIN_WHEEL_SPACING / 2, MAIN_WHEEL_SPACING / 2):
-            add_wheel(bm, main_x, side * HALF_TRACK + offset, MAIN_TIRE, (0, 1))
-        add_strut(bm, main_x, side * HALF_TRACK, MAIN_TIRE[0] / 2, _surfaces.wing_section(HALF_TRACK)[2], 0.11, 1)
-        common.object_from_bmesh(f"mlg_{suffix}", bm, [rubber, gear_paint])
+    for side, suffix, numbers in ((-1, "lh", (1, 2)), (1, "rh", (3, 4))):
+        top_z = _surfaces.wing_section(HALF_TRACK)[2] - 0.22
+        _gear.build_main_gear(side, suffix, numbers, main_x, HALF_TRACK, MAIN_WHEEL_SPACING, top_z, wheel_mats, structure)
+
+    # Hydraulic service panels (stations from src/data/aircraft.ts); left is -Y.
+    _gear.build_hydraulic_panels(
+        {"green": (19.17, -1.27), "yellow": (19.17, 1.27), "blue": (20.22, -1.27)}, _fuselage.fairing_bottom_z, gap
+    )
 
 
 if __name__ == "__main__":

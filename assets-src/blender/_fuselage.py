@@ -218,15 +218,31 @@ def _cabin_windows(name, left, materials):
     common.mark_inspectable(obj)
 
 
-def _belly_fairing(materials):
-    """Wing-to-fuselage fairing under the centre section (shape PROVISIONAL)."""
-    stations = [
+FAIRING_STATIONS = [
         (11.3, 0.02, 0.02), (11.9, 1.55, 0.25), (13.2, 2.12, 0.40), (16.0, 2.18, 0.42),
         (19.4, 2.12, 0.40), (20.9, 1.50, 0.22), (21.6, 0.02, 0.02),
-    ]  # fmt: skip
+]  # fmt: skip
+FAIRING_TOP_Z = 2.95
+
+
+def fairing_bottom_z(x, y):
+    """Height of the belly fairing's underside at station x and lateral position y."""
+    for (x0, w0, d0), (x1, w1, d1) in zip(FAIRING_STATIONS, FAIRING_STATIONS[1:]):
+        if x0 <= x <= x1:
+            t = (x - x0) / (x1 - x0)
+            half_width, depth = w0 + (w1 - w0) * t, d0 + (d1 - d0) * t
+            bottom = KEEL_Z - depth
+            centre, half_height = (FAIRING_TOP_Z + bottom) / 2, (FAIRING_TOP_Z - bottom) / 2
+            c = min(abs(y) / half_width, 1.0) ** (1 / 0.6)
+            return centre - half_height * math.sqrt(max(0.0, 1 - c * c)) ** 0.6
+    return KEEL_Z
+
+
+def _belly_fairing(materials):
+    """Wing-to-fuselage fairing under the centre section (shape PROVISIONAL)."""
     rings = []
-    for x, half_width, depth in stations:
-        top = 2.95
+    for x, half_width, depth in FAIRING_STATIONS:
+        top = FAIRING_TOP_Z
         bottom = KEEL_Z - depth
         centre, half_height = (top + bottom) / 2, (top - bottom) / 2
         ring = []

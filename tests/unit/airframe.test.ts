@@ -92,15 +92,16 @@ describe('airframe.glb matches the sourced dimensions', async () => {
   })
 
   it('places the gear at the published wheelbase and track', () => {
-    const nose = model.nodeBounds['nlg']
-    const left = model.nodeBounds['mlg_lh']
-    const right = model.nodeBounds['mlg_rh']
-    expect(nose && left && right).toBeTruthy()
-    if (!nose || !left || !right) return
-    const centre = (b: typeof nose, axis: 0 | 2) => (b.min[axis] + b.max[axis]) / 2
-    expect(centre(nose, 0)).toBeCloseTo(d.noseToNoseGear.value, 1)
-    expect(centre(left, 0) - centre(nose, 0)).toBeCloseTo(d.wheelbase.value, 1)
-    expect(Math.abs(centre(left, 2) - centre(right, 2))).toBeCloseTo(d.mainGearTrack.value, 1)
+    // Measured at the wheels: struts lean, so their bounding boxes are not centred on the axle.
+    const mid = (name: string, axis: 0 | 2) => {
+      const b = model.nodeBounds[name]
+      return b ? (b.min[axis] + b.max[axis]) / 2 : NaN
+    }
+    expect(mid('nlg_tire_lh', 0)).toBeCloseTo(d.noseToNoseGear.value, 2)
+    expect(mid('mlg_tire_1', 0) - mid('nlg_tire_lh', 0)).toBeCloseTo(d.wheelbase.value, 2)
+    const left = (mid('mlg_tire_1', 2) + mid('mlg_tire_2', 2)) / 2
+    const right = (mid('mlg_tire_3', 2) + mid('mlg_tire_4', 2)) / 2
+    expect(left - right).toBeCloseTo(d.mainGearTrack.value, 2)
   })
 
   it('stays within the exterior triangle budget', () => {
@@ -216,4 +217,100 @@ describe('airframe.glb power plants', async () => {
     )
     expect(lowest).toBeCloseTo(AIRCRAFT.dimensions.nacelleGroundClearance.value, 1)
   })
+})
+
+describe('airframe.glb landing gear', async () => {
+  const model = await readModel('public/models/airframe.glb')
+  const d = AIRCRAFT.dimensions
+  const mirrored = (ids: string[]) => ids.flatMap((id) => [id + '_lh', id + '_rh'])
+  const names = [
+    'nlg_shock_strut',
+    'nlg_torque_links',
+    'nlg_drag_strut',
+    'nlg_steering_actuator',
+    'nlg_bay',
+    'apu_external_panel',
+    'hyd_service_panel_green',
+    'hyd_service_panel_yellow',
+    'hyd_service_panel_blue',
+    ...mirrored([
+      'nlg_wheel',
+      'nlg_tire',
+      'nlg_door_fwd',
+      'nlg_door_aft',
+      'mlg_shock_strut',
+      'mlg_side_stay',
+      'mlg_torque_links',
+      'mlg_retraction_actuator',
+      'mlg_brake_lines',
+      'mlg_door_main',
+      'mlg_door_hinged',
+      'mlg_bay',
+    ]),
+    ...[1, 2, 3, 4].flatMap((n) => ['mlg_wheel_' + n, 'mlg_tire_' + n, 'mlg_brake_' + n]),
+  ]
+  const centre = (name: string, axis: 0 | 1 | 2) => {
+    const b = model.nodeBounds[name]
+    return b ? (b.min[axis] + b.max[axis]) / 2 : NaN
+  }
+  const height = (name: string) => {
+    const b = model.nodeBounds[name]
+    return b ? b.max[1] - b.min[1] : NaN
+  }
+
+  it.each(names)('has %s as an inspectable node', (name) => {
+    expect(model.nodeNames).toContain(name)
+    expect(model.inspectableNodes).toContain(name)
+  })
+
+  it('numbers the main wheels 1 to 4 from the aircraft left to right', () => {
+    // Aircraft left is +Z in glTF.
+    const positions = [1, 2, 3, 4].map((n) => centre('mlg_tire_' + n, 2))
+    expect(positions).toEqual([...positions].sort((a, b) => b - a))
+    expect(positions[0]).toBeGreaterThan(0)
+    expect(positions[3]).toBeLessThan(0)
+  })
+
+  it('spaces the wheels of each gear as published', () => {
+    expect(centre('mlg_tire_1', 2) - centre('mlg_tire_2', 2)).toBeCloseTo(
+      d.mainWheelSpacing.value,
+      2,
+    )
+    expect(centre('nlg_tire_lh', 2) - centre('nlg_tire_rh', 2)).toBeCloseTo(
+      d.noseWheelSpacing.value,
+      2,
+    )
+  })
+
+  it('has tires of the designated diameters resting on the floor', () => {
+    for (const n of [1, 2, 3, 4]) {
+      expect(height('mlg_tire_' + n)).toBeCloseTo(AIRCRAFT.tires.main.diameterM, 2)
+      expect(model.nodeBounds['mlg_tire_' + n]?.min[1]).toBeCloseTo(0, 2)
+    }
+    expect(height('nlg_tire_lh')).toBeCloseTo(AIRCRAFT.tires.nose.diameterM, 2)
+  })
+
+  it('puts each brake on the strut side of its wheel', () => {
+    const strutLeft = centre('mlg_shock_strut_lh', 2)
+    const strutRight = centre('mlg_shock_strut_rh', 2)
+    for (const [n, strut] of [
+      [1, strutLeft],
+      [2, strutLeft],
+      [3, strutRight],
+      [4, strutRight],
+    ] as const) {
+      const brake = Math.abs(centre('mlg_brake_' + n, 2) - strut)
+      const wheel = Math.abs(centre('mlg_wheel_' + n, 2) - strut)
+      expect(brake).toBeLessThan(wheel)
+    }
+  })
+
+  it.each(Object.entries(AIRCRAFT.hydraulicServicePanels))(
+    'places the %s hydraulic service panel as published',
+    (system, panel) => {
+      const name = 'hyd_service_panel_' + system
+      expect(centre(name, 0)).toBeCloseTo(panel.x, 1)
+      expect(centre(name, 2)).toBeCloseTo(panel.side === 'LH' ? panel.offset : -panel.offset, 1)
+    },
+  )
 })

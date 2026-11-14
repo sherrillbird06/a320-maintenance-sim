@@ -21,18 +21,18 @@ function Airframe() {
   return <primitive object={scene} position={[-18, 0, 0]} />
 }
 
-function startCamera(): [number, number, number] {
-  const raw = new URLSearchParams(window.location.search).get('cam')
+function vectorParam(name: string, fallback: [number, number, number]): [number, number, number] {
+  const raw = new URLSearchParams(window.location.search).get(name)
   const parts = raw?.split(',').map(Number)
   if (parts?.length === 3 && parts.every(Number.isFinite)) return parts as [number, number, number]
-  return [-26, 7, 24]
+  return fallback
 }
 
 /** The aircraft on the hangar floor, free to orbit. In-progress view of Milestone 1. */
 export default function AircraftView() {
   return (
     <AssetErrorBoundary urls={URLS}>
-      <SceneCanvas cameraPosition={startCamera()}>
+      <SceneCanvas cameraPosition={vectorParam('cam', [-26, 7, 24])}>
         <Suspense fallback={null}>
           <Environment
             files={ENV_URL}
@@ -56,7 +56,11 @@ export default function AircraftView() {
           <Floor />
           <Airframe />
         </Suspense>
-        <OrbitControls target={[0, 3.5, 0]} maxPolarAngle={Math.PI / 2 - 0.02} maxDistance={70} />
+        <OrbitControls
+          target={vectorParam('look', [0, 3.5, 0])}
+          maxPolarAngle={Math.PI / 2 - 0.02}
+          maxDistance={70}
+        />
       </SceneCanvas>
     </AssetErrorBoundary>
   )

@@ -89,6 +89,48 @@ export const AIRCRAFT = {
       ref: `${CLEARANCES_FIG}, sheet 3 (N1, CFM 5B nacelle low point)`,
     },
   } satisfies Record<string, SourcedDimension>,
+  /** Tire size designations. */
+  tires: {
+    main: {
+      size: '46x17R20',
+      diameterM: 46 * 0.0254,
+      source: AC,
+      ref: 'Section 7-2-0, Landing Gear Footprint',
+    },
+    nose: {
+      size: '30x8.8R15',
+      diameterM: 30 * 0.0254,
+      source: AC,
+      ref: 'Section 7-2-0, Landing Gear Footprint',
+    },
+  },
+  /** Hydraulic servicing access doors: metres aft of the nose and from the centreline. */
+  hydraulicServicePanels: {
+    green: {
+      x: 19.17,
+      offset: 1.27,
+      side: 'LH',
+      door: '197CB',
+      source: AC,
+      ref: 'Section 5-4-3, Hydraulic System',
+    },
+    yellow: {
+      x: 19.17,
+      offset: 1.27,
+      side: 'RH',
+      door: '198CB',
+      source: AC,
+      ref: 'Section 5-4-3, Hydraulic System',
+    },
+    blue: {
+      x: 20.22,
+      offset: 1.27,
+      side: 'LH',
+      door: '197EB',
+      source: AC,
+      ref: 'Section 5-4-3, Hydraulic System',
+    },
+  },
   /** Door and exit positions and clear opening sizes, in metres. x is measured aft from the nose to the door centre. */
   doors: {
     pax_door_fwd: { x: 5.04, width: 0.81, height: 1.85, source: AC, ref: DOORS_FIG },
