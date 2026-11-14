@@ -1,4 +1,4 @@
-ATA library built (19 chapters); checklist, diagram, profile and progression not started |||| # | Milestone | Status |
+ATA library, checklist, aircraft diagram, technician profile and training progress built |||| # | Milestone | Status |
 | --- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | 0 | Foundations: toolchain, data model, sources, asset pipeline, look test | Done |
 | 1 | Aircraft exterior: airframe, engines, landing gear, livery | First pass built: all 209 exterior components; close-up detail and review still to do |

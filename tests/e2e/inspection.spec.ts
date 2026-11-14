@@ -279,3 +279,45 @@ test('the flight control assignment places damage on wing surfaces and grades a 
     page.locator('.review .chip', { hasText: /^(Correct|Partly correct)$/ }).first(),
   ).toBeVisible()
 })
+
+test('the aircraft diagram lists components by zone and never shows defects', async ({ page }) => {
+  await page.goto('./?e2e=1')
+  await page.getByRole('button', { name: 'Aircraft diagram' }).click()
+  const diagram = page.getByRole('dialog', { name: 'Aircraft diagram' })
+  await expect(diagram.getByRole('img', { name: /Plan view/ })).toBeVisible()
+
+  await diagram.getByRole('button', { name: /Landing gear/ }).click()
+  await expect(diagram.getByRole('heading', { name: /Zone C — Landing gear/ })).toBeVisible()
+  await expect(diagram.getByRole('cell', { name: 'Nose gear shock strut' })).toBeVisible()
+
+  await diagram.getByRole('button', { name: /Rear fuselage and tail/ }).click()
+  await expect(diagram.getByRole('cell', { name: 'Rudder', exact: true })).toBeVisible()
+  await expect(diagram.getByText(/defect|discrepanc/i)).toHaveCount(1) // only the lead sentence saying it shows none
+  await diagram.getByRole('button', { name: 'Close diagram' }).click()
+  await expect(page.getByRole('heading', { name: 'Work order' })).toBeVisible()
+})
+
+test('during an inspection the diagram shows what the work order requires and what is examined', async ({
+  page,
+}) => {
+  await page.goto('./?e2e=1')
+  await acceptWorkOrder(page, '4242')
+  await selectOnAircraft(page, { componentId: 'nlg_tire_lh', position: [5, 0.4, 0.25] })
+  await page.keyboard.press('Tab')
+  await page
+    .getByRole('dialog', { name: 'Workstation' })
+    .getByRole('button', { name: 'Aircraft diagram' })
+    .click()
+
+  const diagram = page.getByRole('dialog', { name: 'Aircraft diagram' })
+  await expect(diagram.getByRole('heading', { name: /Zone C/ })).toBeVisible()
+  await expect(diagram.getByRole('row', { name: /Nose wheel tire, left/ })).toContainText(
+    'Examined',
+  )
+  await expect(diagram.getByRole('row', { name: /Nose wheel tire, right/ })).toContainText(
+    'To examine',
+  )
+  await expect(diagram.getByRole('row', { name: /Nose gear shock strut/ })).not.toContainText(
+    'examine',
+  )
+})

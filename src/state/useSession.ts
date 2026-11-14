@@ -19,7 +19,7 @@ export function useSession<T>(selector: (state: SessionState) => T): T {
 }
 
 /** Which panel, if any, is covering the 3D view. */
-export type Panel = 'none' | 'report' | 'workstation' | 'library'
+export type Panel = 'none' | 'report' | 'workstation' | 'library' | 'diagram'
 
 interface ViewState {
   /** Component under the crosshair. */

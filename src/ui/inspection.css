@@ -505,3 +505,86 @@ kbd {
   max-width: 78ch;
   font-size: 13px;
 }
+
+/* --- Aircraft diagram --------------------------------------------------------- */
+
+.sheet--diagram {
+  width: min(1080px, 100%);
+}
+
+.diagram__lead {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.diagram {
+  display: block;
+  width: 100%;
+  max-height: 46vh;
+  background: #f4f5f6;
+  border: 1px solid var(--sheet-line);
+}
+
+.diagram__shape {
+  fill-opacity: 0.1;
+  stroke-width: 0.08;
+  cursor: pointer;
+}
+
+.diagram__shape--current {
+  fill-opacity: 0.32;
+  stroke-width: 0.14;
+}
+
+.diagram__dot {
+  stroke: #fff;
+  stroke-width: 0.05;
+  cursor: pointer;
+}
+
+.diagram__dot--required {
+  fill: #fff;
+  stroke: #1c2126;
+  stroke-width: 0.12;
+}
+
+.diagram__dot--required.diagram__dot--seen {
+  fill: #3d7a4b;
+}
+
+.diagram__dot--picked {
+  stroke: #1c2126;
+  stroke-width: 0.14;
+}
+
+.diagram__zones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.diagram__zone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.diagram__zone--current {
+  border-color: #1c2126;
+  font-weight: 600;
+}
+
+.diagram__swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+}
+
+.sheet--diagram tbody tr {
+  cursor: pointer;
+}
+
+.diagram__row--picked {
+  background: #dfe2e5;
+}

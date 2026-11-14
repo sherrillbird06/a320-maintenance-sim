@@ -6,6 +6,7 @@ import { DEFECT_TYPES } from '../data/defects'
 import type { DefectCategory, Finding, HydraulicSystem } from '../data/schema'
 import { ZONES } from '../data/zones'
 import { session, useSession, useView, view } from '../state/useSession'
+import { Diagram, openDiagram } from './Diagram'
 import { ChapterLink, Library, openLibrary } from './Library'
 import { Checklist, CoverageReview, Profile } from './Progress'
 import './inspection.css'
@@ -190,6 +191,9 @@ function StartPanel() {
             </button>
             <button type="button" className="button" onClick={() => openLibrary()}>
               Technical library
+            </button>
+            <button type="button" className="button" onClick={() => openDiagram()}>
+              Aircraft diagram
             </button>
           </div>
         </form>
@@ -578,6 +582,9 @@ function Workstation() {
               <button className="button" onClick={() => openLibrary()}>
                 Technical library
               </button>
+              <button type="button" className="button" onClick={() => openDiagram()}>
+                Aircraft diagram
+              </button>
               <button className="button" onClick={close}>
                 Return to aircraft
               </button>
@@ -682,6 +689,13 @@ export function InspectionUi() {
   const phase = useSession((s) => s.phase)
   const panel = useView((s) => s.panel)
 
+  if (panel === 'diagram') {
+    return (
+      <div className="overlay">
+        <Diagram />
+      </div>
+    )
+  }
   if (panel === 'library') {
     return (
       <div className="overlay">

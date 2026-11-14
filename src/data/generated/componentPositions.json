@@ -1,0 +1,838 @@
+{
+ "radome": [
+  0.5,
+  0
+ ],
+ "nose_skin_lh": [
+  3.3,
+  0.98
+ ],
+ "nose_skin_rh": [
+  3.3,
+  -0.98
+ ],
+ "fwd_fuselage_skin_lh": [
+  10.75,
+  0.99
+ ],
+ "fwd_fuselage_skin_rh": [
+  10.75,
+  -0.99
+ ],
+ "fwd_fuselage_belly": [
+  10.75,
+  0
+ ],
+ "windshield_lh": [
+  1.82,
+  0.49
+ ],
+ "windshield_rh": [
+  1.82,
+  -0.49
+ ],
+ "sliding_window_lh": [
+  2.53,
+  1.19
+ ],
+ "sliding_window_rh": [
+  2.53,
+  -1.19
+ ],
+ "fixed_side_window_lh": [
+  3.15,
+  1.32
+ ],
+ "fixed_side_window_rh": [
+  3.15,
+  -1.32
+ ],
+ "cabin_windows_lh": [
+  16.91,
+  1.89
+ ],
+ "cabin_windows_rh": [
+  16.91,
+  -1.89
+ ],
+ "pax_door_fwd_lh": [
+  5.04,
+  1.59
+ ],
+ "pax_door_fwd_rh": [
+  5.04,
+  -1.59
+ ],
+ "fwd_cargo_door": [
+  8.16,
+  -1.42
+ ],
+ "fwd_cargo_compartment": [
+  8.16,
+  -0.03
+ ],
+ "avionics_bay_access_door": [
+  6.6,
+  0
+ ],
+ "external_power_door": [
+  2.55,
+  0
+ ],
+ "pitot_probe_1": [
+  2.04,
+  1.25
+ ],
+ "pitot_probe_2": [
+  2.04,
+  -1.25
+ ],
+ "pitot_probe_3": [
+  2.39,
+  1.29
+ ],
+ "static_probe_1_lh": [
+  6.05,
+  1.64
+ ],
+ "static_probe_1_rh": [
+  6.05,
+  -1.64
+ ],
+ "static_probe_2_lh": [
+  6.35,
+  1.56
+ ],
+ "static_probe_2_rh": [
+  6.35,
+  -1.56
+ ],
+ "static_probe_stby_lh": [
+  1.6,
+  1.19
+ ],
+ "static_probe_stby_rh": [
+  1.6,
+  -1.19
+ ],
+ "aoa_sensor_1": [
+  7.2,
+  2.01
+ ],
+ "aoa_sensor_2": [
+  7.2,
+  -2.01
+ ],
+ "aoa_sensor_3": [
+  5.75,
+  1.95
+ ],
+ "tat_probe_1": [
+  1.82,
+  0.88
+ ],
+ "tat_probe_2": [
+  1.82,
+  -0.88
+ ],
+ "vhf_antenna_1": [
+  5.18,
+  0
+ ],
+ "vhf_antenna_2": [
+  21.68,
+  0
+ ],
+ "vhf_antenna_3": [
+  21.98,
+  0
+ ],
+ "tcas_antenna_top": [
+  8.3,
+  0
+ ],
+ "tcas_antenna_bottom": [
+  8.3,
+  0
+ ],
+ "taxi_light": [
+  5.08,
+  0
+ ],
+ "takeoff_light": [
+  5.05,
+  0
+ ],
+ "runway_turnoff_light_lh": [
+  5.11,
+  0.14
+ ],
+ "runway_turnoff_light_rh": [
+  5.11,
+  -0.14
+ ],
+ "upper_beacon": [
+  16,
+  0
+ ],
+ "lower_beacon": [
+  14,
+  0
+ ],
+ "drain_mast_fwd": [
+  9.63,
+  0
+ ],
+ "wing_upper_skin_lh": [
+  17,
+  8.52
+ ],
+ "wing_upper_skin_rh": [
+  17,
+  -8.52
+ ],
+ "wing_lower_skin_lh": [
+  17.35,
+  8.52
+ ],
+ "wing_lower_skin_rh": [
+  17.35,
+  -8.52
+ ],
+ "wingtip_fence_lh": [
+  21.61,
+  17.03
+ ],
+ "wingtip_fence_rh": [
+  21.61,
+  -17.03
+ ],
+ "wing_access_panels_lh": [
+  17.67,
+  8.6
+ ],
+ "wing_access_panels_rh": [
+  17.67,
+  -8.6
+ ],
+ "flap_track_fairing_2_lh": [
+  17.77,
+  2.9
+ ],
+ "flap_track_fairing_2_rh": [
+  17.77,
+  -2.9
+ ],
+ "flap_track_fairing_3_lh": [
+  18.69,
+  8
+ ],
+ "flap_track_fairing_3_rh": [
+  18.69,
+  -8
+ ],
+ "flap_track_fairing_4_lh": [
+  19.84,
+  11.3
+ ],
+ "flap_track_fairing_4_rh": [
+  19.84,
+  -11.3
+ ],
+ "belly_fairing": [
+  16.5,
+  0
+ ],
+ "slat_1_lh": [
+  14.24,
+  3.95
+ ],
+ "slat_1_rh": [
+  14.24,
+  -3.95
+ ],
+ "slat_2_lh": [
+  16.03,
+  7.55
+ ],
+ "slat_2_rh": [
+  16.03,
+  -7.55
+ ],
+ "slat_3_lh": [
+  17.28,
+  10.05
+ ],
+ "slat_3_rh": [
+  17.28,
+  -10.05
+ ],
+ "slat_4_lh": [
+  18.54,
+  12.55
+ ],
+ "slat_4_rh": [
+  18.54,
+  -12.55
+ ],
+ "slat_5_lh": [
+  19.8,
+  15.05
+ ],
+ "slat_5_rh": [
+  19.8,
+  -15.05
+ ],
+ "flap_inboard_lh": [
+  18.13,
+  4.18
+ ],
+ "flap_inboard_rh": [
+  18.13,
+  -4.18
+ ],
+ "flap_outboard_lh": [
+  19.34,
+  9.42
+ ],
+ "flap_outboard_rh": [
+  19.34,
+  -9.42
+ ],
+ "spoiler_1_lh": [
+  17.38,
+  4.75
+ ],
+ "spoiler_1_rh": [
+  17.38,
+  -4.75
+ ],
+ "spoiler_2_lh": [
+  18.03,
+  7.32
+ ],
+ "spoiler_2_rh": [
+  18.03,
+  -7.32
+ ],
+ "spoiler_3_lh": [
+  18.58,
+  8.77
+ ],
+ "spoiler_3_rh": [
+  18.58,
+  -8.77
+ ],
+ "spoiler_4_lh": [
+  19.12,
+  10.23
+ ],
+ "spoiler_4_rh": [
+  19.12,
+  -10.23
+ ],
+ "spoiler_5_lh": [
+  19.66,
+  11.68
+ ],
+ "spoiler_5_rh": [
+  19.66,
+  -11.68
+ ],
+ "aileron_lh": [
+  21,
+  14.35
+ ],
+ "aileron_rh": [
+  21,
+  -14.35
+ ],
+ "refuel_coupling": [
+  17.59,
+  -9.83
+ ],
+ "refuel_panel": [
+  16.4,
+  -1.8
+ ],
+ "gravity_refuel_cap_lh": [
+  19.1,
+  12.4
+ ],
+ "gravity_refuel_cap_rh": [
+  19.1,
+  -12.4
+ ],
+ "fuel_vent_inlet_lh": [
+  20.31,
+  14.6
+ ],
+ "fuel_vent_inlet_rh": [
+  20.31,
+  -14.6
+ ],
+ "fuel_level_indicators_lh": [
+  17.99,
+  8.2
+ ],
+ "fuel_level_indicators_rh": [
+  17.99,
+  -8.2
+ ],
+ "pack_ram_air_inlet_lh": [
+  12.25,
+  0.55
+ ],
+ "pack_ram_air_inlet_rh": [
+  12.25,
+  -0.55
+ ],
+ "lp_ground_air_connection": [
+  12.45,
+  0.84
+ ],
+ "hp_ground_air_connection": [
+  12.98,
+  0.84
+ ],
+ "rat_door": [
+  20.2,
+  1.05
+ ],
+ "overwing_exit_fwd_lh": [
+  14.43,
+  1.82
+ ],
+ "overwing_exit_fwd_rh": [
+  14.43,
+  -1.82
+ ],
+ "overwing_exit_aft_lh": [
+  15.28,
+  1.82
+ ],
+ "overwing_exit_aft_rh": [
+  15.28,
+  -1.82
+ ],
+ "nav_light_lh": [
+  21.04,
+  16.98
+ ],
+ "nav_light_rh": [
+  21.04,
+  -16.98
+ ],
+ "wing_strobe_light_lh": [
+  21.32,
+  16.98
+ ],
+ "wing_strobe_light_rh": [
+  21.32,
+  -16.98
+ ],
+ "landing_light_lh": [
+  14.97,
+  2.75
+ ],
+ "landing_light_rh": [
+  14.97,
+  -2.75
+ ],
+ "wing_scan_light_lh": [
+  10.6,
+  1.98
+ ],
+ "wing_scan_light_rh": [
+  10.6,
+  -1.98
+ ],
+ "static_dischargers_wing_lh": [
+  20.93,
+  12.95
+ ],
+ "static_dischargers_wing_rh": [
+  20.93,
+  -12.95
+ ],
+ "eng1_inlet_cowl": [
+  11.76,
+  5.75
+ ],
+ "eng2_inlet_cowl": [
+  11.76,
+  -5.75
+ ],
+ "eng1_spinner": [
+  11.9,
+  5.75
+ ],
+ "eng2_spinner": [
+  11.9,
+  -5.75
+ ],
+ "eng1_fan": [
+  12.2,
+  5.75
+ ],
+ "eng2_fan": [
+  12.2,
+  -5.75
+ ],
+ "eng1_fan_cowl_inboard": [
+  12.79,
+  5.17
+ ],
+ "eng2_fan_cowl_inboard": [
+  12.79,
+  -5.17
+ ],
+ "eng1_fan_cowl_outboard": [
+  12.79,
+  6.33
+ ],
+ "eng2_fan_cowl_outboard": [
+  12.79,
+  -6.33
+ ],
+ "eng1_reverser_cowl_inboard": [
+  14.07,
+  5.18
+ ],
+ "eng2_reverser_cowl_inboard": [
+  14.07,
+  -5.18
+ ],
+ "eng1_reverser_cowl_outboard": [
+  14.07,
+  6.32
+ ],
+ "eng2_reverser_cowl_outboard": [
+  14.07,
+  -6.32
+ ],
+ "eng1_exhaust_nozzle": [
+  14.54,
+  5.75
+ ],
+ "eng2_exhaust_nozzle": [
+  14.54,
+  -5.75
+ ],
+ "eng1_exhaust_plug": [
+  15.59,
+  5.75
+ ],
+ "eng2_exhaust_plug": [
+  15.59,
+  -5.75
+ ],
+ "eng1_pylon": [
+  14.79,
+  5.75
+ ],
+ "eng2_pylon": [
+  14.79,
+  -5.75
+ ],
+ "eng1_drain_mast": [
+  13.23,
+  5.75
+ ],
+ "eng2_drain_mast": [
+  13.23,
+  -5.75
+ ],
+ "nlg_shock_strut": [
+  5.17,
+  0
+ ],
+ "nlg_torque_links": [
+  5.28,
+  0
+ ],
+ "nlg_drag_strut": [
+  4.68,
+  0
+ ],
+ "nlg_steering_actuator": [
+  5.22,
+  0
+ ],
+ "nlg_wheel_lh": [
+  5.07,
+  0.27
+ ],
+ "nlg_wheel_rh": [
+  5.07,
+  -0.27
+ ],
+ "nlg_tire_lh": [
+  5.07,
+  0.25
+ ],
+ "nlg_tire_rh": [
+  5.07,
+  -0.25
+ ],
+ "nlg_door_fwd_lh": [
+  4.13,
+  0.16
+ ],
+ "nlg_door_fwd_rh": [
+  4.13,
+  -0.16
+ ],
+ "nlg_door_aft_lh": [
+  5.33,
+  0.36
+ ],
+ "nlg_door_aft_rh": [
+  5.33,
+  -0.36
+ ],
+ "nlg_bay": [
+  5.33,
+  0
+ ],
+ "apu_external_panel": [
+  5.1,
+  0
+ ],
+ "mlg_shock_strut_lh": [
+  17.99,
+  3.8
+ ],
+ "mlg_shock_strut_rh": [
+  17.99,
+  -3.8
+ ],
+ "mlg_side_stay_lh": [
+  17.86,
+  2.8
+ ],
+ "mlg_side_stay_rh": [
+  17.86,
+  -2.8
+ ],
+ "mlg_torque_links_lh": [
+  17.47,
+  3.79
+ ],
+ "mlg_torque_links_rh": [
+  17.47,
+  -3.79
+ ],
+ "mlg_retraction_actuator_lh": [
+  17.89,
+  3.09
+ ],
+ "mlg_retraction_actuator_rh": [
+  17.89,
+  -3.09
+ ],
+ "mlg_brake_lines_lh": [
+  17.93,
+  3.8
+ ],
+ "mlg_brake_lines_rh": [
+  17.93,
+  -3.8
+ ],
+ "mlg_door_main_lh": [
+  17.7,
+  1.04
+ ],
+ "mlg_door_main_rh": [
+  17.7,
+  -1.04
+ ],
+ "mlg_door_hinged_lh": [
+  17.97,
+  3.97
+ ],
+ "mlg_door_hinged_rh": [
+  17.97,
+  -3.97
+ ],
+ "mlg_bay_lh": [
+  17.86,
+  2.7
+ ],
+ "mlg_bay_rh": [
+  17.86,
+  -2.7
+ ],
+ "mlg_wheel_1": [
+  17.71,
+  4.28
+ ],
+ "mlg_wheel_2": [
+  17.71,
+  3.31
+ ],
+ "mlg_wheel_3": [
+  17.71,
+  -3.31
+ ],
+ "mlg_wheel_4": [
+  17.71,
+  -4.28
+ ],
+ "mlg_tire_1": [
+  17.71,
+  4.26
+ ],
+ "mlg_tire_2": [
+  17.71,
+  3.33
+ ],
+ "mlg_tire_3": [
+  17.71,
+  -3.33
+ ],
+ "mlg_tire_4": [
+  17.71,
+  -4.26
+ ],
+ "mlg_brake_1": [
+  17.71,
+  4.09
+ ],
+ "mlg_brake_2": [
+  17.71,
+  3.5
+ ],
+ "mlg_brake_3": [
+  17.71,
+  -3.5
+ ],
+ "mlg_brake_4": [
+  17.71,
+  -4.09
+ ],
+ "hyd_service_panel_green": [
+  19.17,
+  1.27
+ ],
+ "hyd_service_panel_yellow": [
+  19.17,
+  -1.27
+ ],
+ "hyd_service_panel_blue": [
+  20.22,
+  1.27
+ ],
+ "aft_fuselage_skin_lh": [
+  24.75,
+  0.99
+ ],
+ "aft_fuselage_skin_rh": [
+  24.75,
+  -0.99
+ ],
+ "aft_fuselage_belly": [
+  24.75,
+  0
+ ],
+ "tail_cone": [
+  35.58,
+  0
+ ],
+ "vertical_stabilizer": [
+  32.77,
+  0
+ ],
+ "horizontal_stabilizer_lh": [
+  33.98,
+  3.11
+ ],
+ "horizontal_stabilizer_rh": [
+  33.98,
+  -3.11
+ ],
+ "rudder": [
+  35.21,
+  0
+ ],
+ "elevator_lh": [
+  35.6,
+  3.54
+ ],
+ "elevator_rh": [
+  35.6,
+  -3.54
+ ],
+ "pax_door_aft_lh": [
+  29.64,
+  1.53
+ ],
+ "pax_door_aft_rh": [
+  29.64,
+  -1.53
+ ],
+ "aft_cargo_door": [
+  22.69,
+  -1.42
+ ],
+ "bulk_cargo_door": [
+  26.29,
+  -1.3
+ ],
+ "aft_cargo_compartment": [
+  22.69,
+  -0.03
+ ],
+ "apu_exhaust": [
+  37.57,
+  0
+ ],
+ "apu_air_inlet": [
+  34.25,
+  0
+ ],
+ "apu_access_door_lh": [
+  35.6,
+  0.25
+ ],
+ "apu_access_door_rh": [
+  35.6,
+  -0.25
+ ],
+ "outflow_valve": [
+  28.6,
+  -0.87
+ ],
+ "potable_water_service_panel": [
+  31.3,
+  0.2
+ ],
+ "waste_service_panel": [
+  31.3,
+  -0.54
+ ],
+ "drain_mast_aft": [
+  25.33,
+  0
+ ],
+ "logo_light_lh": [
+  34.2,
+  2.6
+ ],
+ "logo_light_rh": [
+  34.2,
+  -2.6
+ ],
+ "tail_nav_light": [
+  37.32,
+  0
+ ],
+ "tail_strobe_light": [
+  37.02,
+  0
+ ],
+ "static_dischargers_tail": [
+  36.54,
+  0
+ ]
+}
