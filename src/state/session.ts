@@ -2,6 +2,7 @@ import { createStore, type StoreApi } from 'zustand/vanilla'
 import { DEFECT_TYPES } from '../data/defects'
 import type { Finding, LogbookEntry, ScenarioTemplate } from '../data/schema'
 import { SCENARIO_TEMPLATES } from '../data/scenarios'
+import { checklistStatus, coverage } from '../sim/checklist'
 import { gradeInspection, type InspectionResult } from '../sim/grading'
 import { openEntry, signOff, type Technician } from '../sim/logbook'
 import { generateScenario, type Scenario } from '../sim/scenario'
@@ -20,6 +21,13 @@ export interface FiledEntry extends LogbookEntry {
   correct: number
   incorrect: number
   missed: number
+  /** Added later than the fields above, so older saved entries may lack them. */
+  templateId?: string
+  level?: number
+  /** Share of checklist items fully examined, 0 to 1. */
+  coverage?: number
+  /** Library chapters opened during the inspection. */
+  consulted?: string[]
 }
 
 export interface SessionState {
@@ -30,6 +38,10 @@ export interface SessionState {
   entry: LogbookEntry | null
   startedAtMs: number
   findings: Finding[]
+  /** Components the technician has selected for a closer look during this inspection. */
+  examined: string[]
+  /** Library chapters opened during this inspection. */
+  consulted: string[]
   selection: Selection | null
   result: InspectionResult | null
   logbook: FiledEntry[]
@@ -41,6 +53,7 @@ export interface SessionState {
   removeFinding: (index: number) => void
   signOff: () => void
   closeDebrief: () => void
+  noteReference: (chapter: string) => void
 }
 
 export type SessionStore = StoreApi<SessionState>
@@ -93,6 +106,8 @@ export function createSessionStore({ storage, now = Date.now }: Dependencies = {
     entry: null,
     startedAtMs: 0,
     findings: [],
+    examined: [],
+    consulted: [],
     selection: null,
     result: null,
     logbook: saved.logbook,
@@ -114,6 +129,8 @@ export function createSessionStore({ storage, now = Date.now }: Dependencies = {
         entry: openEntry(scenario, chosen, technician, new Date(startedAtMs).toISOString()),
         startedAtMs,
         findings: [],
+        examined: [],
+        consulted: [],
         selection: null,
         result: null,
         error: null,
@@ -122,7 +139,18 @@ export function createSessionStore({ storage, now = Date.now }: Dependencies = {
     },
 
     select(selection) {
-      set({ selection })
+      const { examined, phase } = get()
+      const id = selection?.componentId
+      // Selecting a part for a closer look is what counts as having examined it.
+      const next =
+        id && phase === 'inspecting' && !examined.includes(id) ? [...examined, id] : examined
+      set({ selection, examined: next })
+    },
+
+    noteReference(chapter) {
+      const { consulted, phase } = get()
+      if (phase === 'inspecting' && !consulted.includes(chapter))
+        set({ consulted: [...consulted, chapter] })
     },
 
     addFinding(finding) {
@@ -134,7 +162,9 @@ export function createSessionStore({ storage, now = Date.now }: Dependencies = {
     },
 
     signOff() {
-      const { scenario, entry, findings, startedAtMs, technician, logbook } = get()
+      const { scenario, entry, findings, startedAtMs, technician, logbook, examined, consulted } =
+        get()
+      const chosen = get().template
       if (!scenario || !entry) return
       const result = gradeInspection(scenario, findings, DEFECT_TYPES)
       const seconds = Math.round((now() - startedAtMs) / 1000)
@@ -144,6 +174,10 @@ export function createSessionStore({ storage, now = Date.now }: Dependencies = {
         correct: result.summary.correct,
         incorrect: result.summary.incorrect,
         missed: result.summary.missed,
+        templateId: chosen.id,
+        level: chosen.level,
+        coverage: coverage(checklistStatus(chosen, examined)),
+        consulted: [...consulted],
       }
       const next = [...logbook, filed]
       set({ phase: 'debrief', result, entry: filed, logbook: next, selection: null })
@@ -151,7 +185,15 @@ export function createSessionStore({ storage, now = Date.now }: Dependencies = {
     },
 
     closeDebrief() {
-      set({ phase: 'idle', scenario: null, entry: null, findings: [], result: null })
+      set({
+        phase: 'idle',
+        scenario: null,
+        entry: null,
+        findings: [],
+        examined: [],
+        consulted: [],
+        result: null,
+      })
     },
   }))
 }

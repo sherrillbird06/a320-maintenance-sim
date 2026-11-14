@@ -7,6 +7,7 @@ import type { DefectCategory, Finding } from '../data/schema'
 import { ZONES } from '../data/zones'
 import { session, useSession, useView, view } from '../state/useSession'
 import { ChapterLink, Library, openLibrary } from './Library'
+import { Checklist, CoverageReview, Profile } from './Progress'
 import './inspection.css'
 
 const CATEGORY_LABELS: Record<DefectCategory, string> = {
@@ -192,6 +193,10 @@ function StartPanel() {
             </button>
           </div>
         </form>
+      </section>
+      <section className="sheet__section">
+        <h2 className="sheet__heading">Technician profile and training progress</h2>
+        <Profile />
       </section>
       <section className="sheet__section">
         <h2 className="sheet__heading">Maintenance logbook</h2>
@@ -484,6 +489,10 @@ function Workstation() {
           </dl>
         </section>
         <section className="sheet__section">
+          <h2 className="sheet__heading">Inspection checklist</h2>
+          <Checklist />
+        </section>
+        <section className="sheet__section">
           <h2 className="sheet__heading">Findings recorded</h2>
           {findings.length === 0 ? (
             <p className="muted">
@@ -603,6 +612,7 @@ function Debrief() {
         </table>
       </section>
 
+      <CoverageReview />
       <section className="sheet__section">
         <h2 className="sheet__heading">Your findings</h2>
         {result.findings.length === 0 && <p className="muted">You reported no discrepancies.</p>}

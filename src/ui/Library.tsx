@@ -2,7 +2,8 @@ import { ataTitle } from '../data/ata'
 import { COMPONENTS } from '../data/components'
 import { LIBRARY, libraryPage } from '../data/library'
 import { sourceById } from '../data/sources'
-import { useView, view } from '../state/useSession'
+import { useEffect } from 'react'
+import { session, useView, view } from '../state/useSession'
 
 /** Opens the library at a chapter, from anywhere in the interface. */
 export function openLibrary(chapter?: string) {
@@ -35,6 +36,10 @@ function componentsIn(chapter: string): string[] {
 export function Library() {
   const chapter = useView((s) => s.libraryChapter)
   const page = libraryPage(chapter) ?? LIBRARY[0]
+  const shown = page?.chapter
+  useEffect(() => {
+    if (shown) session.getState().noteReference(shown)
+  }, [shown])
   if (!page) return null
   const components = componentsIn(page.chapter)
 

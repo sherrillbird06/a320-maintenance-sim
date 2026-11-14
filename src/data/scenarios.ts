@@ -17,6 +17,23 @@ export const SCENARIO_TEMPLATES: ScenarioTemplate[] = [
       openDoors: [],
     },
     referenceChapters: ['32', '12'],
+    checklist: [
+      {
+        id: 'nose_tires',
+        title: 'Nose gear tires, both',
+        components: ['nlg_tire_lh', 'nlg_tire_rh'],
+      },
+      {
+        id: 'left_main_tires',
+        title: 'Left main gear tires, positions 1 and 2',
+        components: ['mlg_tire_1', 'mlg_tire_2'],
+      },
+      {
+        id: 'right_main_tires',
+        title: 'Right main gear tires, positions 3 and 4',
+        components: ['mlg_tire_3', 'mlg_tire_4'],
+      },
+    ],
     parTimeMinutes: 10,
   },
   {
@@ -34,6 +51,12 @@ export const SCENARIO_TEMPLATES: ScenarioTemplate[] = [
       openDoors: [],
     },
     referenceChapters: ['71', '72'],
+    checklist: [
+      { id: 'eng1_inlet', title: 'Engine 1 inlet cowl and lip', components: ['eng1_inlet_cowl'] },
+      { id: 'eng1_fan', title: 'Engine 1 fan blades', components: ['eng1_fan'] },
+      { id: 'eng2_inlet', title: 'Engine 2 inlet cowl and lip', components: ['eng2_inlet_cowl'] },
+      { id: 'eng2_fan', title: 'Engine 2 fan blades', components: ['eng2_fan'] },
+    ],
     parTimeMinutes: 10,
   },
 ]

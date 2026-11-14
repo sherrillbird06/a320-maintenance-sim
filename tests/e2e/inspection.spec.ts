@@ -64,7 +64,7 @@ test('full inspection: accept, report a real defect, sign off, review, logbook',
 
   await page.keyboard.press('Tab')
   const workstation = page.getByRole('dialog', { name: 'Workstation' })
-  await expect(workstation.getByRole('row')).toHaveCount(2)
+  await expect(workstation.getByRole('button', { name: 'Remove' })).toHaveCount(1)
   await workstation.getByRole('button', { name: 'Sign off inspection' }).click()
   await workstation.getByRole('button', { name: 'Confirm sign-off' }).click()
 
@@ -161,4 +161,57 @@ test('a selected component links to its chapter in the library', async ({ page }
   await expect(page.getByRole('heading', { name: /ATA 72 Engine/ })).toBeVisible()
   await page.getByRole('button', { name: 'Close library' }).click()
   await expect(page.getByText('Selected component')).toBeVisible()
+})
+
+test('the checklist follows what is examined and the review reports what was skipped', async ({
+  page,
+}) => {
+  await page.goto('./?e2e=1')
+  await acceptWorkOrder(page, '4242')
+  await selectOnAircraft(page, { componentId: 'nlg_tire_lh', position: [5, 0.4, 0.25] })
+  await selectOnAircraft(page, { componentId: 'nlg_tire_rh', position: [5, 0.4, -0.25] })
+  await page.keyboard.press('Tab')
+
+  const workstation = page.getByRole('dialog', { name: 'Workstation' })
+  const nose = workstation.getByRole('row', { name: /Nose gear tires/ })
+  await expect(nose).toContainText('2 of 2')
+  await expect(nose).toContainText('Examined')
+  await expect(workstation.getByRole('row', { name: /Left main gear tires/ })).toContainText(
+    'Not examined',
+  )
+
+  await workstation.getByRole('button', { name: 'Sign off inspection' }).click()
+  await workstation.getByRole('button', { name: 'Confirm sign-off' }).click()
+  await expect(page.getByText(/2 of 3 checklist items not fully examined/)).toBeVisible()
+  await expect(page.getByText(/References consulted: none/)).toBeVisible()
+})
+
+test('the training record reflects signed-off inspections', async ({ page }) => {
+  await page.goto('./?e2e=1')
+  await expect(page.getByRole('row', { name: /Landing Gear Inspection/ })).toContainText(
+    'Available',
+  )
+  await expect(page.getByRole('row', { name: /Aircraft Familiarization/ })).toContainText(
+    'No assignment yet',
+  )
+
+  await acceptWorkOrder(page, '4242')
+  for (const defect of await defects(page)) {
+    await selectOnAircraft(page, defect)
+    await page.getByRole('button', { name: 'Report discrepancy' }).click()
+    const report = page.getByRole('dialog', { name: 'Discrepancy report' })
+    await report.getByLabel('ATA chapter').selectOption('32')
+    await report.getByLabel('Discrepancy type').selectOption('tire')
+    await report.getByLabel('Observed condition').selectOption({ index: 1 })
+    await report.getByRole('button', { name: 'Record finding' }).click()
+  }
+  await page.keyboard.press('Tab')
+  await page.getByRole('button', { name: 'Sign off inspection' }).click()
+  await page.getByRole('button', { name: 'Confirm sign-off' }).click()
+  await page.getByRole('button', { name: /Close and return/ }).click()
+
+  const level = page.getByRole('row', { name: /Landing Gear Inspection/ })
+  await expect(level).toContainText('1')
+  await expect(level).not.toContainText('Available')
+  await expect(page.getByText(/ATA chapters practised/)).toBeVisible()
 })

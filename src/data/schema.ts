@@ -162,6 +162,10 @@ export const ScenarioTemplateSchema = z.object({
   distractorCount: z.number().int().min(0),
   aircraftConfig: AircraftConfigSchema,
   referenceChapters: z.array(AtaChapterNumber),
+  /** What the inspection requires the technician to examine. */
+  checklist: z
+    .array(z.object({ id: Id, title: z.string().min(1), components: z.array(Id).min(1) }))
+    .min(1),
   parTimeMinutes: z.number().positive(),
 })
 export type ScenarioTemplate = z.infer<typeof ScenarioTemplateSchema>

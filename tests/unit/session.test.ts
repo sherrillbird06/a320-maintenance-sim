@@ -105,6 +105,31 @@ describe('session', () => {
     expect(state.logbook[0]?.accuracy).toBe(1)
   })
 
+  it('records which components were examined and which references were read', () => {
+    store.getState().startAssignment(technician, 5)
+    store.getState().select({ componentId: 'nlg_tire_lh', point: [0, 0, 0] })
+    store.getState().select({ componentId: 'nlg_tire_lh', point: [0, 0, 0] })
+    store.getState().select({ componentId: 'nlg_tire_rh', point: [0, 0, 0] })
+    store.getState().select(null)
+    store.getState().noteReference('32')
+    store.getState().noteReference('32')
+    expect(store.getState().examined).toEqual(['nlg_tire_lh', 'nlg_tire_rh'])
+    expect(store.getState().consulted).toEqual(['32'])
+    store.getState().signOff()
+    expect(store.getState().logbook[0]).toMatchObject({
+      templateId: 'lg_tire_inspection',
+      level: 4,
+      consulted: ['32'],
+    })
+    // One of three checklist items (the nose tires) was fully examined.
+    expect(store.getState().logbook[0]?.coverage).toBeCloseTo(1 / 3, 10)
+  })
+
+  it('does not count references read outside an inspection', () => {
+    store.getState().noteReference('32')
+    expect(store.getState().consulted).toEqual([])
+  })
+
   it('keeps the logbook across sessions', () => {
     store.getState().startAssignment(technician, 5)
     store.getState().signOff()

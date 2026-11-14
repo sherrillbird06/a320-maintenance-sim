@@ -499,3 +499,9 @@ kbd {
 .library__page a {
   color: #2f5f8f;
 }
+
+.review__note {
+  margin: 10px 0 0;
+  max-width: 78ch;
+  font-size: 13px;
+}
