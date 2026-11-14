@@ -1,3 +1,7 @@
+| 8 | Registry agreement and budget | **Registry agreement done:** exterior.glb holds all 209 exterior components and passes the check, at about 170,000 of 400,000 triangles. **Owner review (quality gate) not yet held** |
+| 7 | Materials and livery: paint with seams and rivets, stencils, glass, unbranded scheme, registration | **Partly done.** Painted skin with seams and rivets on the fuselage, striped tail, registration. Not done: stencils and placards, wing and nacelle surface detail, sidewall markings, real glass, weathering |
+| 6 | Probes, antennas, lights, service panels, drain masts, static dischargers | **Built, simplified.** Service-point stations are sourced; probe, antenna and light positions were read by eye from undimensioned Airbus figures and are provisional |
+| 5 | Landing gear: struts, torque links, stays, actuators, wheels, brakes, doors, bays | **Built, simplified.** Every gear component is its own mesh; stations, track, wheel spacing and tire sizes are tested against published values. Provisional: all strut, link, brake, door and bay shapes |
 # Milestone 1 — Aircraft Exterior: slice plan
 
 **Goal:** an A320-214 exterior that an A320-familiar viewer recognizes at hangar, walkaround and close-inspection distance, split into the registry's 209 exterior components.

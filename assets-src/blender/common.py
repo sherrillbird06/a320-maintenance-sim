@@ -156,6 +156,15 @@ def add_cylinder_x(bm, centre, radius, length, sides=12, material_index=0):
     return bm
 
 
+def planar_uv(obj, mapping):
+    """Give every corner of a mesh a UV computed from its vertex position: mapping(x, y, z) -> (u, v)."""
+    mesh = obj.data
+    layer = mesh.uv_layers[0] if mesh.uv_layers else mesh.uv_layers.new(name="UVMap")
+    for loop in mesh.loops:
+        x, y, z = mesh.vertices[loop.vertex_index].co
+        layer.data[loop.index].uv = mapping(x, y, z)
+
+
 def mark_inspectable(obj):
     """Flag an object as selectable in the simulator (exported as glTF extras)."""
     obj["inspectable"] = True

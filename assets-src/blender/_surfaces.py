@@ -231,7 +231,12 @@ def build_tailplane(side, suffix, paint):
     _named(f"elevator_{suffix}", bm, [paint])
 
 
-def build_fin(top_z, paint):
+def build_fin(top_z, livery):
+    """Fin and rudder carry the tail livery; v runs from the fuselage crown (0) to the fin top (1)."""
     heights = [5.60, 6.30, 8.00, 10.00, top_z]
-    _named("vertical_stabilizer", solid(fin_section, heights, 0.0, RUDDER_CHORD, vertical=True), [paint])
-    _named("rudder", solid(fin_section, [6.0, 8.0, 10.0, top_z], RUDDER_CHORD, 1.0, vertical=True), [paint])
+    base = 5.87
+    mapping = lambda x, y, z: (0.5, min(max((z - base) / (top_z - base), 0.0), 1.0))  # noqa: E731
+    fin = _named("vertical_stabilizer", solid(fin_section, heights, 0.0, RUDDER_CHORD, vertical=True), [livery])
+    rudder = _named("rudder", solid(fin_section, [6.0, 8.0, 10.0, top_z], RUDDER_CHORD, 1.0, vertical=True), [livery])
+    common.planar_uv(fin, mapping)
+    common.planar_uv(rudder, mapping)

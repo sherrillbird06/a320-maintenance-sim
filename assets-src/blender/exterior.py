@@ -89,12 +89,14 @@ def build():
 
     glass = common.material("glass", (0.015, 0.02, 0.028), metallic=0.0, roughness=0.06)
     gap = common.material("panel_gap", (0.02, 0.02, 0.02), roughness=0.8)
-    _fuselage.build(paint, glass, gap, hot_metal, DOORS)
+    decal = common.material("decal_registration", (0.16, 0.18, 0.21), roughness=0.5)
+    _fuselage.build(paint, glass, gap, hot_metal, DOORS, decal)
 
     for side, suffix in ((-1, "lh"), (1, "rh")):
         _surfaces.build_wing(side, suffix, paint)
         _surfaces.build_tailplane(side, suffix, paint)
-    _surfaces.build_fin(CROWN_Z + FIN_HEIGHT_ABOVE_CROWN, paint)
+    tail_livery = common.material("tail_livery", (0.70, 0.72, 0.74), metallic=0.2, roughness=0.4, coat=1.0)
+    _surfaces.build_fin(CROWN_Z + FIN_HEIGHT_ABOVE_CROWN, tail_livery)
 
     for number, y in ((1, -ENGINE_Y), (2, ENGINE_Y)):
         _engine.build(number, y, ENGINE_INLET_X, NACELLE_CLEARANCE, paint, hot_metal, dark, blade_metal)

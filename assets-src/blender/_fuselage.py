@@ -258,7 +258,35 @@ def _belly_fairing(materials):
     common.mark_inspectable(obj)
 
 
-def build(paint, glass, gap, exhaust, doors):
+def _registration(name, x0, x1, z0, z1, left, material):
+    """A strip of skin that carries the registration, with UVs that read left to right from outside."""
+    bm = bmesh.new()
+    uv_layer = bm.loops.layers.uv.verify()
+    nx, nz = 16, 4
+    grid = []
+    for i in range(nx + 1):
+        s = i / nx
+        x = x0 + (x1 - x0) * s
+        row = []
+        for j in range(nz + 1):
+            t = j / nz
+            a = angle_at(x, z0 + (z1 - z0) * t, left)
+            # Seen from outside the nose is to the left on the left side, to the right on the right; v is
+            # written top-down because the exporter flips it.
+            row.append((bm.verts.new(surf(x, a, 0.006)), (s if left else 1 - s, 1 - t)))
+        grid.append(row)
+    for i in range(nx):
+        for j in range(nz):
+            corners = [grid[i][j], grid[i][j + 1], grid[i + 1][j + 1], grid[i + 1][j]]
+            if left:
+                corners.reverse()
+            face = bm.faces.new([c[0] for c in corners])
+            for loop, corner in zip(face.loops, corners):
+                loop[uv_layer].uv = corner[1]
+    common.object_from_bmesh(name, bm, [material], recalc_normals=False)
+
+
+def build(paint, glass, gap, exhaust, doors, decal):
     """Create every fuselage object. doors maps door ids to (x, width, height)."""
     skin = [paint]
     radome_end, nose_end, mid, tail_start = 1.0, 5.6, 15.9, 33.6
@@ -296,3 +324,5 @@ def build(paint, glass, gap, exhaust, doors):
         _door(key, x, width, sill, sill + height, False, door_mats)
 
     _belly_fairing(skin)
+    for left, suffix in ((True, "lh"), (False, "rh")):
+        _registration(f"registration_{suffix}", 30.35, 32.15, 4.55, 5.00, left, decal)

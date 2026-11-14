@@ -2,6 +2,7 @@ import { Environment, OrbitControls, useGLTF } from '@react-three/drei'
 import { Suspense, useMemo } from 'react'
 import { AssetErrorBoundary } from '../../app/AssetErrorBoundary'
 import { modelUrl } from '../loadModel'
+import { applyAircraftMaterials } from './materials'
 import { ENV_URL, Floor, FLOOR_URLS } from '../lookdev/LookTest'
 import { RENDER_CONFIG } from '../renderConfig'
 import { SceneCanvas } from '../SceneCanvas'
@@ -11,12 +12,7 @@ const URLS = [AIRFRAME_URL, ENV_URL, ...Object.values(FLOOR_URLS)]
 
 function Airframe() {
   const { scene } = useGLTF(AIRFRAME_URL)
-  useMemo(() => {
-    scene.traverse((object) => {
-      object.castShadow = true
-      object.receiveShadow = true
-    })
-  }, [scene])
+  useMemo(() => applyAircraftMaterials(scene), [scene])
   // The model's X axis runs aft from the nose; centre it over the floor.
   return <primitive object={scene} position={[-18, 0, 0]} />
 }

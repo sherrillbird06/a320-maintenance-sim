@@ -182,7 +182,7 @@ def build(paint, dark, metal, glass, red, green, white, fin_top_z, nose_gear_x):
     # Cargo compartments: the lined volume behind each cargo door.
     for name, x in (("fwd_cargo_compartment", 8.16), ("aft_cargo_compartment", 22.69)):
         bm = bmesh.new()
-        _gear.box(bm, (x - 1.4, -1.2, fus.KEEL_Z + 0.28), (x + 1.4, 1.55, fus.KEEL_Z + 1.5))
+        _gear.box(bm, (x - 1.4, -0.90, fus.KEEL_Z + 0.45), (x + 1.4, 0.95, fus.KEEL_Z + 1.46))
         _named(name, bm, [dark])
 
     # --- Wing: fuel and access ------------------------------------------------

@@ -68,8 +68,10 @@ async function optimise(rawPath, outPath) {
   })
   const document = await io.read(rawPath)
   await document.transform(
-    dedup(),
-    prune(),
+    // Keep materials apart by name: the app swaps them for its own by name.
+    dedup({ keepUniqueNames: true }),
+    // Keep UVs even though the exported materials have no textures; the app adds textures at load.
+    prune({ keepAttributes: true }),
     weld(),
     textureCompress({ encoder: sharp, targetFormat: 'webp', resize: [2048, 2048] }),
     meshopt({ encoder: MeshoptEncoder, level: 'medium' }),
