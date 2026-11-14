@@ -1,10 +1,10 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Notice } from './app/Notice'
 import { checkSupport, MIN_WIDTH_PX, readSupportEnv, type SupportResult } from './app/support'
-import { SceneCanvas } from './world/SceneCanvas'
 
 const LookTestPage = lazy(() => import('./world/lookdev/LookTestPage'))
 const AircraftView = lazy(() => import('./world/aircraft/AircraftView'))
+const InspectionPage = lazy(() => import('./world/inspection/InspectionPage'))
 
 export const TRAINING_BANNER = 'Training simulation — not approved maintenance data'
 
@@ -29,21 +29,6 @@ function useSupport(): SupportResult {
   return result
 }
 
-function EmptyHangarScene() {
-  return (
-    <>
-      <color attach="background" args={['#15181c']} />
-      <hemisphereLight args={['#dfe6ee', '#3a3d42', 1.2]} />
-      <directionalLight position={[8, 14, 6]} intensity={1.5} castShadow />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[120, 120]} />
-        <meshStandardMaterial color="#6f7377" roughness={0.9} />
-      </mesh>
-      <gridHelper args={[120, 60, '#8a8f95', '#5c6166']} position={[0, 0.002, 0]} />
-    </>
-  )
-}
-
 export function App() {
   const support = useSupport()
   const scene = new URLSearchParams(window.location.search).get('scene')
@@ -57,19 +42,19 @@ export function App() {
           {scene === 'lookdev'
             ? 'Look test · materials and lighting'
             : scene === 'aircraft'
-              ? 'Milestone 1 in progress · unfinished model'
-              : 'Milestone 0 · foundations'}
+              ? 'Aircraft viewer · model in progress'
+              : 'Training build · aircraft model in progress'}
         </span>
       </header>
-      {scene === 'lookdev' || scene === 'aircraft' ? (
-        <Suspense fallback={<div className="scene" />}>
-          {scene === 'lookdev' ? <LookTestPage /> : <AircraftView />}
-        </Suspense>
-      ) : (
-        <SceneCanvas>
-          <EmptyHangarScene />
-        </SceneCanvas>
-      )}
+      <Suspense fallback={<div className="scene" />}>
+        {scene === 'lookdev' ? (
+          <LookTestPage />
+        ) : scene === 'aircraft' ? (
+          <AircraftView />
+        ) : (
+          <InspectionPage />
+        )}
+      </Suspense>
       <footer className="app__banner">{TRAINING_BANNER}</footer>
     </div>
   )

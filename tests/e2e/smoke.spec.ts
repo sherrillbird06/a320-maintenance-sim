@@ -23,6 +23,12 @@ test('shows the desktop-required notice on a narrow viewport', async ({ page }) 
   await expect(page.locator('canvas')).toHaveCount(0)
 })
 
+test('opens on the work order for the inspection', async ({ page }) => {
+  await page.goto('./')
+  await expect(page.getByRole('heading', { name: 'Work order' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Maintenance logbook' })).toBeVisible()
+})
+
 test('switches to the notice when a desktop window is narrowed', async ({ page }) => {
   await page.goto('./')
   await expect(page.locator('canvas')).toBeVisible()
