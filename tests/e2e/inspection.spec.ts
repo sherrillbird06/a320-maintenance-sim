@@ -393,3 +393,16 @@ test('practice questions are checked, explained and recorded in the training rec
   await expect(record.getByRole('row', { name: /General/ })).toContainText('3 of 30')
   await expect(record.getByRole('row', { name: /Powerplant/ })).toContainText('0 of 48')
 })
+
+test('a corrected study point shows its source and the original wording', async ({ page }) => {
+  await page.goto('./?e2e=1')
+  await page.getByRole('button', { name: 'A&P study guide' }).click()
+  const guide = page.getByRole('dialog', { name: 'A&P study guide' })
+  await guide.getByRole('button', { name: 'Airframe', exact: true }).click()
+  await guide.getByRole('button', { name: 'Wood Structures' }).click()
+  await expect(guide.getByText(/no steeper than 15:1 for a spar splice/)).toBeVisible()
+  await expect(guide.getByRole('link', { name: /AC 43.13-1B, Figure 1-5/ })).toBeVisible()
+  await expect(
+    guide.getByText(/The guide as supplied read: “typically about a 12:1 slope/),
+  ).toBeVisible()
+})

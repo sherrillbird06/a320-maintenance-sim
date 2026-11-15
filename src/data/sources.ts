@@ -60,7 +60,23 @@ export const SOURCES: Source[] = [
     url: 'https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.information/documentid/99861',
     licence: US_GOV,
     usedFor:
-      'General inspection vocabulary and defect descriptions. Not used for any limit or repair.',
+      'General inspection vocabulary and defect descriptions; not used for any limit or repair on the aircraft. Also used to check hardware, rivet and wood-splice facts in the A&P study guide.',
+  },
+  {
+    id: 'cfr_14_part_65',
+    title: '14 CFR Part 65, Certification: Airmen Other Than Flight Crewmembers, § 65.83',
+    publisher: 'U.S. Government (Code of Federal Regulations)',
+    url: 'https://www.ecfr.gov/current/title-14/chapter-I/subchapter-D/part-65/subpart-D/section-65.83',
+    licence: US_GOV,
+    usedFor: 'Mechanic recent-experience requirement in the A&P study guide.',
+  },
+  {
+    id: 'faa_afh',
+    title: 'Airplane Flying Handbook (FAA-H-8083-3C), Chapter 15',
+    publisher: 'Federal Aviation Administration',
+    url: FAA_HANDBOOKS,
+    licence: US_GOV,
+    usedFor: 'Turboprop efficient speed range in the A&P study guide.',
   },
   {
     id: 'faa_jasc',

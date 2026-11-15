@@ -1,11 +1,13 @@
 import raw from './generated/studyGuide.json'
+import { STUDY_CORRECTIONS, type StudyCorrection } from './studyCorrections'
 
 /**
  * The A&P study guide: review notes for the FAA aviation mechanic knowledge
  * tests, in the three test areas (General, Airframe, Powerplant).
  *
  * The text is the project owner's guide, imported whole by
- * `scripts/import-study-guide.mjs` and never edited by hand here. It is general
+ * `scripts/import-study-guide.mjs` and never edited by hand here; the few points
+ * corrected against an FAA document are listed in `studyCorrections.ts`. It is general
  * study material about aircraft of every kind. It is not A320 maintenance data
  * and is kept apart from the inspection exercises, which contain no limits,
  * quantities or procedures.
@@ -26,6 +28,8 @@ export interface StudyTopic {
   /** Review points. May contain `<b>`, `<i>` and `<br>`. */
   points: string[]
   formula?: StudyFormula
+  /** Corrections applied to this topic, each naming the point it changed. */
+  corrections: StudyCorrection[]
 }
 
 export interface StudyArea {
@@ -42,7 +46,29 @@ export interface StudyGuide {
   areas: StudyArea[]
 }
 
-export const STUDY_GUIDE = raw as StudyGuide
+/** The guide exactly as imported, before any correction. */
+export const STUDY_GUIDE_AS_SUPPLIED = raw as Omit<StudyGuide, 'areas'> & {
+  areas: (Omit<StudyArea, 'topics'> & { topics: Omit<StudyTopic, 'corrections'>[] })[]
+}
+
+export const STUDY_GUIDE: StudyGuide = {
+  ...STUDY_GUIDE_AS_SUPPLIED,
+  areas: STUDY_GUIDE_AS_SUPPLIED.areas.map((area) => ({
+    ...area,
+    topics: area.topics.map((topic) => {
+      const corrections = STUDY_CORRECTIONS.filter((c) => c.topicId === topic.id)
+      return {
+        ...topic,
+        corrections,
+        points: topic.points.map((point, index) =>
+          corrections
+            .filter((c) => c.point === index)
+            .reduce((text, c) => text.replace(c.from, c.to), point),
+        ),
+      }
+    }),
+  })),
+}
 
 export const STUDY_TOPICS: (StudyTopic & { area: StudyAreaId })[] = STUDY_GUIDE.areas.flatMap(
   (area) => area.topics.map((topic) => ({ ...topic, area: area.id })),

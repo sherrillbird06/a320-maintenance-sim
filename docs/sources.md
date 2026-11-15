@@ -52,7 +52,23 @@ simulator contains no approved maintenance data.
 - **Publisher:** Federal Aviation Administration
 - **Link:** <https://www.faa.gov/regulations_policies/advisory_circulars/index.cfm/go/document.information/documentid/99861>
 - **Licence:** U.S. Government work, public domain
-- **Used for:** General inspection vocabulary and defect descriptions. Not used for any limit or repair.
+- **Used for:** General inspection vocabulary and defect descriptions; not used for any limit or repair on the aircraft. Also used to check hardware, rivet and wood-splice facts in the A&P study guide.
+
+## 14 CFR Part 65, Certification: Airmen Other Than Flight Crewmembers, § 65.83
+
+- **Id:** `cfr_14_part_65`
+- **Publisher:** U.S. Government (Code of Federal Regulations)
+- **Link:** <https://www.ecfr.gov/current/title-14/chapter-I/subchapter-D/part-65/subpart-D/section-65.83>
+- **Licence:** U.S. Government work, public domain
+- **Used for:** Mechanic recent-experience requirement in the A&P study guide.
+
+## Airplane Flying Handbook (FAA-H-8083-3C), Chapter 15
+
+- **Id:** `faa_afh`
+- **Publisher:** Federal Aviation Administration
+- **Link:** <https://www.faa.gov/regulations_policies/handbooks_manuals/aviation>
+- **Licence:** U.S. Government work, public domain
+- **Used for:** Turboprop efficient speed range in the A&P study guide.
 
 ## Joint Aircraft System/Component (JASC) Code Table and Definitions
 

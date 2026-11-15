@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { libraryPage } from '../../src/data/library'
+import { SOURCES } from '../../src/data/sources'
+import { STUDY_CORRECTIONS } from '../../src/data/studyCorrections'
+import { STUDY_GUIDE_AS_SUPPLIED } from '../../src/data/studyGuide'
 import {
   STUDY_GUIDE,
   STUDY_TOPICS,
@@ -222,5 +225,36 @@ describe('quizzes', () => {
     expect(missedQuestions(STUDY_QUESTIONS, answers).map((q) => q.id)).toEqual([
       'basic_electricity_2',
     ])
+  })
+})
+
+describe('study guide corrections', () => {
+  const supplied = (topicId: string, point: number) =>
+    STUDY_GUIDE_AS_SUPPLIED.areas.flatMap((a) => a.topics).find((t) => t.id === topicId)?.points[
+      point
+    ]
+
+  it.each(STUDY_CORRECTIONS.map((c) => [`${c.topicId} point ${c.point}`, c] as const))(
+    '%s replaces a phrase that is in the guide as supplied and names its source',
+    (_name, correction) => {
+      expect(supplied(correction.topicId, correction.point)).toContain(correction.from)
+      const now = studyTopic(correction.topicId)?.points[correction.point]
+      expect(now).toContain(correction.to)
+      expect(now).not.toContain(correction.from)
+      expect(SOURCES.map((s) => s.id)).toContain(correction.sourceId)
+      expect(correction.citation.length).toBeGreaterThan(8)
+    },
+  )
+
+  it('changes nothing else in the guide', () => {
+    const corrected = new Set(STUDY_CORRECTIONS.map((c) => `${c.topicId}/${c.point}`))
+    for (const topic of STUDY_GUIDE_AS_SUPPLIED.areas.flatMap((a) => a.topics)) {
+      topic.points.forEach((point, index) => {
+        if (!corrected.has(`${topic.id}/${index}`))
+          expect(studyTopic(topic.id)?.points[index]).toBe(point)
+      })
+    }
+    expect(studyTopic('propellers')?.corrections).toEqual([])
+    expect(studyTopic('fasteners_and_hardware')?.corrections).toHaveLength(2)
   })
 })

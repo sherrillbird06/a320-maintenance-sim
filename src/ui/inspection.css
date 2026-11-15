@@ -755,3 +755,10 @@ kbd {
 .table + .table {
   margin-top: 18px;
 }
+
+.study__correction {
+  margin: 4px 0 0 !important;
+  color: var(--sheet-dim);
+  font-size: 12px;
+  line-height: 1.5;
+}
