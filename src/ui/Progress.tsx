@@ -1,7 +1,11 @@
 import { ataTitle } from '../data/ata'
 import { SCENARIO_TEMPLATES } from '../data/scenarios'
+import { studyArea } from '../data/studyGuide'
+import { STUDY_QUESTIONS } from '../data/studyQuestions'
 import { checklistStatus } from '../sim/checklist'
 import { PASS_ACCURACY, summarize, type CompletedInspection } from '../sim/progress'
+import { knowledgeByArea } from '../sim/quiz'
+import { useStudy } from '../state/study'
 import { useSession } from '../state/useSession'
 import { ChapterLink } from './Library'
 
@@ -95,6 +99,10 @@ export function Profile() {
     ataReferences: entry.ataReferences,
   }))
   const profile = summarize(inspections, SCENARIO_TEMPLATES)
+  const knowledge = knowledgeByArea(
+    STUDY_QUESTIONS,
+    useStudy((s) => s.answers),
+  )
 
   return (
     <>
@@ -149,6 +157,29 @@ export function Profile() {
                   <span className="chip chip--active">Available</span>
                 )}
               </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <table className="table" aria-label="A&P knowledge practice">
+        <thead>
+          <tr>
+            <th>A&amp;P knowledge practice</th>
+            <th>Questions tried</th>
+            <th>Correct at last try</th>
+            <th>Of all questions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {knowledge.map((row) => (
+            <tr key={row.area}>
+              <td>{studyArea(row.area).label}</td>
+              <td className="mono">
+                {row.attempted} of {row.total}
+              </td>
+              <td className="mono">{row.correct}</td>
+              <td className="mono">{percent(row.total === 0 ? 0 : row.correct / row.total)}</td>
             </tr>
           ))}
         </tbody>

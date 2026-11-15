@@ -362,3 +362,34 @@ test('study topics and library chapters link to each other', async ({ page }) =>
   await guide.getByRole('button', { name: /ATA 32/ }).click()
   await expect(library.getByRole('heading', { name: /ATA 32 Landing Gear/ })).toBeVisible()
 })
+
+test('practice questions are checked, explained and recorded in the training record', async ({
+  page,
+}) => {
+  await page.goto('./?e2e=1')
+  await page.getByRole('button', { name: 'A&P study guide' }).click()
+  const guide = page.getByRole('dialog', { name: 'A&P study guide' })
+  await expect(guide.getByRole('button', { name: /Retry missed \(0\)/ })).toBeDisabled()
+  await guide.getByRole('button', { name: 'Practice this topic' }).click()
+
+  // Three questions on Basic Electricity, in a random order: two answered correctly, the last wrongly.
+  const right = /^(2 amperes|It is less than the smallest branch resistance|An inductor)$/
+  const wrong = /^(0\.5 ampere|It equals the sum of the branch resistances|A capacitor)$/
+  for (let asked = 0; asked < 3; asked++) {
+    await expect(guide.getByText(`question ${asked + 1} of 3`)).toBeVisible()
+    await expect(guide.getByRole('button', { name: 'Check answer' })).toBeDisabled()
+    await guide.getByRole('radio', { name: asked < 2 ? right : wrong }).check()
+    await guide.getByRole('button', { name: 'Check answer' }).click()
+    await expect(guide.getByRole('status')).toContainText(asked < 2 ? 'Correct' : 'Incorrect')
+    await guide.getByRole('button', { name: asked < 2 ? 'Next question' : 'See results' }).click()
+  }
+  await expect(guide.getByText('2 of 3 correct')).toBeVisible()
+  await expect(guide.getByRole('heading', { name: 'Practice results' })).toBeVisible()
+  await guide.getByRole('button', { name: 'Back to the study guide' }).click()
+  await expect(guide.getByRole('button', { name: /Retry missed \(1\)/ })).toBeEnabled()
+  await guide.getByRole('button', { name: 'Close study guide' }).click()
+
+  const record = page.getByRole('table', { name: 'A&P knowledge practice' })
+  await expect(record.getByRole('row', { name: /General/ })).toContainText('3 of 30')
+  await expect(record.getByRole('row', { name: /Powerplant/ })).toContainText('0 of 48')
+})

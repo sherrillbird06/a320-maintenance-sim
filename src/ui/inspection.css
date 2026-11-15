@@ -696,3 +696,62 @@ kbd {
   border-top: 1px solid var(--sheet-line);
   font-size: 12px;
 }
+
+.study__practice {
+  display: grid;
+  gap: 4px;
+  margin: 0 12px 0 0;
+}
+
+.study__practice .button {
+  text-align: left;
+}
+
+.library__page[hidden] {
+  display: none;
+}
+
+.quiz {
+  margin: 0 0 14px;
+  padding: 0;
+  max-width: 72ch;
+  border: 0;
+}
+
+.quiz__prompt {
+  margin-bottom: 10px;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.quiz__choice {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 4px;
+  padding: 7px 10px;
+  background: #f4f5f6;
+  border: 1px solid var(--sheet-line);
+  border-left-width: 3px;
+  cursor: pointer;
+}
+
+.quiz__choice--right {
+  border-color: #3d7a4b;
+  background: #e6efe8;
+}
+
+.quiz__choice--wrong {
+  border-color: #9a322d;
+  background: #f3e4e3;
+}
+
+.quiz__feedback p {
+  margin-bottom: 6px;
+}
+
+.table + .table {
+  margin-top: 18px;
+}

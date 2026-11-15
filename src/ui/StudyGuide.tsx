@@ -8,10 +8,13 @@ import {
   studyTopic,
   type StudyAreaId,
 } from '../data/studyGuide'
+import { STUDY_QUESTIONS, questionsForArea, questionsForTopic } from '../data/studyQuestions'
+import { buildQuiz, missedQuestions, type QuizItem } from '../sim/quiz'
 import { parseRich } from '../sim/richText'
 import { useStudy } from '../state/study'
 import { useView, view } from '../state/useSession'
 import { ChapterLink } from './Library'
+import { StudyQuiz } from './StudyQuiz'
 
 /** Opens the study guide, at a topic when one is given. */
 export function openStudyGuide(topicId?: string) {
@@ -48,6 +51,8 @@ export function StudyGuide() {
   const topicId = useView((s) => s.studyTopic)
   const reviewed = useStudy((s) => s.reviewed)
   const toggleReviewed = useStudy((s) => s.toggleReviewed)
+  const answers = useStudy((s) => s.answers)
+  const [quiz, setQuiz] = useState<{ title: string; items: QuizItem[] } | null>(null)
   const [query, setQuery] = useState('')
 
   const topic = studyTopic(topicId) ?? STUDY_TOPICS[0]
@@ -64,7 +69,12 @@ export function StudyGuide() {
   const previous = STUDY_TOPICS[order - 1]
   const next = STUDY_TOPICS[order + 1]
 
+  const missed = missedQuestions(STUDY_QUESTIONS, answers)
+  const start = (title: string, pool: typeof STUDY_QUESTIONS, count?: number) =>
+    setQuiz({ title, items: buildQuiz(pool, Date.now(), count) })
+
   const show = (id: string) => {
+    setQuiz(null)
     const target = studyTopic(id)
     if (target) setAreaId(target.area)
     view.setState({ studyTopic: id })
@@ -132,9 +142,43 @@ export function StudyGuide() {
           ))}
         </ul>
         <p className="study__legend muted">● high priority · ✓ reviewed</p>
+
+        <h2 className="sheet__heading">Practice questions</h2>
+        <div className="study__practice">
+          <button
+            type="button"
+            className="button button--small"
+            onClick={() => start(`${area.label} practice`, questionsForArea(area.id), 10)}
+          >
+            {area.label}: 10 questions
+          </button>
+          <button
+            type="button"
+            className="button button--small"
+            onClick={() => start('Mixed practice', STUDY_QUESTIONS, 15)}
+          >
+            All areas: 15 questions
+          </button>
+          <button
+            type="button"
+            className="button button--small"
+            disabled={missed.length === 0}
+            onClick={() => start('Missed questions', missed)}
+          >
+            Retry missed ({missed.length})
+          </button>
+        </div>
       </nav>
 
-      <article className="library__page">
+      {quiz && (
+        <StudyQuiz
+          key={quiz.items.map((item) => item.question.id).join()}
+          title={quiz.title}
+          items={quiz.items}
+          onClose={(id) => (id ? show(id) : setQuiz(null))}
+        />
+      )}
+      <article className="library__page" hidden={quiz !== null}>
         <p className="library__notice">
           Review notes for the FAA aviation mechanic knowledge tests, supplied by the project owner.
           General study material, not A320 maintenance data, and not yet checked line by line
@@ -181,6 +225,13 @@ export function StudyGuide() {
         )}
 
         <div className="form__actions">
+          <button
+            type="button"
+            className="button"
+            onClick={() => start(topic.title, questionsForTopic(topic.id))}
+          >
+            Practice this topic
+          </button>
           <button type="button" className="button" onClick={() => toggleReviewed(topic.id)}>
             {isReviewed ? 'Mark as not reviewed' : 'Mark as reviewed'}
           </button>

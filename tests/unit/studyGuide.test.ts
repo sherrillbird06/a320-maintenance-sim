@@ -9,6 +9,13 @@ import {
   studyTopic,
   topicsForChapter,
 } from '../../src/data/studyGuide'
+import {
+  QUESTION_TOPIC_IDS,
+  STUDY_QUESTIONS,
+  questionsForArea,
+  questionsForTopic,
+} from '../../src/data/studyQuestions'
+import { buildQuiz, knowledgeByArea, missedQuestions } from '../../src/sim/quiz'
 import { parseRich } from '../../src/sim/richText'
 import { createStudyStore } from '../../src/state/study'
 
@@ -130,8 +137,90 @@ describe('reviewed topics', () => {
     expect(createStudyStore(storage).getState().reviewed).toEqual(['basic_electricity'])
   })
 
+  it('keeps practice answers, latest result winning, alongside the reviewed marks', () => {
+    const saved = new Map<string, string>()
+    const storage = {
+      getItem: (key: string) => saved.get(key) ?? null,
+      setItem: (key: string, value: string) => void saved.set(key, value),
+    }
+    const first = createStudyStore(storage)
+    first.getState().toggleReviewed('propellers')
+    first.getState().recordAnswer('propellers_1', false)
+    first.getState().recordAnswer('propellers_1', true)
+    first.getState().recordAnswer('propellers_2', false)
+    const again = createStudyStore(storage).getState()
+    expect(again.reviewed).toEqual(['propellers'])
+    expect(again.answers).toEqual({ propellers_1: true, propellers_2: false })
+  })
+
+  it('reads progress saved by the first version, which was only a list', () => {
+    const storage = { getItem: () => '["propellers"]', setItem: () => undefined }
+    const state = createStudyStore(storage).getState()
+    expect(state.reviewed).toEqual(['propellers'])
+    expect(state.answers).toEqual({})
+  })
+
   it('starts empty when what was saved cannot be read', () => {
     const storage = { getItem: () => '{broken', setItem: () => undefined }
     expect(createStudyStore(storage).getState().reviewed).toEqual([])
+  })
+})
+
+describe('practice questions', () => {
+  it('has three questions for every topic, and none for a topic that does not exist', () => {
+    expect(QUESTION_TOPIC_IDS.slice().sort()).toEqual(STUDY_TOPICS.map((t) => t.id).sort())
+    for (const topic of STUDY_TOPICS) expect(questionsForTopic(topic.id), topic.id).toHaveLength(3)
+    expect(STUDY_QUESTIONS).toHaveLength(120)
+    expect(questionsForArea('general')).toHaveLength(30)
+    expect(questionsForArea('airframe')).toHaveLength(42)
+    expect(questionsForArea('powerplant')).toHaveLength(48)
+  })
+
+  it.each(STUDY_QUESTIONS.map((q) => [q.id, q] as const))('%s is well formed', (_id, question) => {
+    const topic = studyTopic(question.topicId)
+    expect(topic?.points[question.point], 'names a point of its topic').toBeDefined()
+    expect(new Set(question.choices).size, 'four different choices').toBe(4)
+    expect(question.prompt.length).toBeGreaterThan(10)
+    expect(question.explanation.length).toBeGreaterThan(20)
+    for (const text of [question.prompt, question.explanation, ...question.choices])
+      expect(text).not.toMatch(/all of the above|none of the above|<|&[a-z]+;/i)
+  })
+
+  it('asks three different points in each topic and no question twice', () => {
+    expect(new Set(STUDY_QUESTIONS.map((q) => q.prompt)).size).toBe(STUDY_QUESTIONS.length)
+    for (const topic of STUDY_TOPICS)
+      expect(new Set(questionsForTopic(topic.id).map((q) => q.point)).size, topic.id).toBe(3)
+  })
+})
+
+describe('quizzes', () => {
+  it('draws the number asked for, without repeats, the same way for the same seed', () => {
+    const quiz = buildQuiz(STUDY_QUESTIONS, 7, 15)
+    expect(quiz).toHaveLength(15)
+    expect(new Set(quiz.map((item) => item.question.id)).size).toBe(15)
+    expect(buildQuiz(STUDY_QUESTIONS, 7, 15)).toEqual(quiz)
+    expect(buildQuiz(STUDY_QUESTIONS, 8, 15)).not.toEqual(quiz)
+  })
+
+  it('shuffles the choices and still knows which one is right', () => {
+    const quiz = buildQuiz(STUDY_QUESTIONS, 3)
+    expect(quiz).toHaveLength(120)
+    for (const item of quiz) {
+      expect(item.choices[item.answer]).toBe(item.question.choices[0])
+      expect(item.choices.slice().sort()).toEqual(item.question.choices.slice().sort())
+    }
+    expect(new Set(quiz.map((item) => item.answer)).size).toBe(4)
+  })
+
+  it('reports knowledge by area from the latest answers', () => {
+    const answers = { basic_electricity_1: true, basic_electricity_2: false, propellers_1: true }
+    expect(knowledgeByArea(STUDY_QUESTIONS, answers)).toEqual([
+      { area: 'general', total: 30, attempted: 2, correct: 1 },
+      { area: 'airframe', total: 42, attempted: 0, correct: 0 },
+      { area: 'powerplant', total: 48, attempted: 1, correct: 1 },
+    ])
+    expect(missedQuestions(STUDY_QUESTIONS, answers).map((q) => q.id)).toEqual([
+      'basic_electricity_2',
+    ])
   })
 })
