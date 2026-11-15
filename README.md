@@ -50,7 +50,7 @@ and the latest result for each question is kept, so the training record shows ho
 test area has been practised and got right. A practice score does not predict a test result.
 
 It is general study material about aircraft of every kind, so unlike the inspection exercises
-it does contain figures and formulas. It is not A320 data. So far 75 of its 219 points have
+it does contain figures and formulas. It is not A320 data. So far 122 of its 219 points have
 been found to agree with the FAA handbooks and 9 have been corrected against FAA documents; each
 correction shows its source and the original wording. The rest has not yet been checked, and the guide is no substitute for the current FAA handbooks, the
 Aviation Mechanic ACS or 14 CFR.

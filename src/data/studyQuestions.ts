@@ -973,7 +973,7 @@ const BY_TOPIC: Record<string, [Row, Row, Row]> = {
         'A rich mixture or prolonged idling',
         'Oil passing worn rings or valve guides',
         'Deposits from leaded fuel',
-        'A mixture that is too lean',
+        'Erosion of the electrode gap',
       ],
       'Each kind of fouling points to a different cause: carbon to richness, oil to wear, lead to fuel deposits.',
     ],
