@@ -281,7 +281,7 @@ describe('study guide checks', () => {
   })
 
   it('counts the checked points', () => {
-    expect(CHECKED_POINT_COUNT).toBe(122)
+    expect(CHECKED_POINT_COUNT).toBe(156)
     expect(checksFor('basic_electricity', 0)).toEqual(['faa_amt_general'])
     expect(checksFor('propellers', 0)).toEqual([])
   })

@@ -330,7 +330,7 @@ test('the A&P study guide shows every area, searches, and remembers reviewed top
   const guide = page.getByRole('dialog', { name: 'A&P study guide' })
   await expect(guide.getByRole('heading', { name: /Basic Electricity/ })).toBeVisible()
   await expect(guide.getByText('not A320 maintenance data')).toBeVisible()
-  await expect(guide.getByText(/122 are marked “Checked”/)).toBeVisible()
+  await expect(guide.getByText(/156 are marked “Checked”/)).toBeVisible()
   await expect(guide.getByText(/between 1\.275 and 1\.310/)).toBeVisible()
   await expect(guide.locator('.study__formula')).toContainText('P = I × E')
   await expect(guide.getByText('0 of 40 topics reviewed')).toBeVisible()
