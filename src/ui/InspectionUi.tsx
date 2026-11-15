@@ -8,6 +8,7 @@ import { ZONES } from '../data/zones'
 import { session, useSession, useView, view } from '../state/useSession'
 import { Diagram, openDiagram } from './Diagram'
 import { ChapterLink, Library, openLibrary } from './Library'
+import { StudyGuide, openStudyGuide } from './StudyGuide'
 import { Checklist, CoverageReview, Profile } from './Progress'
 import './inspection.css'
 
@@ -194,6 +195,9 @@ function StartPanel() {
             </button>
             <button type="button" className="button" onClick={() => openDiagram()}>
               Aircraft diagram
+            </button>
+            <button type="button" className="button" onClick={() => openStudyGuide()}>
+              A&amp;P study guide
             </button>
           </div>
         </form>
@@ -585,6 +589,9 @@ function Workstation() {
               <button type="button" className="button" onClick={() => openDiagram()}>
                 Aircraft diagram
               </button>
+              <button type="button" className="button" onClick={() => openStudyGuide()}>
+                A&amp;P study guide
+              </button>
               <button className="button" onClick={close}>
                 Return to aircraft
               </button>
@@ -693,6 +700,13 @@ export function InspectionUi() {
     return (
       <div className="overlay">
         <Diagram />
+      </div>
+    )
+  }
+  if (panel === 'study') {
+    return (
+      <div className="overlay">
+        <StudyGuide />
       </div>
     )
   }

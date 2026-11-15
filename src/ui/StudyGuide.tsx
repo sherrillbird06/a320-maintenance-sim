@@ -1,0 +1,212 @@
+import { Fragment, useState } from 'react'
+import {
+  STUDY_GUIDE,
+  STUDY_TOPICS,
+  chaptersForTopic,
+  searchStudyTopics,
+  studyArea,
+  studyTopic,
+  type StudyAreaId,
+} from '../data/studyGuide'
+import { parseRich } from '../sim/richText'
+import { useStudy } from '../state/study'
+import { useView, view } from '../state/useSession'
+import { ChapterLink } from './Library'
+
+/** Opens the study guide, at a topic when one is given. */
+export function openStudyGuide(topicId?: string) {
+  view.setState({ panel: 'study', studyTopic: topicId ?? view.getState().studyTopic })
+}
+
+/** A topic title that opens the study guide at that topic. */
+export function StudyTopicLink({ topicId }: { topicId: string }) {
+  const topic = studyTopic(topicId)
+  if (!topic) return null
+  return (
+    <button type="button" className="link" onClick={() => openStudyGuide(topicId)}>
+      {topic.title}
+    </button>
+  )
+}
+
+/** Guide text with its bold, italic and line breaks. */
+function Rich({ text }: { text: string }) {
+  return (
+    <>
+      {parseRich(text).map((part, index) => {
+        if ('lineBreak' in part) return <br key={index} />
+        if (part.bold) return <b key={index}>{part.text}</b>
+        if (part.italic) return <i key={index}>{part.text}</i>
+        return <Fragment key={index}>{part.text}</Fragment>
+      })}
+    </>
+  )
+}
+
+/** The A&P study guide: three test areas, every topic and point of the owner's guide. */
+export function StudyGuide() {
+  const topicId = useView((s) => s.studyTopic)
+  const reviewed = useStudy((s) => s.reviewed)
+  const toggleReviewed = useStudy((s) => s.toggleReviewed)
+  const [query, setQuery] = useState('')
+
+  const topic = studyTopic(topicId) ?? STUDY_TOPICS[0]
+  const [areaId, setAreaId] = useState<StudyAreaId>(topic?.area ?? 'general')
+  if (!topic) return null
+
+  const area = studyArea(areaId)
+  const searching = query.trim() !== ''
+  const listed = searching ? searchStudyTopics(query) : area.topics
+  const topicArea = studyArea(topic.area)
+  const chapters = chaptersForTopic(topic.id)
+  const isReviewed = reviewed.includes(topic.id)
+  const order = STUDY_TOPICS.findIndex((t) => t.id === topic.id)
+  const previous = STUDY_TOPICS[order - 1]
+  const next = STUDY_TOPICS[order + 1]
+
+  const show = (id: string) => {
+    const target = studyTopic(id)
+    if (target) setAreaId(target.area)
+    view.setState({ studyTopic: id })
+  }
+
+  return (
+    <div className="sheet sheet--library" role="dialog" aria-label="A&P study guide">
+      <nav className="library__nav" aria-label="Study topics">
+        <h1 className="sheet__heading">A&amp;P study guide</h1>
+        <p className="study__count muted">
+          {reviewed.length} of {STUDY_TOPICS.length} topics reviewed
+        </p>
+        <div className="study__areas" role="group" aria-label="Test areas">
+          {STUDY_GUIDE.areas.map((a) => (
+            <button
+              key={a.id}
+              type="button"
+              className={
+                a.id === areaId && !searching
+                  ? 'button button--small study__area study__area--current'
+                  : 'button button--small study__area'
+              }
+              aria-pressed={a.id === areaId && !searching}
+              onClick={() => {
+                setQuery('')
+                setAreaId(a.id)
+              }}
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+        <label className="study__search">
+          <span className="muted">Search all topics</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="e.g. magneto, torque, CG"
+          />
+        </label>
+        {searching && (
+          <p className="study__count muted" role="status">
+            {listed.length} {listed.length === 1 ? 'topic' : 'topics'} found
+          </p>
+        )}
+        <ul>
+          {listed.map((t) => (
+            <li key={t.id}>
+              <button
+                type="button"
+                className={
+                  t.id === topic.id ? 'library__item library__item--current' : 'library__item'
+                }
+                aria-current={t.id === topic.id ? 'page' : undefined}
+                onClick={() => show(t.id)}
+              >
+                <span className="study__mark" aria-hidden="true">
+                  {reviewed.includes(t.id) ? '✓' : t.highPriority ? '●' : ''}
+                </span>
+                {t.title}
+                {reviewed.includes(t.id) && <span className="visually-hidden"> (reviewed)</span>}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <p className="study__legend muted">● high priority · ✓ reviewed</p>
+      </nav>
+
+      <article className="library__page">
+        <p className="library__notice">
+          Review notes for the FAA aviation mechanic knowledge tests, supplied by the project owner.
+          General study material, not A320 maintenance data, and not yet checked line by line
+          against the current FAA handbooks for this simulator.
+        </p>
+
+        <p className="study__area-label mono">{topicArea.label}</p>
+        <p className="muted study__intro">{topicArea.intro}</p>
+
+        <h2 className="sheet__title">
+          {topic.title}{' '}
+          {topic.highPriority && <span className="chip chip--caution">High priority</span>}{' '}
+          {isReviewed && <span className="chip chip--done">Reviewed</span>}
+        </h2>
+
+        <ul className="library__list study__points">
+          {topic.points.map((point) => (
+            <li key={point}>
+              <Rich text={point} />
+            </li>
+          ))}
+        </ul>
+
+        {topic.formula && (
+          <div className="study__formula">
+            <h3 className="sheet__heading">{topic.formula.label}</h3>
+            <p className="mono">
+              <Rich text={topic.formula.body} />
+            </p>
+          </div>
+        )}
+
+        {chapters.length > 0 && (
+          <>
+            <h3 className="sheet__heading">See it on the aircraft</h3>
+            <ul className="library__list">
+              {chapters.map((chapter) => (
+                <li key={chapter}>
+                  <ChapterLink chapter={chapter} />
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        <div className="form__actions">
+          <button type="button" className="button" onClick={() => toggleReviewed(topic.id)}>
+            {isReviewed ? 'Mark as not reviewed' : 'Mark as reviewed'}
+          </button>
+          {previous && (
+            <button type="button" className="button" onClick={() => show(previous.id)}>
+              Previous topic
+            </button>
+          )}
+          {next && (
+            <button type="button" className="button" onClick={() => show(next.id)}>
+              Next topic
+            </button>
+          )}
+          <button
+            type="button"
+            className="button button--primary"
+            onClick={() => view.setState({ panel: 'none' })}
+          >
+            Close study guide
+          </button>
+        </div>
+
+        <p className="study__about muted">
+          <Rich text={STUDY_GUIDE.about} />
+        </p>
+      </article>
+    </div>
+  )
+}

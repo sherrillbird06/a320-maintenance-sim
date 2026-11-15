@@ -2,8 +2,10 @@ import { ataTitle } from '../data/ata'
 import { COMPONENTS } from '../data/components'
 import { LIBRARY, libraryPage } from '../data/library'
 import { sourceById } from '../data/sources'
+import { topicsForChapter } from '../data/studyGuide'
 import { useEffect } from 'react'
 import { session, useView, view } from '../state/useSession'
+import { StudyTopicLink } from './StudyGuide'
 
 /** Opens the library at a chapter, from anywhere in the interface. */
 export function openLibrary(chapter?: string) {
@@ -42,6 +44,7 @@ export function Library() {
   }, [shown])
   if (!page) return null
   const components = componentsIn(page.chapter)
+  const studyTopics = topicsForChapter(page.chapter)
 
   return (
     <div className="sheet sheet--library" role="dialog" aria-label="Technical library">
@@ -98,6 +101,19 @@ export function Library() {
 
         <h3 className="sheet__heading">In the real maintenance manual</h3>
         <p>{page.realManual}</p>
+
+        {studyTopics.length > 0 && (
+          <>
+            <h3 className="sheet__heading">Related A&amp;P study topics</h3>
+            <ul className="library__list">
+              {studyTopics.map((topic) => (
+                <li key={topic.id}>
+                  <StudyTopicLink topicId={topic.id} />
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
         <h3 className="sheet__heading">Sources</h3>
         <ul className="library__list">

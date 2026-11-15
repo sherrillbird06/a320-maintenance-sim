@@ -19,7 +19,7 @@ export function useSession<T>(selector: (state: SessionState) => T): T {
 }
 
 /** Which panel, if any, is covering the 3D view. */
-export type Panel = 'none' | 'report' | 'workstation' | 'library' | 'diagram'
+export type Panel = 'none' | 'report' | 'workstation' | 'library' | 'diagram' | 'study'
 
 interface ViewState {
   /** Component under the crosshair. */
@@ -30,6 +30,8 @@ interface ViewState {
   flashlight: boolean
   /** Chapter the technical library is open at. */
   libraryChapter: string
+  /** Topic the A&P study guide is open at; null opens at the first topic. */
+  studyTopic: string | null
   /** How far each fan has been turned by hand, in radians, keyed by fan component id. */
   fanAngle: Record<string, number>
 }
@@ -41,6 +43,7 @@ export const view = createStore<ViewState>(() => ({
   panel: 'none',
   flashlight: false,
   libraryChapter: '05',
+  studyTopic: null,
   fanAngle: {},
 }))
 

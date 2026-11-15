@@ -1,0 +1,546 @@
+{
+ "title": "A&P Knowledge Guide",
+ "about": "<b>About this guide.</b> Content is organized around the subject areas the FAA airman knowledge tests for General, Airframe, and Powerplant draw from (14 CFR Part 147 / the Aviation Mechanic ACS), condensed for review rather than first-time learning. The reciprocating-engine construction, valve-train, and horsepower/efficiency material in Powerplant reflects the excerpt from FAA-H-8083-32A, <i>Aviation Maintenance Technician Handbook—Powerplant</i>, that was supplied; the rest is drawn from standard A&P reference material. This is a study aid, not a substitute for the current FAA handbooks (H-8083-30, -31, -32), the Aviation Mechanic ACS, 14 CFR, or your school/DME's curriculum — always confirm specifics (torque values, ADs, current regulatory citations) against the manufacturer's data and the current rule text before relying on them in the shop.",
+ "areas": [
+  {
+   "id": "general",
+   "label": "General",
+   "intro": "Material common to both the Airframe and Powerplant tests: electricity, drawings, weight and balance, materials, hardware, ground handling, corrosion, shop math, and the regulations that define what a mechanic may sign off.",
+   "topics": [
+    {
+     "id": "basic_electricity",
+     "title": "Basic Electricity",
+     "highPriority": true,
+     "points": [
+      "Ohm's Law ties the three circuit quantities together: <b>E = I × R</b> (volts = amps × ohms); power is <b>P = I × E</b>.",
+      "Series circuits: current is the same everywhere, resistances add, voltage drops divide across resistors. Parallel circuits: voltage is the same across every branch, current divides, total resistance is less than the smallest branch.",
+      "AC alternates polarity and is described by frequency (Hz), peak, and RMS (effective) value; DC flows in one direction only. RMS ≈ 0.707 × peak for a sine wave.",
+      "Capacitors store energy in an electric field and oppose a <i>change</i> in voltage; inductors store energy in a magnetic field and oppose a <i>change</i> in current — the opposite behaviors show up constantly in troubleshooting questions.",
+      "Lead-acid batteries: fully charged specific gravity is roughly 1.275–1.300; state of charge is checked with a hydrometer. Nickel-cadmium batteries hold a flatter voltage curve and are prone to thermal runaway if overcharged — a classic reason to monitor NiCad battery temperature.",
+      "Semiconductors (diodes, transistors) allow current to flow essentially one direction; a diode's arrow points the direction of conventional current flow."
+     ],
+     "formula": {
+      "label": "Ohm's Law / Power",
+      "body": "E = I × R<br>I = E / R<br>R = E / I<br>P = I × E"
+     }
+    },
+    {
+     "id": "aircraft_drawings_and_symbols",
+     "title": "Aircraft Drawings & Symbols",
+     "highPriority": false,
+     "points": [
+      "Standard views use orthographic projection — typically a three-view (top, front, side) drawing showing the object's true shape with no distortion.",
+      "Line conventions matter: solid = visible outline, dashed = hidden detail, center lines mark axes of symmetry, phantom lines show alternate positions, and dimension/extension lines carry the measurements.",
+      "Section views 'cut open' a part to show internal detail; the cutting-plane line indicates where the imaginary cut was made and the direction of view.",
+      "Large drawings are broken into a numbered/lettered zone grid (like a map grid) so a callout can reference an exact location on the sheet.",
+      "Electrical/wiring diagrams use standardized symbols and wire identification codes (wire number, gauge, circuit); schematic diagrams show function and connections, not physical layout.",
+      "A block diagram shows system relationships in broad functional blocks; an installation drawing shows actual physical location and routing."
+     ]
+    },
+    {
+     "id": "weight_and_balance",
+     "title": "Weight and Balance",
+     "highPriority": true,
+     "points": [
+      "Moment is the turning effect of a weight around a reference point (the datum): <b>Moment = Weight × Arm</b>. Arm is the horizontal distance from the datum to the item, positive aft / negative forward of the datum by convention.",
+      "Center of gravity (CG) is the point where the aircraft would balance: <b>CG = Total Moment ÷ Total Weight</b>.",
+      "Adding, removing, or shifting weight predictably moves the CG; the classic shift formula relates the weight shifted, the distance it moved, and the total aircraft weight to the resulting CG shift.",
+      "Empty weight includes unusable fuel and full operating fluids per the manufacturer's definition; useful load is the difference between maximum gross weight and empty weight (crew, passengers, baggage, usable fuel).",
+      "The CG must fall within the forward and aft limits published in the aircraft's type certificate data sheet (TCDS) / weight and balance data for every phase of flight being evaluated.",
+      "Aircraft are weighed on scales with the aircraft leveled (using a level or plumb bob at reference points) so the recorded scale readings correspond to true vertical loads at each wheel/jack point."
+     ],
+     "formula": {
+      "label": "Core Formulas",
+      "body": "Moment = Weight × Arm<br>CG = Total Moment ÷ Total Weight<br>Weight shift formula: Weight to be shifted / Total weight = CG change / Distance weight is moved"
+     }
+    },
+    {
+     "id": "fluid_lines_and_fittings",
+     "title": "Fluid Lines and Fittings",
+     "highPriority": false,
+     "points": [
+      "Aircraft flared tube fittings use a <b>37° AN flare</b>; automotive/industrial hardware typically uses a 45° SAE flare — the two are not interchangeable and mixing them is a classic gotcha question.",
+      "Flareless fittings use a compression sleeve that bites into the tube instead of a flare; they're common with steel and titanium lines.",
+      "Rigid line material is chosen for the fluid and pressure: aluminum alloy tubing (e.g., 5052-O, 6061) for low-pressure fuel/hydraulic/vent lines, and corrosion-resistant steel or titanium for high-pressure systems.",
+      "Flexible hose is identified by markings printed along its length (manufacturer, size, date of manufacture, pressure rating); hose has a shelf life and a service life separate from the aircraft's.",
+      "Fluid lines are typically identified with color-coded tape/decals and abbreviations indicating the fluid carried (fuel, oil, hydraulic, coolant, oxygen, etc.) per the applicable spec.",
+      "Bend radius, flare length, and fitting torque are all called out in reference tables (AC 43.13-1B is the standard source) — over-torquing a flare nut is a common cause of cracked fittings."
+     ]
+    },
+    {
+     "id": "materials_and_processes",
+     "title": "Materials and Processes",
+     "highPriority": true,
+     "points": [
+      "Aluminum alloys are identified by a 4-digit number plus a temper: e.g. <b>2024-T3</b> means the 2024 alloy (copper as the main alloying element) solution heat-treated and then strain hardened. <b>Alclad</b> aluminum has a thin pure-aluminum surface layer bonded on for corrosion resistance — it must not be sanded through.",
+      "Common alloy families: 2xxx (copper — high strength, used for skins/structure, e.g. 2024), 6xxx (magnesium+silicon, e.g. 6061), 7xxx (zinc — highest strength, e.g. 7075, used for highly loaded structure).",
+      "4130 chromoly steel is the classic aircraft structural steel tubing (fuselage trusses, engine mounts) — strong, weldable, and normalized after welding to relieve stress.",
+      "Heat treatment vocabulary: <i>solution heat treat</i> (heat then rapid quench to hold alloying elements in solution), <i>aging</i> (natural at room temp or artificial in an oven to develop full strength), <i>annealing</i> (soften for forming), <i>normalizing</i> (steel — relieve internal stress), <i>tempering</i> (reduce brittleness after hardening).",
+      "Hardness testing (Rockwell is the most common in the AMT shop) measures resistance to penetration under a known load and correlates with strength — it's a fast, largely nondestructive check of heat-treat condition.",
+      "Titanium offers a very high strength-to-weight ratio and excellent corrosion/heat resistance but is harder to form and must never contact cadmium (cadmium embrittlement, especially at elevated temperature)."
+     ]
+    },
+    {
+     "id": "fasteners_and_hardware",
+     "title": "Fasteners and Hardware",
+     "highPriority": false,
+     "points": [
+      "AN and NAS bolts are identified by head markings: a raised dash indicates a corrosion-resistant steel bolt, two raised dashes an aluminum-alloy bolt, and a plain/asterisk head a standard steel bolt — NAS bolts hold closer tolerances than AN.",
+      "Bolt part numbers encode diameter (in 1/16ths of an inch) and grip length; e.g. an AN3 bolt is 3/16\" diameter.",
+      "Solid rivets: 1100/3003 (soft, non-structural), 2117-T4 (the common 'AD' field rivet — usable as received, identified by a dimple on the head), 2017-T4 and 2024-T3/T4 ('DD' rivets — require heat treatment/icebox storage before driving because they age-harden quickly at room temperature).",
+      "Rivet driving relies on correctly sized shop heads, proper edge distance/spacing, and matching the rivet diameter to sheet thickness — an oversized or undersized shop head is grounds for rejection.",
+      "Torque values for a given bolt/nut combination come from published tables (by thread size and material) and are adjusted when using a torque wrench extension that changes the effective lever arm.",
+      "Cotter pins, safety wire, and self-locking nuts (fiber-lock or all-metal) all serve the same purpose — preventing a fastener from backing off under vibration — but are used in different applications per the manufacturer's instructions."
+     ],
+     "formula": {
+      "label": "Torque wrench with an extension",
+      "body": "Actual torque wrench reading = (Desired torque × Wrench length) ÷ (Wrench length + Extension length)"
+     }
+    },
+    {
+     "id": "ground_operations_and_servicing",
+     "title": "Ground Operations and Servicing",
+     "highPriority": false,
+     "points": [
+      "Bonding and grounding the aircraft and fuel source before and during fueling dissipates static charge that could otherwise ignite fuel vapors — this is done before opening any fuel cap.",
+      "Jacking uses the manufacturer's designated jack points only, on a level surface, following the specified sequence (usually one point at a time, checking level) to avoid structural damage.",
+      "Towing observes nosewheel/tailwheel steering angle limits and breakover-angle limits to avoid overstressing the steering system or landing gear.",
+      "Mooring/tie-down uses the aircraft's designated tie-down points with enough slack for normal movement but enough tension to resist wind gusts; control locks or gust locks are set to protect flight controls.",
+      "FOD (foreign object debris) awareness — loose hardware, tools, ramp debris — is a constant ground-safety theme; a tool control/inventory system is standard shop practice to keep tools out of engines and structure.",
+      "Engine start and run-up areas, prop/jet blast clearance, and hearing/eye protection are basic ramp-safety fundamentals tested alongside servicing procedures."
+     ]
+    },
+    {
+     "id": "cleaning_and_corrosion_control",
+     "title": "Cleaning and Corrosion Control",
+     "highPriority": true,
+     "points": [
+      "Corrosion is an electrochemical process; <b>galvanic corrosion</b> occurs when dissimilar metals in contact with an electrolyte form a cell — the more anodic (active) metal corrodes preferentially to protect the more noble (cathodic) one.",
+      "Other common types: <i>fretting corrosion</i> (rubbing contact under load, no lubricant), <i>intergranular corrosion</i> (attack along grain boundaries, often from improper heat treatment), <i>exfoliation</i> (a visible, advanced form of intergranular corrosion where layers lift/flake), <i>stress corrosion cracking</i> (sustained tensile stress plus a corrosive environment), <i>filiform</i> (thread-like corrosion under film/paint), and simple surface <i>pitting</i>.",
+      "High-risk areas for corrosion: battery compartments, lavatories/galleys, wheel wells, bilge areas, exhaust trails, and anywhere dissimilar metals contact without proper isolation (paint, sealant, or isolating washers/fittings).",
+      "Corrosion treatment generally follows: identify and remove the corrosion products, neutralize, treat/protect the bare metal (e.g., chemical conversion coating for aluminum), then refinish/seal — removing more base metal than allowed by the structural repair manual is not permitted.",
+      "Anodizing builds a protective oxide layer on aluminum electrochemically and is a common corrosion-prevention finish applied at the factory or during overhaul.",
+      "Cleaning agents and methods are matched to the material and the contamination — e.g., avoiding caustic cleaners on aluminum and being cautious with solvents around composites and acrylic canopies/windows."
+     ]
+    },
+    {
+     "id": "mathematics_and_physics_for_mechanics",
+     "title": "Mathematics and Physics for Mechanics",
+     "highPriority": false,
+     "points": [
+      "Area of a circle: <b>A = πr²</b>; area of a rectangle: <b>A = length × width</b>; volume of a cylinder: <b>V = A × height</b>. These show up directly in piston displacement and tank-volume problems.",
+      "Newton's three laws underlie propulsion questions: an object at rest/in motion stays that way unless acted on by a force; force = mass × acceleration; every action has an equal and opposite reaction (the basis of jet/rocket thrust).",
+      "Work = Force × Distance; Power = Work ÷ Time; 1 horsepower = 33,000 ft-lb per minute (550 ft-lb per second).",
+      "Pressure = Force ÷ Area, most often used in psi (pounds per square inch) for hydraulic, pneumatic, and manifold-pressure problems.",
+      "Bernoulli's principle (as fluid speed increases, its pressure decreases) explains venturi-tube operation, carburetor fuel metering, and lift generation over an airfoil.",
+      "Boyle's Law (pressure × volume = constant, at constant temperature) and Charles's Law (volume ÷ temperature = constant, at constant pressure) govern gas behavior in oxygen bottles, tires, and oleo struts."
+     ]
+    },
+    {
+     "id": "regulations_privileges_and_records",
+     "title": "Regulations, Privileges, and Records",
+     "highPriority": true,
+     "points": [
+      "14 CFR Part 65 defines A&P certificate privileges: an Airframe rating covers approving airframe work for return to service; a Powerplant rating covers engine/propeller work; holding both lets a mechanic approve for return to service after maintenance, preventive maintenance, or alterations within those ratings (with limits on major repairs/alterations, which need IA or an appropriately rated repair station).",
+      "To exercise those privileges, a mechanic must have performed maintenance on an appropriate class of aircraft within the preceding 24 months, or otherwise reestablish recency as the rule allows.",
+      "Inspection Authorization (IA) adds the privilege to perform/approve annual and progressive inspections and to approve major repairs and major alterations for return to service.",
+      "14 CFR Part 43 governs maintenance, preventive maintenance, rebuilding, and alteration — including what recordkeeping (43.9 for maintenance/alteration entries, 43.11 for inspection entries) must contain: description of work, date, total time in service, and the certificated individual's signature and certificate number.",
+      "Airworthiness Directives (ADs) are mandatory — they correct an unsafe condition and compliance is legally required within the stated time/cycle limits. Service Bulletins (SBs) from the manufacturer are advisory unless a specific SB is incorporated into an AD by reference.",
+      "A Form 337 documents a major repair or major alteration. Required inspections include the annual (every 12 calendar months, all Part 91 aircraft) and the 100-hour (aircraft used for hire/flight instruction for hire), plus progressive inspection programs approved as an alternative."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "airframe",
+   "label": "Airframe",
+   "intro": "Structures and systems: how the airframe is built (wood, fabric, sheet metal, composites, welding) and how it's rigged and inspected, then the systems that make it fly — landing gear, hydraulics, cabin environment, instruments, fuel, ice/fire protection, and electrics.",
+   "topics": [
+    {
+     "id": "wood_structures",
+     "title": "Wood Structures",
+     "highPriority": false,
+     "points": [
+      "Sitka spruce is the reference wood for aircraft structure; substitute species are approved only per published substitution tables that account for differences in strength.",
+      "Grain slope, knots, and density (rings per inch) are all graded against strict limits before a piece is airworthy — grading is done visually against a specification, not by \"eyeballing\" strength.",
+      "Scarf joints (long tapered splices, typically about a 12:1 slope for solid wood spar splices) are used to splice load-carrying wood members; the shallow taper keeps the joint's strength close to that of solid wood.",
+      "Plywood used for skins is aircraft-grade, cross-laminated for strength in both directions.",
+      "Approved adhesives (resorcinol and certain epoxies) are used for structural wood bonding; casein glue, once common, is not durable enough for continued airworthiness in modern service and is not an approved replacement in repairs."
+     ]
+    },
+    {
+     "id": "aircraft_covering_and_finishes",
+     "title": "Aircraft Covering and Finishes",
+     "highPriority": false,
+     "points": [
+      "Certificated synthetic fabrics (polyester, e.g. Ceconite/Stits Poly-Fiber systems) replaced grade-A cotton on most fabric-covered aircraft; recovering with a fabric/process different from the original requires an STC or field approval covering that specific process.",
+      "Dope is applied in successive coats (non-tautening nitrate/butyrate coats, then color/UV-protective coats) to shrink and seal the fabric and protect it from sunlight — UV degradation is the main long-term threat to fabric strength.",
+      "Fabric strength is checked with a calibrated punch tester; a minimum strength (specified for the fabric/process in use) determines airworthiness, not just visual condition.",
+      "Rib stitching attaches fabric to wing ribs at a specified spacing, using a specified stitch and reinforcing tape, especially over higher-speed/higher-load areas.",
+      "Aircraft finishes (dope, polyurethane, epoxy primers) must be compatible with the substrate and with each other in a coating system — mixing incompatible primer/topcoat systems is a common source of finish failure."
+     ]
+    },
+    {
+     "id": "sheet_metal_structures",
+     "title": "Sheet Metal Structures",
+     "highPriority": true,
+     "points": [
+      "The five basic stresses acting on structure: tension, compression, shear, bending, and torsion — most real structural members see some combination of these.",
+      "Layout terms for a bend: <i>bend radius</i>, <i>setback</i> (distance from the bend tangent line to the mold line), <i>bend allowance</i> (the flat-pattern length consumed by the bend), and the <i>neutral axis</i> (the line within the bend that neither stretches nor compresses).",
+      "Rivet spacing and edge distance are specified as multiples of rivet diameter (commonly around 2× diameter minimum edge distance, and roughly 6–8× diameter typical pitch, per the applicable structural repair data) — the actual numbers always come from the repair drawing/SRM, not a fixed rule.",
+      "A rivet in <i>shear</i> is loaded across its shank (the typical case in a lap joint); a rivet in <i>tension</i> is loaded along its axis, which rivets resist far more poorly — joint design tries to keep rivets in shear.",
+      "Damage evaluation (dents, cracks, corrosion) is compared against allowable-damage limits in the structural repair manual; anything beyond those limits requires an engineered repair, not just a patch.",
+      "Alclad sheet's thin pure-aluminum cladding protects the stronger core alloy from corrosion — do not sand or blend through the cladding layer during a repair."
+     ],
+     "formula": {
+      "label": "Bend allowance (90° bend, approximate)",
+      "body": "BA = (0.01743 × R + 0.0078 × T) × N<br>R = bend radius, T = material thickness, N = bend angle in degrees"
+     }
+    },
+    {
+     "id": "composite_and_non_metallic_structures",
+     "title": "Composite and Non-Metallic Structures",
+     "highPriority": false,
+     "points": [
+      "Common reinforcement fibers — fiberglass (good strength, cost, and electrical insulation), carbon/graphite (very high stiffness-to-weight, but conducts electricity and can create galvanic corrosion issues against aluminum), and aramid/Kevlar (excellent impact resistance, hard to cut/sand).",
+      "Resin systems are thermosetting (epoxy, polyester, vinyl ester) and cure through an irreversible chemical reaction; correct resin-to-hardener ratio and cure temperature/time are critical to reaching design strength.",
+      "Honeycomb-cored sandwich panels (aluminum or fiber-reinforced skins over aluminum or Nomex honeycomb core) give high bending stiffness at low weight; a common failure mode is core-to-skin disbond, often checked by a simple \"coin tap\" test or more formally by ultrasonic inspection.",
+      "Prepreg material (fiber pre-impregnated with resin) requires cold storage and an autoclave or oven cure; wet layup is done at room temperature by hand-impregnating dry fabric with resin.",
+      "Moisture ingress into honeycomb core (through a damaged skin or unsealed edge) is a major service concern — it adds weight, and freeze-thaw cycling can expand the damage."
+     ]
+    },
+    {
+     "id": "welding_brazing_and_soldering",
+     "title": "Welding, Brazing, and Soldering",
+     "highPriority": false,
+     "points": [
+      "Oxyacetylene welding uses a neutral flame (balanced oxygen/acetylene) for most steel welding; a carburizing (excess acetylene, \"feather\" visible) or oxidizing (excess oxygen, hissing/pointed flame) flame is used only for specific purposes and is otherwise avoided.",
+      "TIG (gas tungsten arc) welding is the modern standard for aircraft steel and aluminum — a non-consumable tungsten electrode and inert shielding gas (argon) give a clean, controllable weld.",
+      "Filler rod is matched to the base metal (e.g., RG-45/RG-60/RG-65 or ER70S types for steel); using the wrong filler alloy can leave a joint with the wrong strength or corrosion resistance.",
+      "4130 steel tubing is normalized (a controlled heat/cool cycle) after welding to relieve the residual stress the welding heat introduced.",
+      "Brazing joins metal with a filler that melts above 840°F but below the base metal's melting point; soldering uses filler that melts below 840°F — brazed joints are stronger and used structurally far more than soldered ones, which are mainly for electrical connections."
+     ]
+    },
+    {
+     "id": "assembly_rigging_and_nondestructive_testing",
+     "title": "Assembly, Rigging, and Nondestructive Testing",
+     "highPriority": true,
+     "points": [
+      "Control-surface rigging sets travel limits (using a protractor/rigging fixture) and cable tension (using a calibrated tensiometer, corrected for cable size and ambient temperature) to the values in the maintenance manual — both must be right, not just one.",
+      "Symmetry checks (wing dihedral, incidence, control-surface neutral position) confirm the airframe is rigged the way it was designed, which directly affects handling.",
+      "<b>Dye penetrant</b> inspection finds surface-breaking flaws in any non-porous material (works on non-ferrous metals unlike magnetic particle) — penetrant, developer, and adequate dwell time reveal cracks as a bleed-out.",
+      "<b>Magnetic particle</b> inspection finds surface and near-surface flaws, but only in ferromagnetic (iron/steel) material — the part is magnetized and iron particles collect at flux leakage points where a crack interrupts the field.",
+      "<b>Eddy current</b> inspection finds surface/near-surface flaws in conductive material without needing to strip paint in every case, and is well suited to fastener-hole cracking.",
+      "<b>Ultrasonic</b> inspection uses high-frequency sound to find internal flaws (needs a coupling medium); <b>radiography (X-ray)</b> also finds internal flaws but requires strict radiation-safety controls."
+     ]
+    },
+    {
+     "id": "landing_gear_systems",
+     "title": "Landing Gear Systems",
+     "highPriority": false,
+     "points": [
+      "Tricycle gear (nosewheel) is the dominant modern configuration; tailwheel (conventional) gear is more prone to ground-loop tendencies and needs different technique but is common on many light/utility and vintage aircraft.",
+      "An oleo (air/oil) shock strut absorbs landing and taxi loads by forcing hydraulic fluid through a metering orifice while compressed nitrogen (or air) provides the spring return — correct strut inflation pressure and fluid level are both required for proper cushioning.",
+      "Brakes are typically hydraulically actuated disc brakes; anti-skid systems on larger aircraft modulate brake pressure to prevent a skidding tire from losing braking effectiveness.",
+      "Retraction systems are hydraulically, electrically, or (rarely) manually actuated, and always include position indication (up/down/in-transit) plus a means of emergency extension if the normal system fails.",
+      "Nosewheel/tailwheel steering is limited mechanically (or electronically) to protect the gear and steering linkage during ground maneuvering, and is disconnected from rudder-pedal steering above a certain deflection on many designs (full castoring for towing)."
+     ]
+    },
+    {
+     "id": "hydraulic_and_pneumatic_power_systems",
+     "title": "Hydraulic and Pneumatic Power Systems",
+     "highPriority": true,
+     "points": [
+      "A basic open-center hydraulic system has a reservoir, an engine- or electric-driven pump, a pressure-regulating/relief valve, selector or control valves, actuators, and return lines — the same building blocks scale from a simple single-actuator system to a large transport's multi-system architecture.",
+      "An accumulator stores pressurized fluid (against a charge of compressed air/nitrogen on the opposite side of a piston or diaphragm) to dampen pressure surges and provide emergency actuation power.",
+      "Hydraulic fluid types are not interchangeable: <b>MIL-PRF-5606</b> (petroleum-based, dyed red) versus <b>Skydrol</b>-type phosphate-ester fluid (fire-resistant, purple) require different seal materials — mixing them damages seals and contaminates the system.",
+      "A relief valve protects the system from over-pressure; a check valve allows flow in one direction only; a selector valve directs flow to the correct actuator port for the commanded direction of motion.",
+      "Pneumatic systems (compressed air rather than hydraulic fluid) are used for some brakes, landing gear, and de-ice boot systems, especially as a backup power source, since they don't rely on fluid return lines."
+     ]
+    },
+    {
+     "id": "cabin_atmosphere_control",
+     "title": "Cabin Atmosphere Control",
+     "highPriority": false,
+     "points": [
+      "Pressurization maintains a cabin altitude lower than the aircraft's actual altitude by controlling the rate air leaves through an outflow valve versus the rate it's supplied (bleed air or a cabin compressor); <b>cabin differential pressure</b> (cabin pressure minus outside pressure) is the limiting structural value, not cabin altitude alone.",
+      "The outflow valve (often paired with a safety/relief valve) is the primary control point; a pressurization controller schedules cabin altitude against aircraft altitude and can be run manually as a backup.",
+      "Heating sources include engine bleed air (turbine aircraft), combustion heaters (piston aircraft, with strict carbon-monoxide safety/inspection requirements around the heat exchanger), and simple exhaust shroud heat.",
+      "Air-cycle machines (turbine aircraft) cool bleed air by expanding it through a turbine that also drives a compressor — \"free\" refrigeration without a separate vapor-cycle refrigerant loop.",
+      "Supplemental oxygen systems use gaseous (high-pressure cylinders, color-coded green in the U.S.) or occasionally chemical-generator sources, sized and required per the applicable operating rule for altitude and duration."
+     ]
+    },
+    {
+     "id": "aircraft_instrument_systems",
+     "title": "Aircraft Instrument Systems",
+     "highPriority": true,
+     "points": [
+      "Pitot-static instruments: the <b>airspeed indicator</b> compares pitot (ram/dynamic) pressure to static pressure; the <b>altimeter</b> and <b>vertical speed indicator</b> use static pressure only. A blocked pitot tube or static port produces predictable, specific errors on each instrument — a classic exam pattern.",
+      "Gyroscopic instruments rely on rigidity in space and precession: the <b>attitude indicator</b> and <b>heading indicator</b> use rigidity to hold a reference; the <b>turn coordinator</b> is a rate gyro that uses precession to indicate rate of turn/roll.",
+      "Gyros are spun by vacuum-driven air (older designs), electrically, or by air-driven turbines depending on the instrument and installation — loss of vacuum or electrical power takes out only the gyros dependent on that source.",
+      "Magnetic compass errors include <i>variation</i> (difference between true and magnetic north), <i>deviation</i> (local magnetic interference, corrected by a compass card), and dynamic errors from magnetic dip: acceleration/deceleration errors on east/west headings and turning errors that lead/lag near north/south headings.",
+      "Instrument markings (radial lines/arcs in green, yellow, red, etc.) denote normal, caution, and limit ranges and must match the aircraft's approved data — they are a required part of the instrument's airworthiness, not decoration."
+     ]
+    },
+    {
+     "id": "communication_and_navigation_systems",
+     "title": "Communication and Navigation Systems",
+     "highPriority": false,
+     "points": [
+      "VHF communication radios operate in the 118–136.975 MHz band using amplitude modulation (AM); antenna condition, bonding, and correct frequency selection are the usual troubleshooting starting points.",
+      "VOR provides magnetic-bearing navigation referenced to a ground station; ILS provides precision lateral (localizer) and vertical (glideslope) guidance for an instrument approach.",
+      "Transponders reply to ATC radar interrogation with identification and altitude (Mode C/S); ADS-B Out periodically broadcasts the aircraft's GPS-derived position, altitude, and velocity for surveillance.",
+      "Antenna installation (location, bonding, ground plane, and cable routing away from interference sources) has a direct effect on system performance and is very much an airframe mechanic's concern, not just avionics.",
+      "Static wicks discharge accumulated precipitation static from the airframe to prevent it from interfering with radio reception."
+     ]
+    },
+    {
+     "id": "aircraft_fuel_systems",
+     "title": "Aircraft Fuel Systems",
+     "highPriority": true,
+     "points": [
+      "Gravity-feed systems (common on high-wing piston aircraft) rely on tank elevation above the engine; pump-feed systems use engine-driven and/or electric boost pumps to deliver fuel, which is necessary whenever gravity alone can't guarantee flow (low-wing aircraft, high-altitude operation, engine-start/backup).",
+      "Fuel tank venting prevents a vacuum from collapsing the tank as fuel is drawn out, and prevents dangerous pressure buildup from fuel expansion — a blocked vent is a classic cause of fuel-starvation problems.",
+      "Crossfeed allows an engine to draw fuel from a tank normally feeding the opposite engine (multi-engine aircraft), useful for fuel management after one engine or tank system has an issue.",
+      "Fuel quantity indication may be a simple float-and-resistance system or a capacitance-type system (which actually senses the dielectric difference between fuel and air, so it's affected by fuel density); fuel pressure indication warns of pump or blockage problems.",
+      "Vapor lock (fuel vaporizing in the line, blocking liquid flow) is more likely with volatile fuel, high fuel temperature, and low pressure in the line — boost pumps and proper line routing reduce the risk."
+     ]
+    },
+    {
+     "id": "ice_rain_and_fire_protection_systems",
+     "title": "Ice, Rain, and Fire Protection Systems",
+     "highPriority": false,
+     "points": [
+      "Pneumatic deice boots on wing/tail leading edges inflate in a cycle to crack accumulated ice off; they're a deice (remove after it forms) rather than anti-ice (prevent formation) system.",
+      "Anti-ice methods include heated leading edges (bleed air ducted through the structure, or electrothermal heating elements) and, for windshields, electrically heated panels; propellers commonly use electrothermal boots or a slinger-ring fluid system.",
+      "Fire detection methods: spot/thermal-switch detectors trip at a fixed temperature; continuous-loop systems (e.g., a sealed tube with a eutectic salt core, or a two-wire thermocouple-type loop) respond along their entire length and can also sense rate-of-rise; both types feed a cockpit warning.",
+      "A firewall (stainless steel or titanium, fire-resistant per its certification standard) isolates the engine compartment from the rest of the structure to slow fire spread and buy time for engine shutdown/extinguishing.",
+      "Fixed fire-extinguishing systems discharge an agent into the protected zone on cockpit command; agent choice and system design account for the size of the compartment and the need to reach a fire-suppressing concentration quickly."
+     ]
+    },
+    {
+     "id": "electrical_systems_ac_dc_and_warning_systems",
+     "title": "Electrical Systems (AC/DC) and Warning Systems",
+     "highPriority": false,
+     "points": [
+      "DC generators produce output that's inherently direct current (commutator-based); alternators produce AC internally and rectify it to DC (or supply true AC for larger aircraft AC buses) — alternators are lighter and handle low-RPM output better, which is why they dominate modern light aircraft.",
+      "A voltage regulator holds generator/alternator output at the correct bus voltage across a range of engine speeds and electrical loads; overvoltage protection can disconnect the source from the bus if regulation fails.",
+      "Buses (main, battery, essential/hot battery bus) organize which loads stay powered under normal operation versus a single-source failure; essential-bus loads are the ones you cannot afford to lose.",
+      "Circuit protection (fuses, circuit breakers, current limiters) opens a faulted circuit before wiring damage or fire risk develops; a breaker that trips repeatedly should be investigated, not just reset.",
+      "Position and warning systems — stall warning (AOA vane/reed, or a lift-detector on the wing), landing-gear position/warning (squat switch logic tied to throttle/gear position), and configuration warnings — are safety-critical and get specific functional checks during inspection."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "powerplant",
+   "label": "Powerplant",
+   "intro": "Reciprocating and turbine engine theory and construction, the systems that support them (fuel metering, induction, ignition, starting, lubrication, cooling, exhaust), propellers, engine instruments, fire protection, and the maintenance/inspection tasks around them.",
+   "topics": [
+    {
+     "id": "reciprocating_engine_construction",
+     "title": "Reciprocating Engine Construction",
+     "highPriority": true,
+     "points": [
+      "The crankcase is the engine's foundation — it houses the crankshaft's main bearings, provides a sealed enclosure for lubricating oil, and carries the mounting points for cylinders, accessories, and the engine mount itself.",
+      "The crankshaft converts the piston/connecting-rod's reciprocating motion into the rotary motion that drives the propeller; each throw consists of a journal, crankpin, and crank cheek, and crankshafts carry counterweights and, on many designs, pendulum-type dynamic dampers to control vibration.",
+      "Connecting-rod types: <i>plain</i> (inline/opposed engines, cap-and-bolt big end), <i>fork-and-blade</i> (V-engines), and <i>master-and-articulated</i> (radial engines — one master rod per row, with articulated rods pinned to it).",
+      "Pistons form a moving wall of the combustion chamber; ring grooves hold compression rings (seal combustion gas) above one or more oil-control rings (meter the oil film and return excess oil through drilled holes to the crankcase).",
+      "Cylinders are typically a two-piece assembly — a forged aluminum-alloy head (good heat conduction, light weight) shrink-fitted onto a steel barrel (wear resistance, strength) — joined so that head contraction/barrel expansion during assembly creates a gas-tight joint.",
+      "Cylinder numbering and firing order are engine-specific, but follow set patterns: e.g., a common four-cylinder opposed firing order is 1-3-2-4, and radial engines fire all odd-numbered cylinders first, then all even-numbered."
+     ]
+    },
+    {
+     "id": "reciprocating_engine_operating_principles",
+     "title": "Reciprocating Engine Operating Principles",
+     "highPriority": true,
+     "points": [
+      "The four-stroke (Otto) cycle — intake, compression, power, exhaust — takes two full crankshaft revolutions (720°) per cylinder to complete; each cylinder fires once every two crankshaft revolutions.",
+      "Valve timing is specified in degrees of crankshaft rotation, not simply \"open at TDC/BDC\": the intake valve opens before TDC on the exhaust stroke and closes well after BDC on the compression stroke; the exhaust valve opens before BDC on the power stroke and closes after TDC on the intake stroke.",
+      "Valve overlap is the period near TDC when both intake and exhaust valves are open at once — it improves scavenging and volumetric efficiency and helps cool the cylinder internally.",
+      "Ignition timing (spark occurs before TDC on the compression stroke, typically in the 20–35° BTC range depending on the engine) gives the burning charge time to reach peak pressure just after TDC for the most effective push on the power stroke.",
+      "The two-stroke cycle completes intake and exhaust functions during the same stroke, firing once per crankshaft revolution — seen in some light-sport/ultralight and rotary designs rather than certificated GA piston engines generally.",
+      "Diesel-cycle (compression-ignition) aircraft engines compress air alone, then inject fuel near TDC where high temperature ignites it — no spark ignition system is needed, and several modern diesel designs run on Jet A."
+     ]
+    },
+    {
+     "id": "engine_power_compression_and_efficiency",
+     "title": "Engine Power, Compression, and Efficiency",
+     "highPriority": true,
+     "points": [
+      "Compression ratio compares total cylinder volume (piston at BDC) to clearance volume (piston at TDC): a higher ratio extracts more work from the same charge but raises the risk of detonation, so it's balanced against available fuel octane and manifold pressure limits.",
+      "Piston displacement per cylinder is the cylinder's cross-sectional area times the stroke length; multiply by the number of cylinders for total engine displacement.",
+      "Indicated horsepower (IHP) is the theoretical power developed in the cylinders themselves, calculated from indicated mean effective pressure using the <b>PLANK</b> formula.",
+      "Brake horsepower (BHP) is the usable power actually delivered to the propeller shaft: <b>BHP = IHP − Friction HP</b>. Thrust horsepower (THP) accounts for the propeller's efficiency converting BHP into actual thrust.",
+      "Thermal efficiency is the ratio of useful work out to the heat energy of the fuel burned; of the total heat of combustion, only roughly a quarter to a third typically becomes usable work — the rest is lost mainly to exhaust heat and cooling.",
+      "Volumetric efficiency compares the actual charge inducted to the theoretical full-cylinder charge at atmospheric conditions — supercharging/turbocharging exists specifically to push volumetric efficiency (and therefore power) above what a naturally aspirated engine can achieve."
+     ],
+     "formula": {
+      "label": "Indicated horsepower (PLANK)",
+      "body": "IHP = (P × L × A × N × K) ÷ 33,000<br>P = mean effective pressure (psi) · L = stroke (ft) · A = piston area (in²) · N = power strokes/min (rpm÷2 for 4-stroke) · K = number of cylinders"
+     }
+    },
+    {
+     "id": "engine_fuel_and_fuel_metering",
+     "title": "Engine Fuel and Fuel Metering",
+     "highPriority": false,
+     "points": [
+      "Float-type carburetors meter fuel through a venturi using the pressure drop created by airflow (Bernoulli/venturi principle); a float and needle valve keep fuel at a constant level in the float chamber so metering stays consistent.",
+      "Carburetor icing can occur even in clear air with humid conditions roughly in the 20–90°F range, from the combined effect of fuel vaporization cooling and the venturi's pressure drop — carburetor heat (unfiltered, heated air) is the standard remedy/preventive.",
+      "Pressure-injection carburetors and fuel-injection systems meter fuel more precisely than a float carb and are far less prone to icing since fuel isn't evaporating in a low-pressure venturi throat ahead of the cylinders.",
+      "Continuous-flow fuel injection (e.g., Continental/TCM-style systems) uses a fuel/air control unit and a flow divider to distribute metered fuel continuously to injector nozzles at each cylinder.",
+      "Turbine fuel control units schedule fuel flow against engine speed, compressor discharge pressure, and other sensed parameters; hydromechanical units have been progressively supplemented or replaced by FADEC (Full Authority Digital Engine Control), which manages fuel scheduling, and often ignition and other engine parameters, electronically."
+     ]
+    },
+    {
+     "id": "induction_supercharging_and_turbocharging",
+     "title": "Induction, Supercharging, and Turbocharging",
+     "highPriority": false,
+     "points": [
+      "The induction system routes air (and, for carbureted engines, the fuel/air mixture) from the intake to each cylinder; induction icing and filtering (alternate air sources) are key inspection/operating concerns.",
+      "An internally-driven (gear-driven) supercharger is mechanically powered directly off the engine and boosts intake pressure at the cost of engine power to drive it.",
+      "A turbocharger uses exhaust-gas energy to spin a turbine that drives a compressor — it recovers otherwise-wasted exhaust energy, but adds exhaust-system complexity and heat management concerns.",
+      "Manifold pressure (measured in inches of mercury, \"Hg) indicates the absolute pressure of the fuel/air charge in the intake manifold and is a primary power-setting reference, especially on constant-speed-prop, turbocharged installations.",
+      "Turbocharger controllers (e.g., variable absolute pressure controllers, sloped controllers) regulate wastegate position to hold the desired manifold pressure across changing altitude and power settings."
+     ]
+    },
+    {
+     "id": "exhaust_systems",
+     "title": "Exhaust Systems",
+     "highPriority": false,
+     "points": [
+      "Reciprocating-engine exhaust systems route hot exhaust gas overboard, often through a muffler that also provides cabin heat via a shroud/heat exchanger — these are inspected closely for cracks because a leak can introduce carbon monoxide into the cabin heat system.",
+      "Augmentor exhaust systems use exhaust flow to help pull cooling air through the engine compartment on some installations.",
+      "Turbine exhaust nozzles are either convergent (subsonic exit velocity, most common) or convergent-divergent (used where supersonic exhaust velocity is required).",
+      "Thrust reversers redirect (turboprop/turbofan) or block and redirect (some turbojet designs) exhaust flow forward to aid deceleration on landing; they are interlocked so they can't deploy in flight.",
+      "Afterburning/thrust augmentation injects and burns additional fuel in the tailpipe downstream of the turbine for a large, short-duration thrust increase at a significant fuel-consumption penalty."
+     ]
+    },
+    {
+     "id": "ignition_systems",
+     "title": "Ignition Systems",
+     "highPriority": true,
+     "points": [
+      "A magneto is a self-contained AC generator and ignition-timing device in one: rotating magnets induce a primary current, breaker points interrupt it at precisely the right instant, and that collapsing field induces a high-voltage secondary pulse to the spark plug — no battery is needed once the engine is running.",
+      "Most certificated piston engines use dual magneto systems (two independent magnetos, each firing one plug per cylinder) for redundancy — a mag check during runup is meant to reveal an rpm drop consistent with one system's normal contribution, not an excessive drop that points to a fault.",
+      "An impulse coupling retards the spark and stores spring energy, then releases it as a sharp \"snap\" to spin the magneto fast enough to produce a hot spark for starting at cranking speed, when engine rpm alone would be too slow.",
+      "The E-gap is the point of rotor rotation past neutral where breaker points are timed to open for maximum induced voltage; internal (bench) timing sets this before the magneto is timed to the engine.",
+      "Spark plug fouling is diagnosed by deposit type — carbon fouling (rich mixture/idling), oil fouling (excess oil past worn rings/guides), and lead fouling (leaded fuel deposits) each point toward a different underlying cause.",
+      "Turbine ignition uses a high-energy capacitor-discharge exciter feeding igniter plugs — normally needed only for starting, though continuous ignition is selected during takeoff/landing or in icing/precipitation conditions where a flameout risk exists."
+     ]
+    },
+    {
+     "id": "engine_starting_systems",
+     "title": "Engine Starting Systems",
+     "highPriority": false,
+     "points": [
+      "Direct-cranking electric starters engage the engine (through a Bendix drive or similar) and crank it directly from battery/external power — the standard method on most piston GA aircraft.",
+      "A starter-generator combines both functions in one unit on many turbine engines: it cranks the engine to start, then automatically switches over to generate electrical power once the engine is running.",
+      "Air turbine starters use compressed air (from an APU, ground cart, or a running engine's bleed air through a cross-bleed start) spun through a small turbine geared down to crank the engine — common on larger turbine aircraft.",
+      "Inertia starters (largely historical) store energy by spinning a flywheel (by hand crank or electric motor) and then engage it to deliver a burst of cranking energy.",
+      "Starting-system troubleshooting typically works through the same chain regardless of type: power source and switching, the starter/clutch or drive mechanism itself, and correct engagement/disengagement timing."
+     ]
+    },
+    {
+     "id": "lubrication_systems",
+     "title": "Lubrication Systems",
+     "highPriority": false,
+     "points": [
+      "Wet-sump systems store oil in a sump that's part of the engine itself; dry-sump systems (common on radials, many turbines, and higher-performance installations) store oil in a separate external tank with scavenge pumps returning oil from the engine to the tank, which better manages oil under varying attitudes/g-loads.",
+      "A pressure pump (usually gear type) supplies oil under pressure to bearings and other lubricated points; a pressure relief valve holds system pressure within limits regardless of engine speed.",
+      "An oil cooler (often with a thermostatic bypass valve) removes excess heat from the oil; oil temperature and pressure gauges are primary engine-health indicators monitored throughout every flight.",
+      "Ashless-dispersant (AD) oils suspend combustion byproducts and wear particles in suspension rather than letting them settle, so they can be captured by the filter and removed at oil changes — standard for most certificated piston aircraft engines.",
+      "Spectrometric Oil Analysis Program (SOAP) testing measures trace wear-metal content in an oil sample over successive intervals to catch developing internal wear before it becomes a failure — a rising trend matters more than any single data point."
+     ]
+    },
+    {
+     "id": "engine_cooling_systems",
+     "title": "Engine Cooling Systems",
+     "highPriority": false,
+     "points": [
+      "Most reciprocating aircraft engines are air-cooled: cooling fins on cylinders/heads increase surface area, and baffles/deflectors force cooling air to actually flow across those fins rather than around the engine.",
+      "Cowl flaps adjust cooling airflow (open for more cooling at low airspeed/high power, e.g. climb; closed to reduce drag at cruise) and are a direct pilot/mechanic control over cylinder head temperature.",
+      "Liquid-cooled aircraft engines (e.g., some modern diesel and a few historical high-power designs) transfer heat to a coolant that's then cooled through a radiator, allowing more uniform cylinder temperatures at the cost of added weight and complexity.",
+      "Cylinder head temperature (CHT) is the direct operating limit that cooling-system adjustments are managing; consistently high CHT accelerates wear and risks detonation.",
+      "Cowling condition (proper fit, seals, and baffle integrity) has a large, easily overlooked effect on cooling — a cracked baffle or missing seal can starve one cylinder of airflow even when overall engine cooling looks adequate."
+     ]
+    },
+    {
+     "id": "turbine_engine_theory_and_sections",
+     "title": "Turbine Engine Theory and Sections",
+     "highPriority": true,
+     "points": [
+      "Gas turbines run on the Brayton cycle: continuous, constant-pressure combustion, as opposed to the reciprocating engine's intermittent constant-volume combustion — this is why turbines can be built to run smoothly at very high mass flow with far less vibration.",
+      "The engine flow path runs through five functional sections: <b>inlet</b> → <b>compressor</b> (centrifugal, axial, or a combination) → <b>combustor</b> (can, annular, or can-annular) → <b>turbine</b> → <b>exhaust</b>.",
+      "Centrifugal compressors are simple, rugged, and tolerant, achieving a high pressure rise per stage but at a larger frontal area; axial compressors (multiple stages of rotating blades/stationary vanes) are more efficient and better suited to high-bypass, high-thrust engines despite more parts and complexity.",
+      "N1 refers to the low-pressure spool's rotational speed (fan/low-pressure compressor and the low-pressure turbine driving it); N2 (or N3 on triple-spool engines) refers to the high-pressure spool (core compressor and its driving turbine) — each spool is mechanically independent, connected only by gas flow.",
+      "EGT (exhaust gas temperature) or ITT (interstage/turbine inlet temperature, depending on where it's measured) is a critical operating limit protecting the hot-section turbine components from thermal damage — it's watched especially closely during start and at high power settings.",
+      "Basic thrust equation: thrust is fundamentally the mass flow of air through the engine multiplied by the change in its velocity (Newton's second/third laws again) — more mass flow, more velocity change, or both, means more thrust."
+     ]
+    },
+    {
+     "id": "turbine_engine_types",
+     "title": "Turbine Engine Types",
+     "highPriority": false,
+     "points": [
+      "Turbojet: all the airflow passes through the core and produces thrust as high-velocity exhaust — efficient at high speed but noisy and fuel-thirsty at lower speeds; rare in current production aircraft.",
+      "Turbofan: a large-diameter fan (driven by the low-pressure turbine) accelerates a bypass airflow around the core in addition to the core's own exhaust — the bypass ratio (bypass air flow to core air flow) trades top speed for efficiency and quietness; most modern airline/business-jet engines are high or medium-bypass turbofans.",
+      "Turboprop: a turbine core drives a propeller through a reduction gearbox — efficient in the roughly 180–350 mph range, common on regional airliners and many business/utility aircraft.",
+      "Turboshaft: similar to a turboprop but the output shaft drives something other than a propeller directly — most notably a helicopter's main and tail rotors through a freewheeling unit and transmission.",
+      "An APU (auxiliary power unit) is a small turbine engine, typically in the tail or another compartment, that supplies electrical power, bleed air (for engine starting and cabin air), or both while the main engines are shut down."
+     ]
+    },
+    {
+     "id": "propellers",
+     "title": "Propellers",
+     "highPriority": true,
+     "points": [
+      "A fixed-pitch propeller has one blade angle for its entire operating range — simple and light, but a compromise between climb and cruise performance; a constant-speed propeller uses a governor to vary blade angle continuously, holding a selected rpm across changing airspeed/power.",
+      "The propeller governor senses engine rpm and adjusts oil pressure to the propeller hub to increase or decrease blade angle, maintaining the pilot-selected rpm as load changes (e.g., in a climb or descent).",
+      "Feathering rotates the blades nearly parallel to the airflow to stop windmilling drag after an engine failure (multi-engine aircraft) or at shutdown (many turboprops) — feathering springs/counterweights and governor logic are specifically designed into the mechanism for this.",
+      "P-factor is the asymmetric thrust produced when the descending propeller blade (typically on the right side, seen from the cockpit, for a standard clockwise-rotating engine) has a higher angle of attack than the ascending blade at high power/high angle of attack — it's a rigging/handling concept mechanics need to recognize even though it's primarily a pilot-technique topic.",
+      "Torque reaction and gyroscopic precession are the other classic propeller-effect forces: torque reaction tends to roll the airframe opposite the propeller's rotation, and gyroscopic precession causes a pitch or yaw response (roughly 90° ahead, in the direction of rotation) whenever a force tries to tilt the spinning propeller disc.",
+      "Propeller inspection checks blade condition (nicks, cracks, erosion — especially on the leading edge and near the tip, where stress concentration is highest), track and balance, and hub/mounting security."
+     ]
+    },
+    {
+     "id": "engine_instruments",
+     "title": "Engine Instruments",
+     "highPriority": false,
+     "points": [
+      "Tachometer reads engine rpm directly (mechanical, electrical, or via a magnetic pickup) and, on constant-speed-prop installations, is set by the governor rather than throttle alone.",
+      "Manifold pressure gauge reads absolute pressure in the intake manifold ('Hg) — on a normally aspirated engine at idle it's low, and at full static power it approaches (but doesn't exceed) local atmospheric pressure; on a turbo/supercharged engine it can exceed atmospheric.",
+      "CHT (cylinder head temperature) and oil temperature/pressure are the primary piston-engine health gauges; EGT is used mainly for leaning the mixture on piston engines and as a limit indication (or ITT) on turbines.",
+      "Fuel flow (and, on many installations, fuel pressure) indication helps verify correct mixture and catch a developing fuel-delivery problem before it becomes an in-flight emergency.",
+      "Engine instrument markings (green arc for normal, yellow caution, red line limit) must match the aircraft's approved operating limitations — a mechanic confirms these markings are correct as part of instrument/inspection work, not just that the gauge itself functions."
+     ]
+    },
+    {
+     "id": "engine_fire_protection",
+     "title": "Engine Fire Protection",
+     "highPriority": false,
+     "points": [
+      "Engine compartments are treated as distinct fire zones based on airflow, ventilation, and the presence of flammable fluids/lines — detection and suppression requirements scale with that risk assessment.",
+      "Detection methods mirror the airframe systems: spot/thermal-switch detectors trip at a set temperature, while continuous-loop sensing elements (eutectic-salt or thermocouple-type) respond anywhere along their length and can also sense rate-of-rise, giving broader, faster coverage across the compartment.",
+      "A firewall separates the engine from the rest of the airframe and is built from fire-resistant material (stainless steel/titanium) specifically to slow fire spread and protect the airframe structure and occupants.",
+      "Fixed extinguishing systems discharge a stored agent into the engine compartment on crew command, sized to reach an extinguishing concentration quickly in that specific zone's volume and ventilation rate.",
+      "Fire-detection system checks (continuity/functional test of loops and warning circuits) are a standard, required inspection item precisely because the system has to work correctly on the one time it's actually needed."
+     ]
+    },
+    {
+     "id": "engine_inspection_removal_and_maintenance",
+     "title": "Engine Inspection, Removal, and Maintenance",
+     "highPriority": true,
+     "points": [
+      "A differential compression test compares the pressure held in a cylinder (piston at TDC compression) against a known applied air pressure through a calibrated orifice — it's a quick way to estimate how well rings, valves, and the cylinder seal, though the trend over time and a check for the specific leak path (via a stethoscope at the exhaust, intake, or breather) matters as much as one reading.",
+      "Borescope inspection lets a mechanic look inside cylinders (piston/valve condition) or a turbine's hot section (blades, combustor) without disassembly — a major tool for condition-based maintenance between scheduled overhauls.",
+      "TBO (time between overhauls) is the manufacturer's recommended overhaul interval; for Part 91 operators it's advisory rather than mandatory unless specifically required (e.g., by an AD, by the aircraft's operations specifications, or by a maintenance program the operator has committed to).",
+      "Engine mounts isolate airframe structure from engine vibration and carry the engine's full thrust/weight loads to the airframe; mount condition (cracks, bushing wear, corrosion) is inspected specifically because a failure here is catastrophic.",
+      "A QEC (quick-engine-change) assembly packages the engine with its accessories, mount, and cowling as a unit to minimize aircraft downtime during an engine swap, common in commercial/military operations.",
+      "Post-maintenance/pre-flight run-up checks (mag drop, idle, power response, instrument indications, control checks on a constant-speed prop) are the final verification that maintenance work was done correctly before the aircraft returns to service."
+     ]
+    }
+   ]
+  }
+ ]
+}

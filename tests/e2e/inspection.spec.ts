@@ -321,3 +321,44 @@ test('during an inspection the diagram shows what the work order requires and wh
     'examine',
   )
 })
+
+test('the A&P study guide shows every area, searches, and remembers reviewed topics', async ({
+  page,
+}) => {
+  await page.goto('./?e2e=1')
+  await page.getByRole('button', { name: 'A&P study guide' }).click()
+  const guide = page.getByRole('dialog', { name: 'A&P study guide' })
+  await expect(guide.getByRole('heading', { name: /Basic Electricity/ })).toBeVisible()
+  await expect(guide.getByText('not A320 maintenance data')).toBeVisible()
+  await expect(guide.locator('.study__formula')).toContainText('P = I × E')
+  await expect(guide.getByText('0 of 40 topics reviewed')).toBeVisible()
+
+  await guide.getByRole('button', { name: 'Powerplant', exact: true }).click()
+  await expect(guide.getByRole('navigation').getByRole('listitem')).toHaveCount(16)
+  await guide.getByRole('button', { name: 'Propellers' }).click()
+  await expect(guide.getByRole('heading', { name: /Propellers/ })).toContainText('High priority')
+
+  await guide.getByLabel('Search all topics').fill('magneto')
+  await expect(guide.getByRole('status')).toContainText('found')
+  await guide.getByRole('navigation').getByRole('button', { name: 'Ignition Systems' }).click()
+  await expect(guide.getByRole('heading', { name: /Ignition Systems/ })).toBeVisible()
+
+  await guide.getByRole('button', { name: 'Mark as reviewed' }).click()
+  await expect(guide.getByText('1 of 40 topics reviewed')).toBeVisible()
+  await page.reload()
+  await page.getByRole('button', { name: 'A&P study guide' }).click()
+  await expect(guide.getByText('1 of 40 topics reviewed')).toBeVisible()
+})
+
+test('study topics and library chapters link to each other', async ({ page }) => {
+  await page.goto('./?e2e=1')
+  await page.getByRole('button', { name: 'Technical library' }).click()
+  const library = page.getByRole('dialog', { name: 'Technical library' })
+  await library.getByRole('button', { name: /32 Landing Gear/ }).click()
+  await library.getByRole('button', { name: 'Landing Gear Systems' }).click()
+
+  const guide = page.getByRole('dialog', { name: 'A&P study guide' })
+  await expect(guide.getByRole('heading', { name: /Landing Gear Systems/ })).toBeVisible()
+  await guide.getByRole('button', { name: /ATA 32/ }).click()
+  await expect(library.getByRole('heading', { name: /ATA 32 Landing Gear/ })).toBeVisible()
+})
