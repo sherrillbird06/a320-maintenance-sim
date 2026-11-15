@@ -11,6 +11,8 @@ import {
 import { STUDY_QUESTIONS, questionsForArea, questionsForTopic } from '../data/studyQuestions'
 import { buildQuiz, missedQuestions, type QuizItem } from '../sim/quiz'
 import { sourceById } from '../data/sources'
+import { CHECKED_POINT_COUNT, checksFor } from '../data/studyChecks'
+import { STUDY_CORRECTIONS } from '../data/studyCorrections'
 import { parseRich } from '../sim/richText'
 import { useStudy } from '../state/study'
 import { useView, view } from '../state/useSession'
@@ -182,8 +184,10 @@ export function StudyGuide() {
       <article className="library__page" hidden={quiz !== null}>
         <p className="library__notice">
           Review notes for the FAA aviation mechanic knowledge tests, supplied by the project owner.
-          General study material, not A320 maintenance data. Points marked “Corrected” have been
-          checked against an FAA document; the rest has not yet been checked line by line.
+          General study material, not A320 maintenance data. Of its{' '}
+          {STUDY_TOPICS.reduce((sum, t) => sum + t.points.length, 0)} points, {CHECKED_POINT_COUNT}{' '}
+          are marked “Checked” (found to agree with an FAA handbook) and {STUDY_CORRECTIONS.length}{' '}
+          “Corrected”. The rest has not yet been checked.
         </p>
 
         <p className="study__area-label mono">{topicArea.label}</p>
@@ -199,6 +203,15 @@ export function StudyGuide() {
           {topic.points.map((point, index) => (
             <li key={point}>
               <Rich text={point} />
+              {checksFor(topic.id, index).map((sourceId) => (
+                <p key={sourceId} className="study__correction">
+                  <span className="chip chip--done">Checked</span> Agrees with{' '}
+                  <a href={sourceById(sourceId)?.url} target="_blank" rel="noreferrer">
+                    {sourceById(sourceId)?.title}
+                  </a>
+                  .
+                </p>
+              ))}
               {topic.corrections
                 .filter((c) => c.point === index)
                 .map((c) => (

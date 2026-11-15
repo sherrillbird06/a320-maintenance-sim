@@ -28,7 +28,7 @@ simulator contains no approved maintenance data.
 - **Publisher:** Federal Aviation Administration
 - **Link:** <https://www.faa.gov/regulations_policies/handbooks_manuals/aviation>
 - **Licence:** U.S. Government work, public domain
-- **Used for:** General inspection concepts, corrosion, hardware, documentation practice.
+- **Used for:** General inspection concepts, corrosion, hardware, documentation practice. Also used to check points of the A&P study guide.
 
 ## Aviation Maintenance Technician Handbook – Airframe (FAA-H-8083-31B)
 
@@ -36,7 +36,7 @@ simulator contains no approved maintenance data.
 - **Publisher:** Federal Aviation Administration
 - **Link:** <https://www.faa.gov/regulations_policies/handbooks_manuals/aviation>
 - **Licence:** U.S. Government work, public domain
-- **Used for:** General knowledge of structures, flight controls, landing gear, hydraulics, fuel and cabin systems.
+- **Used for:** General knowledge of structures, flight controls, landing gear, hydraulics, fuel and cabin systems. Also used to check points of the A&P study guide.
 
 ## Aviation Maintenance Technician Handbook – Powerplant (FAA-H-8083-32B)
 
@@ -44,7 +44,7 @@ simulator contains no approved maintenance data.
 - **Publisher:** Federal Aviation Administration
 - **Link:** <https://www.faa.gov/regulations_policies/handbooks_manuals/aviation>
 - **Licence:** U.S. Government work, public domain
-- **Used for:** General knowledge of turbine engines, engine inspection and auxiliary power units.
+- **Used for:** General knowledge of turbine engines, engine inspection and auxiliary power units. Also used to check points of the A&P study guide.
 
 ## Advisory Circular 43.13-1B, Acceptable Methods, Techniques, and Practices – Aircraft Inspection and Repair
 

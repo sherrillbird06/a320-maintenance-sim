@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { libraryPage } from '../../src/data/library'
 import { SOURCES } from '../../src/data/sources'
+import { CHECKED_POINT_COUNT, STUDY_CHECKS, checksFor } from '../../src/data/studyChecks'
 import { STUDY_CORRECTIONS } from '../../src/data/studyCorrections'
 import { STUDY_GUIDE_AS_SUPPLIED } from '../../src/data/studyGuide'
 import {
@@ -256,5 +257,32 @@ describe('study guide corrections', () => {
     }
     expect(studyTopic('propellers')?.corrections).toEqual([])
     expect(studyTopic('fasteners_and_hardware')?.corrections).toHaveLength(2)
+    expect(STUDY_CORRECTIONS).toHaveLength(8)
+  })
+})
+
+describe('study guide checks', () => {
+  it('names only real topics, points and sources, each point once', () => {
+    for (const [topicId, bySource] of Object.entries(STUDY_CHECKS)) {
+      const topic = studyTopic(topicId)
+      expect(topic, topicId).toBeDefined()
+      for (const [sourceId, points] of Object.entries(bySource)) {
+        expect(SOURCES.map((s) => s.id)).toContain(sourceId)
+        expect(new Set(points).size, topicId).toBe(points.length)
+        for (const point of points)
+          expect(topic?.points[point], `${topicId}/${point}`).toBeDefined()
+      }
+    }
+  })
+
+  it('never marks a corrected point as agreeing with the source', () => {
+    for (const correction of STUDY_CORRECTIONS)
+      expect(checksFor(correction.topicId, correction.point)).toEqual([])
+  })
+
+  it('counts the checked points', () => {
+    expect(CHECKED_POINT_COUNT).toBe(48)
+    expect(checksFor('basic_electricity', 0)).toEqual(['faa_amt_general'])
+    expect(checksFor('propellers', 0)).toEqual([])
   })
 })

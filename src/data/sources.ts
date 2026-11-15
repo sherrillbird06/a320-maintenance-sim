@@ -33,7 +33,8 @@ export const SOURCES: Source[] = [
     publisher: 'Federal Aviation Administration',
     url: FAA_HANDBOOKS,
     licence: US_GOV,
-    usedFor: 'General inspection concepts, corrosion, hardware, documentation practice.',
+    usedFor:
+      'General inspection concepts, corrosion, hardware, documentation practice. Also used to check points of the A&P study guide.',
   },
   {
     id: 'faa_amt_airframe',
@@ -42,7 +43,7 @@ export const SOURCES: Source[] = [
     url: FAA_HANDBOOKS,
     licence: US_GOV,
     usedFor:
-      'General knowledge of structures, flight controls, landing gear, hydraulics, fuel and cabin systems.',
+      'General knowledge of structures, flight controls, landing gear, hydraulics, fuel and cabin systems. Also used to check points of the A&P study guide.',
   },
   {
     id: 'faa_amt_powerplant',
@@ -50,7 +51,8 @@ export const SOURCES: Source[] = [
     publisher: 'Federal Aviation Administration',
     url: FAA_HANDBOOKS,
     licence: US_GOV,
-    usedFor: 'General knowledge of turbine engines, engine inspection and auxiliary power units.',
+    usedFor:
+      'General knowledge of turbine engines, engine inspection and auxiliary power units. Also used to check points of the A&P study guide.',
   },
   {
     id: 'faa_ac_43_13_1b',
