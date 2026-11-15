@@ -87,4 +87,12 @@ export const STUDY_CORRECTIONS: StudyCorrection[] = [
     sourceId: 'faa_amt_powerplant',
     citation: 'FAA-H-8083-32B, Chapter 2, carburetor icing',
   },
+  {
+    topicId: 'welding_brazing_and_soldering',
+    point: 4,
+    from: "melts above 840°F but below the base metal's melting point; soldering uses filler that melts below 840°F",
+    to: "melts above 800°F but below the base metal's melting point; soldering uses filler that melts below 800°F",
+    sourceId: 'faa_amt_airframe',
+    citation: 'FAA-H-8083-31B, Chapter 5, brazing and soldering',
+  },
 ]

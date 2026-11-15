@@ -257,7 +257,7 @@ describe('study guide corrections', () => {
     }
     expect(studyTopic('propellers')?.corrections).toEqual([])
     expect(studyTopic('fasteners_and_hardware')?.corrections).toHaveLength(2)
-    expect(STUDY_CORRECTIONS).toHaveLength(8)
+    expect(STUDY_CORRECTIONS).toHaveLength(9)
   })
 })
 
@@ -281,7 +281,7 @@ describe('study guide checks', () => {
   })
 
   it('counts the checked points', () => {
-    expect(CHECKED_POINT_COUNT).toBe(48)
+    expect(CHECKED_POINT_COUNT).toBe(75)
     expect(checksFor('basic_electricity', 0)).toEqual(['faa_amt_general'])
     expect(checksFor('propellers', 0)).toEqual([])
   })

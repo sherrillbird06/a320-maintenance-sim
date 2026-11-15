@@ -446,8 +446,8 @@ const BY_TOPIC: Record<string, [Row, Row, Row]> = {
     [
       4,
       'Which filler melting temperature separates brazing from soldering?',
-      ['840°F', '450°F', '1,200°F', '2,000°F'],
-      'Brazing filler melts above 840°F but below the base metal; soldering filler melts below 840°F.',
+      ['800°F', '450°F', '1,200°F', '2,000°F'],
+      'In the FAA Airframe handbook, brazing filler melts above 800°F but below the base metal, and soldering filler melts below 800°F.',
     ],
     [
       1,
